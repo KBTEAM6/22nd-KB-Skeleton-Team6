@@ -1,0 +1,195 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "한승연",
+      "email": "seungyeon@example.com",
+      "password": "1234"
+    },
+    {
+      "id": 2,
+      "name": "김민수",
+      "email": "minsu@example.com",
+      "password": "1234"
+    },
+    {
+      "id": 3,
+      "name": "박지연",
+      "email": "jiyeon@example.com",
+      "password": "1234"
+    },
+    {
+      "id": 4,
+      "name": "이도현",
+      "email": "dohyun@example.com",
+      "password": "1234"
+    }
+  ],
+  "transactions": [
+    {
+      "id": 1,
+      "userId": 1,
+      "date": "2026-04-01",
+      "type": "income",
+      "category": "월급",
+      "amount": 2700000,
+      "memo": "4월 급여"
+    },
+    {
+      "id": 2,
+      "userId": 1,
+      "date": "2026-04-01",
+      "type": "expense",
+      "category": "교통차량",
+      "amount": 1500,
+      "memo": "버스"
+    },
+    {
+      "id": 3,
+      "userId": 1,
+      "date": "2026-04-01",
+      "type": "expense",
+      "category": "식비",
+      "amount": 30000,
+      "memo": "점심"
+    },
+    {
+      "id": 4,
+      "userId": 1,
+      "date": "2026-04-03",
+      "type": "expense",
+      "category": "주거통신",
+      "amount": 700000,
+      "memo": "월세"
+    },
+    {
+      "id": 5,
+      "userId": 1,
+      "date": "2026-04-08",
+      "type": "income",
+      "category": "부수입",
+      "amount": 150000,
+      "memo": "용돈"
+    },
+    {
+      "id": 6,
+      "userId": 2,
+      "date": "2026-04-02",
+      "type": "income",
+      "category": "월급",
+      "amount": 3200000,
+      "memo": "4월 급여"
+    },
+    {
+      "id": 7,
+      "userId": 2,
+      "date": "2026-04-03",
+      "type": "expense",
+      "category": "주거통신",
+      "amount": 850000,
+      "memo": "월세"
+    },
+    {
+      "id": 8,
+      "userId": 2,
+      "date": "2026-04-07",
+      "type": "expense",
+      "category": "식비",
+      "amount": 42000,
+      "memo": "저녁"
+    },
+    {
+      "id": 9,
+      "userId": 3,
+      "date": "2026-04-01",
+      "type": "income",
+      "category": "월급",
+      "amount": 2500000,
+      "memo": "4월 급여"
+    },
+    {
+      "id": 10,
+      "userId": 3,
+      "date": "2026-04-05",
+      "type": "expense",
+      "category": "쇼핑생활",
+      "amount": 120000,
+      "memo": "생활용품"
+    },
+    {
+      "id": 11,
+      "userId": 4,
+      "date": "2026-04-01",
+      "type": "income",
+      "category": "월급",
+      "amount": 2900000,
+      "memo": "4월 급여"
+    },
+    {
+      "id": 12,
+      "userId": 4,
+      "date": "2026-04-06",
+      "type": "expense",
+      "category": "문화여가",
+      "amount": 80000,
+      "memo": "영화"
+    }
+  ],
+  "friendRequests": [
+    {
+      "id": 1,
+      "requesterId": 2,
+      "targetUserId": 1,
+      "status": "pending",
+      "createdAt": "2026-04-07T10:00:00"
+    },
+    {
+      "id": 2,
+      "requesterId": 3,
+      "targetUserId": 1,
+      "status": "rejected",
+      "createdAt": "2026-04-05T15:30:00"
+    }
+  ],
+  "friends": [
+    {
+      "id": 1,
+      "userId": 1,
+      "friendUserId": 2,
+      "createdAt": "2026-04-01T09:00:00"
+    },
+    {
+      "id": 2,
+      "userId": 2,
+      "friendUserId": 1,
+      "createdAt": "2026-04-01T09:00:00"
+    },
+    {
+      "id": 3,
+      "userId": 1,
+      "friendUserId": 4,
+      "createdAt": "2026-04-03T11:00:00"
+    },
+    {
+      "id": 4,
+      "userId": 4,
+      "friendUserId": 1,
+      "createdAt": "2026-04-03T11:00:00"
+    }
+  ],
+  "categories": {
+    "income": [
+      "월급",
+      "부수입"
+    ],
+    "expense": [
+      "식비",
+      "주거통신",
+      "교통차량",
+      "쇼핑생활",
+      "의료건강",
+      "문화여가",
+      "기타"
+    ]
+  }
+}
