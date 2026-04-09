@@ -1,4 +1,8 @@
 <template>
+  <!--
+    마이페이지 왼쪽 카드 영역
+    현재 로그인 사용자 요약 정보만 보여주는 순수 표시 컴포넌트다.
+  -->
   <div
     class="d-flex flex-column align-items-center bg-white p-4 p-lg-5 shadow-sm border h-100"
     style="border-radius: 2rem"
@@ -26,13 +30,17 @@
 import { computed } from 'vue';
 
 const props = defineProps({
+  // 부모(MyPageContent)에서 현재 로그인 사용자 정보를 그대로 내려준다.
   user: {
     type: Object,
     default: () => ({}),
   },
 });
 
+// 이름이 없을 경우를 대비해 fallback을 둔다.
 const displayName = computed(() => props.user?.name || props.user?.nickname || '사용자');
+
+// 프로필 뱃지에 표시할 첫 글자
 const userInitial = computed(() => displayName.value.charAt(0).toUpperCase());
 </script>
 

@@ -1,17 +1,23 @@
-/**
- * @fileoverview 인증 관련 API 함수들
- * @description 사용자 로그인, 회원가입, 조회 등의 인증 기능을 제공하는 API 모듈
- */
-
 import api from './api';
 
 /**
- * 이메일로 사용자 조회
- * @param {string} email - 조회할 사용자 이메일
- * @returns {Promise<Array>} 사용자 배열 (일반적으로 1개 또는 빈 배열)
- * @example
- * const users = await findUserByEmail('user@example.com');
- * // [{ id: 1, email: 'user@example.com', name: '사용자', ... }]
+ * 인증/사용자 관련 API 모듈
+ *
+ * 이 파일은 "서버에 어떤 요청을 보낼지"만 담당한다.
+ * 로그인 성공/실패 판단, 입력값 검증, 스토리지 저장 같은 비즈니스 로직은
+ * store(auth.js)에서 처리하고, 여기서는 HTTP 요청만 분리한다.
+ */
+
+/**
+ * 이메일로 사용자를 조회한다.
+ *
+ * json-server에서는 /users?email=a@b.com 형태의 쿼리로
+ * 조건에 맞는 사용자 배열을 반환하므로, 단건 조회처럼 보여도
+ * 반환 타입은 항상 배열이다.
+ *
+ * 사용처:
+ * - 로그인 시 이메일 존재 여부 확인
+ * - 회원가입/프로필 수정 시 이메일 중복 확인
  */
 export const findUserByEmail = async (email) => {
   const response = await api.get('/users', {
@@ -22,20 +28,13 @@ export const findUserByEmail = async (email) => {
 };
 
 /**
- * 새 사용자 생성 (회원가입)
- * @param {Object} userData - 사용자 정보
- * @param {string} userData.name - 사용자 이름
- * @param {string} userData.email - 사용자 이메일
- * @param {string} userData.password - 사용자 비밀번호
- * @param {string} userData.createdAt - 가입일시 (ISO string)
- * @returns {Promise<Object>} 생성된 사용자 정보
- * @example
- * const newUser = await createUser({
- *   name: '홍길동',
- *   email: 'hong@example.com',
- *   password: 'password123',
- *   createdAt: '2024-01-01T00:00:00.000Z'
- * });
+ * 새 사용자를 생성한다.
+ *
+ * 회원가입 페이지에서 받은 name/email/phone/password/createdAt 값을
+ * 그대로 서버에 전달한다.
+ *
+ * 사용처:
+ * - 회원가입 성공 시 users 컬렉션에 새 사용자 추가
  */
 export const createUser = async (userData) => {
   const response = await api.post('/users', userData);
@@ -43,12 +42,13 @@ export const createUser = async (userData) => {
 };
 
 /**
- * ID로 사용자 조회
- * @param {number|string} id - 사용자 ID
- * @returns {Promise<Object>} 사용자 정보
- * @example
- * const user = await getUserById(1);
- * // { id: 1, name: '홍길동', email: 'hong@example.com', ... }
+ * id로 특정 사용자 한 명을 조회한다.
+ *
+ * 프로필 수정은 PUT 방식으로 "사용자 전체 객체"를 다시 보내기 때문에,
+ * 먼저 현재 서버에 저장된 사용자 전체 데이터를 가져와야 한다.
+ *
+ * 사용처:
+ * - 프로필 수정 전 현재 사용자 원본 데이터 조회
  */
 export const getUserById = async (id) => {
   const response = await api.get(`/users/${id}`);
@@ -56,10 +56,13 @@ export const getUserById = async (id) => {
 };
 
 /**
- * 사용자 정보 전체 수정
- * @param {number|string} id - 사용자 ID
- * @param {Object} userData - 전체 사용자 정보
- * @returns {Promise<Object>} 수정된 사용자 정보
+ * 사용자 정보를 전체 교체(PUT) 방식으로 수정한다.
+ *
+ * PATCH가 아닌 PUT을 사용하므로, 수정할 필드만 보내는 것이 아니라
+ * 최종적으로 저장되어야 하는 사용자 전체 객체를 보내야 한다.
+ *
+ * 사용처:
+ * - 마이페이지에서 이름/이메일/전화번호 수정 저장
  */
 export const updateUser = async (id, userData) => {
   const response = await api.put(`/users/${id}`, userData);
