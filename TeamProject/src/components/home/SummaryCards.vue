@@ -1,6 +1,82 @@
+<template>
+  <div :class="vertical ? 'd-flex flex-column gap-3' : 'row g-3'">
+    <div :class="vertical ? '' : 'col-12 col-md-4'">
+      <div class="bg-white rounded-4 p-4 shadow-sm h-100">
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <div
+            class="d-flex align-items-center justify-content-center rounded bg-primary bg-opacity-10"
+            style="width: 32px; height: 32px"
+          >
+            <TrendingUp
+              class="text-primary"
+              style="width: 16px; height: 16px"
+            />
+          </div>
+          <span class="small fw-medium text-muted">총 수입</span>
+        </div>
+        <div class="fs-4 fw-bold text-primary" style="padding-left: 44px">
+          +{{ totalIncome.toLocaleString() }}원
+        </div>
+      </div>
+    </div>
+
+    <div :class="vertical ? '' : 'col-12 col-md-4'">
+      <div class="bg-white rounded-4 p-4 shadow-sm h-100">
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <div
+            class="d-flex align-items-center justify-content-center rounded"
+            style="
+              width: 32px;
+              height: 32px;
+              background-color: rgba(240, 68, 82, 0.1);
+            "
+          >
+            <TrendingDown
+              style="width: 16px; height: 16px; color: rgb(240, 68, 82)"
+            />
+          </div>
+          <span class="small fw-medium text-muted">총 지출</span>
+        </div>
+        <div
+          class="fs-4 fw-bold"
+          style="padding-left: 44px; color: rgb(240, 68, 82)"
+        >
+          -{{ totalExpense.toLocaleString() }}원
+        </div>
+      </div>
+    </div>
+
+    <div :class="vertical ? '' : 'col-12 col-md-4'">
+      <div class="bg-white rounded-4 p-4 shadow-sm h-100">
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <div
+            class="d-flex align-items-center justify-content-center rounded"
+            style="
+              width: 32px;
+              height: 32px;
+              background-color: rgb(255, 204, 80);
+            "
+          >
+            <Wallet class="text-dark" style="width: 16px; height: 16px" />
+          </div>
+          <span class="small fw-medium text-muted">순 수익</span>
+        </div>
+        <div
+          class="fs-4 fw-bold"
+          style="padding-left: 44px"
+          :class="netProfit >= 0 ? 'text-primary' : ''"
+          :style="netProfit < 0 ? 'color: rgb(240,68,82);' : ''"
+        >
+          {{ netProfit >= 0 ? "+" : "" }}{{ netProfit.toLocaleString() }}원
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup>
-import { TrendingUp, TrendingDown, Wallet } from 'lucide-vue-next'
-import { computed } from 'vue'
+import { TrendingUp, TrendingDown, Wallet } from "lucide-vue-next";
+import { computed } from "vue";
 
 const props = defineProps({
   totalIncome: {
@@ -15,57 +91,7 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-})
+});
 
-const netProfit = computed(() => props.totalIncome - props.totalExpense)
+const netProfit = computed(() => props.totalIncome - props.totalExpense);
 </script>
-
-<template>
-  <div :class="vertical ? 'd-flex flex-column gap-3' : 'row g-3'">
-    <div :class="vertical ? '' : 'col-12 col-md-4'">
-      <div class="bg-white rounded-4 p-4 shadow-sm h-100">
-        <div class="d-flex align-items-center gap-3 mb-2">
-          <div class="d-flex align-items-center justify-content-center rounded bg-primary bg-opacity-10" style="width: 32px; height: 32px;">
-            <TrendingUp class="text-primary" style="width: 16px; height: 16px;" />
-          </div>
-          <span class="small fw-medium text-muted">총 수입</span>
-        </div>
-        <div class="fs-4 fw-bold text-primary" style="padding-left: 44px;">
-          +{{ totalIncome.toLocaleString() }}원
-        </div>
-      </div>
-    </div>
-
-    <div :class="vertical ? '' : 'col-12 col-md-4'">
-      <div class="bg-white rounded-4 p-4 shadow-sm h-100">
-        <div class="d-flex align-items-center gap-3 mb-2">
-          <div class="d-flex align-items-center justify-content-center rounded" style="width: 32px; height: 32px; background-color: rgba(240,68,82,0.1);">
-            <TrendingDown style="width: 16px; height: 16px; color: rgb(240,68,82);" />
-          </div>
-          <span class="small fw-medium text-muted">총 지출</span>
-        </div>
-        <div class="fs-4 fw-bold" style="padding-left: 44px; color: rgb(240,68,82);">
-          -{{ totalExpense.toLocaleString() }}원
-        </div>
-      </div>
-    </div>
-
-    <div :class="vertical ? '' : 'col-12 col-md-4'">
-      <div class="bg-white rounded-4 p-4 shadow-sm h-100">
-        <div class="d-flex align-items-center gap-3 mb-2">
-          <div class="d-flex align-items-center justify-content-center rounded" style="width: 32px; height: 32px; background-color: rgb(255,204,80);">
-            <Wallet class="text-dark" style="width: 16px; height: 16px;" />
-          </div>
-          <span class="small fw-medium text-muted">순 수익</span>
-        </div>
-        <div
-          class="fs-4 fw-bold" style="padding-left: 44px;"
-          :class="netProfit >= 0 ? 'text-primary' : ''"
-          :style="netProfit < 0 ? 'color: rgb(240,68,82);' : ''"
-        >
-          {{ netProfit >= 0 ? '+' : '' }}{{ netProfit.toLocaleString() }}원
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
