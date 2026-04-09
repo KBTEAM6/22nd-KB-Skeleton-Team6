@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
-import { api } from './api';
+import { api } from '../api/api';
 import { useAuthStore } from './auth';
 
 const categoryPalette = {
@@ -18,7 +18,15 @@ const categoryPalette = {
 };
 
 export const incomeCategories = ['월급', '부수입'];
-export const expenseCategories = ['식비', '주거통신', '교통차량', '쇼핑생활', '의료건강', '문화여가', '기타'];
+export const expenseCategories = [
+  '식비',
+  '주거통신',
+  '교통차량',
+  '쇼핑생활',
+  '의료건강',
+  '문화여가',
+  '기타',
+];
 
 const categoryByType = {
   income: incomeCategories,
@@ -34,10 +42,14 @@ export const useLedgerStore = defineStore('ledger', () => {
   const transactions = ref([]);
   const liveSyncTimer = ref(null);
 
-  const monthKey = computed(() => `${currentYear.value}-${String(currentMonth.value).padStart(2, '0')}`);
+  const monthKey = computed(
+    () => `${currentYear.value}-${String(currentMonth.value).padStart(2, '0')}`,
+  );
 
   const activeUserTransactions = computed(() =>
-    transactions.value.filter((item) => Number(item.userId ?? authStore.activeUserId) === Number(authStore.activeUserId)),
+    transactions.value.filter(
+      (item) => Number(item.userId ?? authStore.activeUserId) === Number(authStore.activeUserId),
+    ),
   );
 
   const monthlyTransactions = computed(() =>
@@ -87,7 +99,10 @@ export const useLedgerStore = defineStore('ledger', () => {
 
   async function updateTransaction(id, payload) {
     const target = transactions.value.find((item) => item.id === id);
-    if (target && Number(target.userId ?? authStore.activeUserId) !== Number(authStore.activeUserId)) {
+    if (
+      target &&
+      Number(target.userId ?? authStore.activeUserId) !== Number(authStore.activeUserId)
+    ) {
       throw new Error('현재 사용자 거래내역만 수정할 수 있습니다.');
     }
 
@@ -102,7 +117,10 @@ export const useLedgerStore = defineStore('ledger', () => {
 
   async function deleteTransaction(id) {
     const target = transactions.value.find((item) => item.id === id);
-    if (target && Number(target.userId ?? authStore.activeUserId) !== Number(authStore.activeUserId)) {
+    if (
+      target &&
+      Number(target.userId ?? authStore.activeUserId) !== Number(authStore.activeUserId)
+    ) {
       throw new Error('현재 사용자 거래내역만 삭제할 수 있습니다.');
     }
 

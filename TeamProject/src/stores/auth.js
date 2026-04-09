@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
-import { api } from './api';
+import { api } from '../api/api';
 
 export const useAuthStore = defineStore('auth', () => {
   const users = ref([]);
@@ -21,7 +21,11 @@ export const useAuthStore = defineStore('auth', () => {
       currentUser.value = found;
       return;
     }
-    currentUser.value = { id: activeUserId.value || null, name: activeUserId.value ? `사용자${activeUserId.value}` : '게스트', email: '' };
+    currentUser.value = {
+      id: activeUserId.value || null,
+      name: activeUserId.value ? `사용자${activeUserId.value}` : '게스트',
+      email: '',
+    };
   }
 
   function hydrateSession() {
