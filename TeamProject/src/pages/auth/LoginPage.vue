@@ -20,7 +20,7 @@ import Login from '../../components/auth/Login.vue';
 const store = useAuthStore();
 const router = useRouter();
 
-const email = ref('seungyeon@example.com');
+const email = ref('minsu@test.com');
 const password = ref('1234');
 
 const submitLogin = async () => {
