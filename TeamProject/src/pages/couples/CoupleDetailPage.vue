@@ -1,5 +1,7 @@
 <template>
-  <CoupleDetailPage />
+  <Coupledetail />
 </template>
-<script setup></script>
+<script setup>
+import Coupledetail from '../../components/couple/Coupledetail.vue';
+</script>
 <style scope></style>

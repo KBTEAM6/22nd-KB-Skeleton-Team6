@@ -8,4 +8,4 @@ Description:
 - Frontend: Vue 3 (Vite), Pinia, Axios, Vue Router
 - Backend: json-server (REST API)
 - Design: Bootstrap 5, Figma
-- team
+- team2

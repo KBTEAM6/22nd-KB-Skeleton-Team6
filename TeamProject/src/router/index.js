@@ -24,7 +24,7 @@ const routes = [
     component: DefaultLayout,
     children: [
       {
-        path: '',
+        path: 'home',
         name: 'home',
         component: HomePage,
       },
@@ -39,9 +39,9 @@ const routes = [
         component: CoupleLedgerPage,
       },
       {
-        path: 'couple2',
-        name: 'couple2',
-        component: () => import(CoupleDetailPage),
+        path: 'couples2',
+        name: 'couples2',
+        component: CoupleDetailPage,
       },
       {
         path: 'mypage',
