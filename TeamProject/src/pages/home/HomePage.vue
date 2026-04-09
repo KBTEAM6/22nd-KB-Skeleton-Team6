@@ -9,14 +9,13 @@
         <LedgerCalendar @dateClick="handleDateClick" />
       </div>
       <div class="col-12 col-lg-4 d-flex flex-column gap-4">
-        <ExpensePieChart />
+        <ExpensePieChart :data="ledgerStore.categoryExpenseChartData" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";  
 import { onMounted, onUnmounted } from "vue";
 import { useLedgerStore } from "@/stores/ledger";
 import SummaryCards from "@/components/home/SummaryCards.vue";
