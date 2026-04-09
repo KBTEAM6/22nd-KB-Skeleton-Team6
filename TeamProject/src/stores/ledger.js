@@ -4,28 +4,28 @@ import api from '../api/api.js';
 import { useAuthStore } from './auth';
 
 const categoryPalette = {
-  식비: '#f28b8b',
-  주거통신: '#c89bff',
-  교통차량: '#f5e27f',
-  쇼핑생활: '#8ec5ff',
-  의료건강: '#92e9dc',
-  문화여가: '#809dff',
-  기타: '#d8b86a',
-  월급: '#9fd39d',
-  부수입: '#9ad7a9',
-  교통: '#f5e27f',
-  취미: '#809dff',
+  '식비': '#f28b8b',
+  '주거/통신': '#c89bff',
+  '교통/차량': '#f5e27f',
+  '쇼핑/생활': '#8ec5ff',
+  '의료/건강': '#92e9dc',
+  '문화/여가': '#809dff',
+  '기타': '#d8b86a',
+  '월급': '#9fd39d',
+  '부수입': '#9ad7a9',
+  '교통': '#f5e27f',
+  '취미': '#809dff',
 };
 
 export const incomeCategories = ['월급', '부수입'];
 
 export const expenseCategories = [
   '식비',
-  '주거통신',
-  '교통차량',
-  '쇼핑생활',
-  '의료건강',
-  '문화여가',
+  '주거/통신',
+  '교통/차량',
+  '쇼핑/생활',
+  '의료/건강',
+  '문화/여가',
   '기타',
 ];
 
@@ -89,8 +89,6 @@ export const useLedgerStore = defineStore('ledger', () => {
       .reduce((sum, item) => sum + item.amount, 0),
   );
 
-  console.log('############ Total Income:', totalIncome.value);
-
   // 현재 선택된 연/월에 해당하는 거래 내역 중에서
   // 지출 유형의 거래 내역만 필터링하여 금액 합산
   const totalExpense = computed(() =>
@@ -102,6 +100,26 @@ export const useLedgerStore = defineStore('ledger', () => {
 
   // 순수익 계산: 총 수입에서 총 지출을 뺀 값
   const totalSaving = computed(() => totalIncome.value - totalExpense.value);
+
+  // 카테고리별 지출 합산 계산
+  const categoryExpenseChartData = computed(() => {
+    const result = {};
+
+    monthlyTransactions.value
+      .filter((item) => item.type === 'EXPENSE')
+      .forEach((item) => {
+        if (!result[item.category]) {
+          result[item.category] = 0;
+        }
+        result[item.category] += item.amount;
+      });
+
+    return Object.entries(result).map(([category, value]) => ({
+      category,
+      value,
+      color: categoryPalette[category] ?? '#cdd5df',
+    }));
+  });
 
   // 서버에서 가계부 전체 데이터를 가져와 상태에 저장하는 함수
   async function fetchTransactions() {
@@ -202,6 +220,7 @@ export const useLedgerStore = defineStore('ledger', () => {
     totalIncome,
     totalExpense,
     totalSaving,
+    categoryExpenseChartData,
     fetchTransactions,
     refreshTransactions,
     addTransaction,
