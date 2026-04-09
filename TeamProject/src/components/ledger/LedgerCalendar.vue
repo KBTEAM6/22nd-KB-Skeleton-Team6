@@ -1,57 +1,3 @@
-<script setup>
-import { ref, computed } from 'vue';
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
-
-const emit = defineEmits(['dateClick']);
-
-const currentDate = ref(new Date(2026, 3, 1)); // April 2026
-
-// Mock data
-const mockData = {
-  1: { date: 1, income: 85000, expense: 45000, details: [] },
-  2: { date: 2, income: 0, expense: 128000, details: [] },
-  3: { date: 3, income: 0, expense: 89000, details: [] },
-  5: { date: 5, income: 3500000, expense: 450000, details: [] },
-  7: { date: 7, income: 0, expense: 234000, details: [] },
-  9: { date: 9, income: 120000, expense: 67000, details: [] },
-  11: { date: 11, income: 0, expense: 156000, details: [] },
-};
-
-const year = computed(() => currentDate.value.getFullYear());
-const month = computed(() => currentDate.value.getMonth());
-
-const days = computed(() => {
-  const y = year.value;
-  const m = month.value;
-  const firstDay = new Date(y, m, 1).getDay();
-  const daysInMonth = new Date(y, m + 1, 0).getDate();
-
-  return Array.from({ length: firstDay + daysInMonth }, (_, i) => {
-    if (i < firstDay) return null;
-    return i - firstDay + 1;
-  });
-});
-
-const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
-
-const prevMonth = () => {
-  currentDate.value = new Date(year.value, month.value - 1, 1);
-};
-
-const nextMonth = () => {
-  currentDate.value = new Date(year.value, month.value + 1, 1);
-};
-
-const handleClick = (day) => {
-  if (!day) return;
-  const data = mockData[day];
-  const hasData = data && (data.income > 0 || data.expense > 0);
-  if (hasData) {
-    emit('dateClick', day, data);
-  }
-};
-</script>
-
 <template>
   <div class="bg-white rounded-4 p-4 shadow-sm">
     <div class="d-flex align-items-center justify-content-between mb-4">
@@ -74,15 +20,18 @@ const handleClick = (day) => {
       </div>
     </div>
 
-    <div class="d-grid gap-2" style="grid-template-columns: repeat(7, minmax(0, 1fr))">
+    <div
+      class="d-grid gap-2"
+      style="grid-template-columns: repeat(7, minmax(0, 1fr))"
+    >
       <div
-        v-for="(day, idx) in weekDays"
-        :key="day"
+        v-for="(dayName, idx) in weekDays"
+        :key="dayName"
         class="text-center small fw-medium py-2"
         :class="idx === 0 ? '' : idx === 6 ? 'text-primary' : 'text-muted'"
         :style="idx === 0 ? 'color: rgb(240,68,82);' : ''"
       >
-        {{ day }}
+        {{ dayName }}
       </div>
 
       <template v-for="(day, idx) in days" :key="`day-${idx}`">
@@ -90,13 +39,16 @@ const handleClick = (day) => {
         <button
           v-else
           @click="handleClick(day)"
-          class="btn border-0 p-1 text-start rounded-3"
-          :class="
-            mockData[day] && (mockData[day].income > 0 || mockData[day].expense > 0)
+          :class="[
+            'btn border-0 p-1 text-start rounded-3 position-relative',
+            ledgerStore.calendarData[day]
               ? 'btn-light'
-              : 'bg-transparent'
-          "
-          style="aspect-ratio: 1"
+              : 'bg-transparent opacity-50',
+          ]"
+          :style="{
+            pointerEvents: ledgerStore.calendarData[day] ? 'auto' : 'none',
+          }"
+          style="aspect-ratio: 1; min-height: 60px"
         >
           <div
             class="small mb-1 d-block"
@@ -105,23 +57,24 @@ const handleClick = (day) => {
           >
             {{ day }}
           </div>
+
           <div
-            v-if="mockData[day] && (mockData[day].income > 0 || mockData[day].expense > 0)"
+            v-if="ledgerStore.calendarData[day]"
             class="d-flex flex-column gap-1"
           >
             <div
-              v-if="mockData[day].income > 0"
+              v-if="ledgerStore.calendarData[day].income > 0"
               class="text-primary text-truncate"
               style="font-size: 10px"
             >
-              +{{ mockData[day].income.toLocaleString() }}
+              +{{ ledgerStore.calendarData[day].income.toLocaleString() }}
             </div>
             <div
-              v-if="mockData[day].expense > 0"
+              v-if="ledgerStore.calendarData[day].expense > 0"
               class="text-truncate"
               style="color: rgb(240, 68, 82); font-size: 10px"
             >
-              -{{ mockData[day].expense.toLocaleString() }}
+              -{{ ledgerStore.calendarData[day].expense.toLocaleString() }}
             </div>
           </div>
         </button>
@@ -129,3 +82,65 @@ const handleClick = (day) => {
     </div>
   </div>
 </template>
+
+<script setup>
+import { computed } from "vue";
+import { ChevronLeft, ChevronRight } from "lucide-vue-next";
+import { useLedgerStore } from "@/stores/ledger";
+
+const emit = defineEmits(["dateClick"]);
+const ledgerStore = useLedgerStore();
+
+// 스토어의 연/월 상태와 연동
+const year = computed(() => ledgerStore.currentYear);
+const month = computed(() => ledgerStore.currentMonth - 1); // JS Month는 0부터 시작
+
+const days = computed(() => {
+  const y = year.value;
+  const m = month.value;
+  const firstDay = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+
+  return Array.from({ length: firstDay + daysInMonth }, (_, i) => {
+    if (i < firstDay) return null;
+    return i - firstDay + 1;
+  });
+});
+
+const weekDays = ["일", "월", "화", "수", "목", "금", "토"];
+
+// 월 변경 시 스토어 상태 업데이트
+const prevMonth = () => {
+  if (ledgerStore.currentMonth === 1) {
+    ledgerStore.currentYear--;
+    ledgerStore.currentMonth = 12;
+  } else {
+    ledgerStore.currentMonth--;
+  }
+};
+
+const nextMonth = () => {
+  if (ledgerStore.currentMonth === 12) {
+    ledgerStore.currentYear++;
+    ledgerStore.currentMonth = 1;
+  } else {
+    ledgerStore.currentMonth++;
+  }
+};
+
+const handleClick = (day) => {
+  if (!day) return;
+  const dayData = ledgerStore.calendarData[day];
+  // 해당 날짜의 전체 내역을 필터링하여 전달
+  const dateString = `${year.value}-${String(month.value + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  const details = ledgerStore.activeUserTransactions.filter(
+    (item) => item.date === dateString,
+  );
+
+  emit("dateClick", dateString, {
+    income: dayData?.income ?? 0,
+    expense: dayData?.expense ?? 0,
+    details,
+  });
+};
+</script>

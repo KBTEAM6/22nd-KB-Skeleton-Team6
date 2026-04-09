@@ -6,40 +6,63 @@
     />
     <div class="row g-4">
       <div class="col-12 col-lg-8">
-        <LedgerCalendar @dateClick="handleDateClick" />
+        <LedgerCalendar @dateClick="handleClick" />
       </div>
       <div class="col-12 col-lg-4 d-flex flex-column gap-4">
         <ExpensePieChart :data="ledgerStore.categoryExpenseChartData" />
       </div>
     </div>
+
+    <DayDetailModal 
+      :is-open="isModalOpen"
+      :date="selectedDateData.date"
+      :income="selectedDateData.income"
+      :expense="selectedDateData.expense"
+      :details="selectedDateData.details"
+      @close="isModalOpen = false"
+    />
   </div>
 </template>
 
 <script setup>
-import { onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useLedgerStore } from "@/stores/ledger";
 import SummaryCards from "@/components/home/SummaryCards.vue";
 import LedgerCalendar from "@/components/ledger/LedgerCalendar.vue";
 import ExpensePieChart from "@/components/home/ExpensePieChart.vue";
+import DayDetailModal from "@/components/ledger/DateDetailDialog.vue";
 
-// 가계부 스토어 가져오기
 const ledgerStore = useLedgerStore();
 
+// --- 모달 상태 관리 ---
+const isModalOpen = ref(false);
+
+const selectedDateData = ref({
+  date: 0,
+  income: 0,
+  expense: 0,
+  details: []
+});
+
+// 달력 클릭 핸들러
+const handleClick = (dateString, payload) => {
+  if (!payload) return;
+
+  selectedDateData.value = {
+    date: Number(dateString.split("-")[2]),
+    income: payload.income,
+    expense: payload.expense,
+    details: payload.details,
+  };
+
+  isModalOpen.value = true;
+};
+
 onMounted(() => {
-  // 컴포넌트가 마운트될 때 가계부 데이터 조회 시작
   ledgerStore.fetchTransactions();
 });
 
 onUnmounted(() => {
-  // 컴포넌트가 언마운트될 때 리소스 정리
   ledgerStore.stopLiveSync();
 });
-
-// const isDateDetailOpen = ref(false);
-// const selectedDate = ref(null);
-
-// const handleDateClick = (date, data) => {
-//   selectedDate.value = data;
-//   isDateDetailOpen.value = true;
-// };
 </script>

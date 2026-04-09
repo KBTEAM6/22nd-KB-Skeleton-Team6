@@ -121,6 +121,27 @@ export const useLedgerStore = defineStore('ledger', () => {
     }));
   });
 
+  // 달력에 표시할 날짜별 수입/지출 합산 계산
+  const calendarData = computed(() => {
+    const calendarMap = {};
+
+    monthlyTransactions.value.forEach((item) => {
+      const day = parseInt(item.date.split('-')[2], 10);
+
+      if (!calendarMap[day]) {
+        calendarMap[day] = { income: 0, expense: 0 };
+      }
+
+      if (item.type === 'INCOME') {
+        calendarMap[day].income += item.amount;
+      } else if (item.type === 'EXPENSE') {
+        calendarMap[day].expense += item.amount;
+      }
+    });
+
+    return calendarMap;
+  });
+
   // 서버에서 가계부 전체 데이터를 가져와 상태에 저장하는 함수
   async function fetchTransactions() {
     // 쿼리 파라미터로 현재 로그인한 사용자의 ID를 전달
@@ -217,10 +238,12 @@ export const useLedgerStore = defineStore('ledger', () => {
     transactions,
     monthlyTransactions,
     selectedDateTransactions,
+    activeUserTransactions,
     totalIncome,
     totalExpense,
     totalSaving,
     categoryExpenseChartData,
+    calendarData,
     fetchTransactions,
     refreshTransactions,
     addTransaction,
