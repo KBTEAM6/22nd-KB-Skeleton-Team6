@@ -1,0 +1,16 @@
+:root {
+  /* KB 컬러 시스템 */
+  --kb-yellow: #ffbc00;
+  --kb-yellow-hover: #f0b000;
+
+  --kb-gray: #60584c;
+  --kb-dark-gray: #545045;
+
+  --kb-bg: #f8f9fa;
+
+  /* 공통 UI
+  --border-radius-lg: 1.25rem;
+  --border-radius-md: 0.9rem; */
+
+  --input-border: #dee2e6;
+}
