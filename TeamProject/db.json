@@ -2,27 +2,35 @@
   "users": [
     {
       "id": 1,
+      "name": "민수",
       "email": "minsu@test.com",
+      "phone": "010-1234-5678",
       "password": "1234",
-      "nickname": "민수"
+      "createdAt": "2026-04-01T00:00:00.000Z"
     },
     {
       "id": 2,
+      "name": "지연",
       "email": "jiyeon@test.com",
+      "phone": "010-5678-1234",
       "password": "1234",
-      "nickname": "지연"
+      "createdAt": "2026-04-01T00:00:00.000Z"
     },
     {
       "id": 3,
+      "name": "동호",
       "email": "dongho@test.com",
+      "phone": "010-9012-3456",
       "password": "1234",
-      "nickname": "동호"
+      "createdAt": "2026-04-01T00:00:00.000Z"
     },
     {
-      "email": "new@test.com",
+      "id": 4,
+      "name": "성훈",
+      "email": "hoon@test.com",
+      "phone": "010-9012-3456",
       "password": "1234",
-      "nickname": "새사용자",
-      "id": 4
+      "createdAt": "2026-04-02T00:00:00.000Z"
     }
   ],
   "transactions": [
