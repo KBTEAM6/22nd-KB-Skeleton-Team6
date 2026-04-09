@@ -9,12 +9,16 @@ import LoginPage from '@/pages/auth/LoginPage.vue';
 import SignupPage from '@/pages/auth/SignupPage.vue';
 import HomePage from '@/pages/home/HomePage.vue';
 import LedgerPage from '@/pages/ledger/LedgerPage.vue';
-import FriendSearchPage from '@/pages/friends/FriendSearchPage.vue';
-import CoupleLedgerPage from '@/pages/couple/CoupleLedgerPage.vue';
+import CoupleDetailPage from '@/pages/couples/coupleDetailPage.vue';
+import CoupleLedgerPage from '@/pages/couples/CoupleLedgerPage.vue';
 import MyPagePage from '@/pages/mypage/MyPagePage.vue';
 import SettingsPage from '@/pages/settings/SettingsPage.vue';
 
 const routes = [
+  {
+    path: '/',
+    redirect: '/auth/login',
+  },
   {
     path: '/',
     component: DefaultLayout,
@@ -30,14 +34,14 @@ const routes = [
         component: LedgerPage,
       },
       {
-        path: 'friends',
-        name: 'friends',
-        component: FriendSearchPage,
+        path: 'couples',
+        name: 'couples',
+        component: CoupleLedgerPage,
       },
       {
-        path: 'couple',
-        name: 'couple',
-        component: CoupleLedgerPage,
+        path: 'couple2',
+        name: 'couple2',
+        component: () => import(CoupleDetailPage),
       },
       {
         path: 'mypage',

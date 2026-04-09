@@ -1,94 +1,165 @@
+// src/stores/auth.js
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
-import { api } from '../api/api';
+import { findUserByEmail, createUser } from '@/api/auth';
+
+const STORAGE_KEY = 'budget-auth-user';
 
 export const useAuthStore = defineStore('auth', () => {
-  const users = ref([]);
-  const activeUserId = ref(0);
-  const currentUser = ref({ id: null, name: '게스트', email: '' });
-  const isAuthenticated = computed(() => Boolean(currentUser.value?.id));
+  // state
+  const user = ref(null);
+  const isLoading = ref(false);
+  const errorMessage = ref('');
 
-  async function fetchUsers() {
-    const usersRes = await api.get('/users');
-    users.value = usersRes.data;
-    setActiveUser(activeUserId.value);
-  }
+  // getters
+  const isLoggedIn = computed(() => !!user.value);
 
-  function setActiveUser(userId) {
-    activeUserId.value = Number(userId);
-    const found = users.value.find((user) => Number(user.id) === Number(activeUserId.value));
-    if (found) {
-      currentUser.value = found;
+  // actions
+  const clearError = () => {
+    errorMessage.value = '';
+  };
+
+  const setUser = (userData) => {
+    user.value = userData;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+  };
+
+  const clearUser = () => {
+    user.value = null;
+    localStorage.removeItem(STORAGE_KEY);
+  };
+
+  const loadUserFromStorage = () => {
+    const savedUser = localStorage.getItem(STORAGE_KEY);
+
+    if (!savedUser) {
+      user.value = null;
       return;
     }
-    currentUser.value = {
-      id: activeUserId.value || null,
-      name: activeUserId.value ? `사용자${activeUserId.value}` : '게스트',
-      email: '',
-    };
-  }
 
-  function hydrateSession() {
-    const raw = localStorage.getItem('ledger_active_user_id');
-    if (!raw) {
-      activeUserId.value = 0;
-      currentUser.value = { id: null, name: '게스트', email: '' };
-      return;
+    try {
+      user.value = JSON.parse(savedUser);
+    } catch (error) {
+      console.error('저장된 로그인 정보 파싱 실패:', error);
+      localStorage.removeItem(STORAGE_KEY);
+      user.value = null;
     }
-    activeUserId.value = Number(raw);
-  }
+  };
 
-  async function login(email, password) {
-    if (users.value.length === 0) {
-      await fetchUsers();
-    }
-    const found = users.value.find((user) => user.email === email && user.password === password);
-    if (!found) {
-      throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.');
-    }
-    setActiveUser(found.id);
-    localStorage.setItem('ledger_active_user_id', String(found.id));
-  }
+  const login = async ({ email, password }) => {
+    isLoading.value = true;
+    clearError();
 
-  async function signup({ name, email, password }) {
-    if (users.value.length === 0) {
-      await fetchUsers();
-    }
-    if (users.value.some((user) => user.email === email)) {
-      throw new Error('이미 가입된 이메일입니다.');
-    }
-    const response = await api.post('/users', { name, email, password });
-    users.value.push(response.data);
-    setActiveUser(response.data.id);
-    localStorage.setItem('ledger_active_user_id', String(response.data.id));
-  }
+    try {
+      const users = await findUserByEmail(email);
+      const foundUser = users[0];
 
-  async function updateCurrentUser(payload) {
-    const response = await api.patch(`/users/${currentUser.value.id}`, payload);
-    currentUser.value = response.data;
-    const idx = users.value.findIndex((user) => user.id === currentUser.value.id);
-    if (idx >= 0) {
-      users.value[idx] = response.data;
-    }
-  }
+      if (!foundUser) {
+        errorMessage.value = '존재하지 않는 이메일입니다.';
+        return {
+          success: false,
+          message: errorMessage.value,
+        };
+      }
 
-  function logout() {
-    localStorage.removeItem('ledger_active_user_id');
-    activeUserId.value = 0;
-    currentUser.value = { id: null, name: '게스트', email: '' };
-  }
+      if (foundUser.password !== password) {
+        errorMessage.value = '비밀번호가 올바르지 않습니다.';
+        return {
+          success: false,
+          message: errorMessage.value,
+        };
+      }
+
+      // 비밀번호까지 그대로 저장할 필요는 없음
+      const safeUser = {
+        id: foundUser.id,
+        name: foundUser.name,
+        email: foundUser.email,
+      };
+
+      setUser(safeUser);
+
+      return {
+        success: true,
+        message: '로그인 성공',
+      };
+    } catch (error) {
+      console.error('로그인 실패:', error);
+      errorMessage.value = '로그인 중 오류가 발생했습니다.';
+      return {
+        success: false,
+        message: errorMessage.value,
+      };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  const signup = async ({ name, email, password }) => {
+    isLoading.value = true;
+    clearError();
+
+    try {
+      const users = await findUserByEmail(email);
+
+      if (users.length > 0) {
+        errorMessage.value = '이미 사용 중인 이메일입니다.';
+        return {
+          success: false,
+          message: errorMessage.value,
+        };
+      }
+
+      const createdUser = await createUser({
+        name,
+        email,
+        password,
+      });
+
+      const safeUser = {
+        id: createdUser.id,
+        name: createdUser.name,
+        email: createdUser.email,
+      };
+
+      setUser(safeUser);
+
+      return {
+        success: true,
+        message: '회원가입 성공',
+      };
+    } catch (error) {
+      console.error('회원가입 실패:', error);
+      errorMessage.value = '회원가입 중 오류가 발생했습니다.';
+      return {
+        success: false,
+        message: errorMessage.value,
+      };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  const logout = () => {
+    clearUser();
+  };
 
   return {
-    users,
-    activeUserId,
-    currentUser,
-    isAuthenticated,
-    fetchUsers,
-    setActiveUser,
-    hydrateSession,
+    // state
+    user,
+    isLoading,
+    errorMessage,
+
+    // getters
+    isLoggedIn,
+
+    // actions
+    clearError,
+    setUser,
+    clearUser,
+    loadUserFromStorage,
     login,
     signup,
-    updateCurrentUser,
     logout,
   };
 });
