@@ -54,3 +54,14 @@ export const getUserById = async (id) => {
   const response = await api.get(`/users/${id}`);
   return response.data;
 };
+
+/**
+ * 사용자 정보 전체 수정
+ * @param {number|string} id - 사용자 ID
+ * @param {Object} userData - 전체 사용자 정보
+ * @returns {Promise<Object>} 수정된 사용자 정보
+ */
+export const updateUser = async (id, userData) => {
+  const response = await api.put(`/users/${id}`, userData);
+  return response.data;
+};

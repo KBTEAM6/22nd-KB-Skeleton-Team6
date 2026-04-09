@@ -1,7 +1,7 @@
 // src/stores/auth.js
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
-import { findUserByEmail, createUser } from '@/api/auth';
+import { findUserByEmail, createUser, getUserById, updateUser } from '@/api/auth';
 
 // 로컬 스토리지에 사용자 정보를 저장할 때 사용할 키
 const STORAGE_KEY = 'budget-auth-user';
@@ -210,6 +210,72 @@ export const useAuthStore = defineStore('auth', () => {
     clearUser();
   };
 
+  /**
+   * 사용자 프로필 수정 처리
+   * @param {Object} params - 수정할 프로필 정보
+   * @param {string} params.name - 사용자 이름
+   * @param {string} params.phone - 사용자 전화번호
+   * @returns {Promise<{success: boolean, message: string}>}
+   */
+  const updateProfile = async ({ name, email, phone }) => {
+    if (!user.value?.id) {
+      errorMessage.value = '로그인된 사용자 정보가 없습니다.';
+      return {
+        success: false,
+        message: errorMessage.value,
+      };
+    }
+
+    isLoading.value = true;
+    clearError();
+
+    try {
+      const usersWithSameEmail = await findUserByEmail(email);
+      const duplicatedUser = usersWithSameEmail.find(
+        (foundUser) => Number(foundUser.id) !== Number(user.value.id),
+      );
+
+      if (duplicatedUser) {
+        errorMessage.value = '이미 사용 중인 이메일입니다.';
+        return {
+          success: false,
+          message: errorMessage.value,
+        };
+      }
+
+      const currentUser = await getUserById(user.value.id);
+      const updatedUser = await updateUser(user.value.id, {
+        ...currentUser,
+        name,
+        email,
+        phone,
+      });
+
+      setUser({
+        ...user.value,
+        id: updatedUser.id,
+        name: updatedUser.name ?? user.value.name,
+        email: updatedUser.email ?? user.value.email,
+        phone: updatedUser.phone ?? user.value.phone,
+        createdAt: updatedUser.createdAt ?? user.value.createdAt,
+      });
+
+      return {
+        success: true,
+        message: '프로필이 수정되었습니다.',
+      };
+    } catch (error) {
+      console.error('프로필 수정 실패:', error);
+      errorMessage.value = '프로필 수정 중 오류가 발생했습니다.';
+      return {
+        success: false,
+        message: errorMessage.value,
+      };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
   // ===== STORE 반환 =====
   return {
     // state
@@ -227,6 +293,7 @@ export const useAuthStore = defineStore('auth', () => {
     loadUserFromStorage,
     login,
     signup,
+    updateProfile,
     logout,
   };
 });

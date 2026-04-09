@@ -18,7 +18,7 @@ import { useAuthStore } from '@/stores/auth';
 const routes = [
   {
     path: '/',
-    redirect: '/home',
+    redirect: '/auth/login',
   },
   {
     path: '/',
