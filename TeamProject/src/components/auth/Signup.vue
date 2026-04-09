@@ -81,13 +81,21 @@ import { RouterLink } from 'vue-router';
 
 defineProps({
   name: String,
+  phone: String,
   email: String,
   password: String,
   confirmPassword: String,
   store: Object,
 });
 
-defineEmits(['update:name', 'update:email', 'update:password', 'update:confirmPassword', 'submit']);
+defineEmits([
+  'update:name',
+  'update:phone',
+  'update:email',
+  'update:password',
+  'update:confirmPassword',
+  'submit',
+]);
 </script>
 
 <style scoped>

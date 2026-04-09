@@ -31,27 +31,28 @@ const password = ref('');
 const confirmPassword = ref('');
 
 const submitSignup = async () => {
-  // 비밀번호 일치 확인
+  store.clearError();
+
   if (password.value !== confirmPassword.value) {
-    store.errorMessage = '비밀번호가 일치하지 않습니다';
+    store.errorMessage = '비밀번호가 일치하지 않습니다.';
     return;
   }
 
-  // 비밀번호 최소 길이 확인
   if (password.value.length < 4) {
-    store.errorMessage = '비밀번호는 최소 4자 이상이어야 합니다';
+    store.errorMessage = '비밀번호는 최소 4자 이상이어야 합니다.';
     return;
   }
 
   const result = await store.signup({
-    name: name.value,
-    email: email.value,
+    name: name.value.trim(),
+    email: email.value.trim(),
+    phone: phone.value.trim(),
     password: password.value,
   });
 
   if (result.success) {
-    uiStore.showToast('정상적으로 회원가입에 성공했습니다.');
-    router.push({ name: 'login' });
+    uiStore.showToast('회원가입이 완료되었습니다.');
+    router.push({ name: 'mypage' });
   }
 };
 </script>

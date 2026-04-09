@@ -13,15 +13,17 @@ import CoupleDetailPage from '@/pages/couples/coupleDetailPage.vue';
 import CoupleLedgerPage from '@/pages/couples/CoupleLedgerPage.vue';
 import MyPagePage from '@/pages/mypage/MyPagePage.vue';
 import SettingsPage from '@/pages/settings/SettingsPage.vue';
+import { useAuthStore } from '@/stores/auth';
 
 const routes = [
   {
     path: '/',
-    redirect: '/auth/login',
+    redirect: '/home',
   },
   {
     path: '/',
     component: DefaultLayout,
+    meta: { requiresAuth: true },
     children: [
       {
         path: 'home',
@@ -58,6 +60,7 @@ const routes = [
   {
     path: '/auth',
     component: AuthLayout,
+    meta: { guestOnly: true },
     children: [
       {
         path: 'login',
@@ -76,6 +79,21 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+router.beforeEach((to) => {
+  const authStore = useAuthStore();
+  authStore.loadUserFromStorage();
+
+  if (to.meta.requiresAuth && !authStore.isLoggedIn) {
+    return { name: 'login' };
+  }
+
+  if (to.meta.guestOnly && authStore.isLoggedIn) {
+    return { name: 'home' };
+  }
+
+  return true;
 });
 
 export default router;
