@@ -6,7 +6,8 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "server": "json-server --watch db.json --port 3001"
+    "server": "json-server --watch db.json --port 3001",
+    "server-local": "json-server --watch db.local.json --port 3001"
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^6.0.5",

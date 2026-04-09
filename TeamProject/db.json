@@ -135,7 +135,7 @@
       "memo": "영화"
     }
   ],
-  "friendRequests": [
+  "coupleRequests": [
     {
       "id": 1,
       "requesterId": 2,
@@ -151,7 +151,7 @@
       "createdAt": "2026-04-05T15:30:00"
     }
   ],
-  "friends": [
+  "couple": [
     {
       "id": 1,
       "userId": 1,
@@ -178,10 +178,7 @@
     }
   ],
   "categories": {
-    "income": [
-      "월급",
-      "부수입"
-    ],
+    "income": ["월급", "부수입"],
     "expense": [
       "식비",
       "주거통신",
