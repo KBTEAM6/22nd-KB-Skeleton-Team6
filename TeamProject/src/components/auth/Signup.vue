@@ -13,6 +13,18 @@
     </div>
 
     <div class="mb-4">
+      <label class="form-label fw-semibold">전화번호</label>
+      <input
+        class="form-control form-control-lg auth-input"
+        type="tel"
+        :value="phone"
+        @input="$emit('update:phone', $event.target.value)"
+        placeholder="010-1234-5678"
+        required
+      />
+    </div>
+
+    <div class="mb-4">
       <label class="form-label fw-semibold">이메일</label>
       <input
         class="form-control form-control-lg auth-input"

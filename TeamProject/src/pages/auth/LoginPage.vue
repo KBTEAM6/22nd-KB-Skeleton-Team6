@@ -8,10 +8,12 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { useUiStore } from '@/stores/ui';
 import AuthPage from '../../components/auth/AuthPage.vue';
 import Login from '../../components/auth/Login.vue';
 
 const store = useAuthStore();
+const uiStore = useUiStore();
 const router = useRouter();
 
 const email = ref('minsu@test.com');
@@ -24,6 +26,7 @@ const submitLogin = async () => {
   });
 
   if (result.success) {
+    uiStore.showToast('로그인에 성공했습니다.');
     router.push({ name: 'home' });
   }
 };

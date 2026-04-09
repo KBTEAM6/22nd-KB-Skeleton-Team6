@@ -2,6 +2,7 @@
   <AuthPage title="회원가입">
     <Signup
       v-model:name="name"
+      v-model:phone="phone"
       v-model:email="email"
       v-model:password="password"
       v-model:confirmPassword="confirmPassword"
@@ -15,14 +16,17 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { useUiStore } from '@/stores/ui';
 import AuthPage from '../../components/auth/AuthPage.vue';
 import Signup from '../../components/auth/Signup.vue';
 
 const store = useAuthStore();
+const uiStore = useUiStore();
 const router = useRouter();
 
 const name = ref('');
 const email = ref('');
+const phone = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 
@@ -46,6 +50,7 @@ const submitSignup = async () => {
   });
 
   if (result.success) {
+    uiStore.showToast('정상적으로 회원가입에 성공했습니다.');
     router.push({ name: 'login' });
   }
 };
