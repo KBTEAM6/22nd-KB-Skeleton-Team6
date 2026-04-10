@@ -1,28 +1,38 @@
 <template>
-  <Login
-    v-model:email="email"
-    v-model:password="password"
-    :store="store"
-    @submit="submitLogin"
-  />
+  <!--
+    Login 컴포넌트는 입력 UI만 담당하고,
+    실제 로그인 로직은 이 페이지의 submitLogin 함수가 담당한다.
+  -->
+  <AuthPage title="로그인">
+    <Login v-model:email="email" v-model:password="password" :store="store" @submit="submitLogin" />
+  </AuthPage>
 </template>
 
 <script setup>
-// 반응형 데이터를 위해 ref 다운로드
 import { ref } from 'vue';
-// router 기능을 위해
 import { useRouter } from 'vue-router';
-// 로컬 저장소에서 authStore에 들어있는 데이터 가져오기위해
 import { useAuthStore } from '@/stores/auth';
-// UI 컴포넌트 가져오려고
+import { useUiStore } from '@/stores/ui';
+import AuthPage from '../../components/auth/AuthPage.vue';
 import Login from '../../components/auth/Login.vue';
 
+// 인증 상태와 사용자 피드백(토스트)을 각각 store에서 관리한다.
 const store = useAuthStore();
+const uiStore = useUiStore();
 const router = useRouter();
 
+// 로그인 폼 입력값
 const email = ref('minsu@test.com');
 const password = ref('1234');
 
+/**
+ * 로그인 제출 처리
+ *
+ * 흐름:
+ * 1. 화면 입력값을 auth store.login으로 전달
+ * 2. store에서 서버 검증 + 세션 저장 수행
+ * 3. 성공하면 토스트를 띄우고 home으로 이동
+ */
 const submitLogin = async () => {
   const result = await store.login({
     email: email.value,
@@ -30,6 +40,7 @@ const submitLogin = async () => {
   });
 
   if (result.success) {
+    uiStore.showToast('로그인에 성공했습니다.');
     router.push({ name: 'home' });
   }
 };
