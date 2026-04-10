@@ -1,6 +1,11 @@
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
-import { findUserByEmail, createUser, getUserById, updateUser } from '@/api/auth';
+import {
+  findUserByEmail,
+  createUser,
+  getUserById,
+  updateUser,
+} from '@/api/auth';
 
 /**
  * 로그인 사용자 정보를 저장할 sessionStorage 키
@@ -165,6 +170,74 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
+  // 비밀번호 변경 로직 추가
+  const changePassword = async ({
+    currentPassword,
+    newPassword,
+    confirmPassword,
+  }) => {
+    if (!user.value?.id) {
+      return {
+        success: false,
+        message: '로그인된 사용자 정보가 없습니다.',
+      };
+    }
+
+    if (!currentPassword.trim()) {
+      return {
+        success: false,
+        message: '현재 비밀번호를 입력해주세요.',
+      };
+    }
+
+    if (!newPassword.trim()) {
+      return {
+        success: false,
+        message: '새 비밀번호를 입력해주세요.',
+      };
+    }
+
+    if (!confirmPassword.trim()) {
+      return {
+        success: false,
+        message: '새 비밀번호 확인을 입력해주세요.',
+      };
+    }
+
+    if (newPassword !== confirmPassword) {
+      return {
+        success: false,
+        message: '새 비밀번호가 일치하지 않습니다.',
+      };
+    }
+
+    try {
+      const currentUser = await getUserById(user.value.id);
+
+      if (currentUser.password !== currentPassword) {
+        return {
+          success: false,
+          message: '현재 비밀번호가 올바르지 않습니다.',
+        };
+      }
+
+      await updateUser(user.value.id, {
+        ...currentUser,
+        password: newPassword,
+      });
+
+      return {
+        success: true,
+        message: '비밀번호가 변경되었습니다.',
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: '비밀번호 변경 중 오류가 발생했습니다.',
+      };
+    }
+  };
+
   /**
    * 회원가입 처리
    *
@@ -321,5 +394,6 @@ export const useAuthStore = defineStore('auth', () => {
     signup,
     updateProfile,
     logout,
+    changePassword,
   };
 });

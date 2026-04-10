@@ -7,7 +7,7 @@
     보기 모드 문구든 input이든 모두 같은 레이아웃 안에 넣을 수 있다.
   -->
   <div
-    class="d-flex align-items-center justify-content-between pb-3"
+    class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-3 pb-3"
     :class="{ 'border-bottom': bordered }"
   >
     <div class="d-flex align-items-center gap-3 flex-grow-1">

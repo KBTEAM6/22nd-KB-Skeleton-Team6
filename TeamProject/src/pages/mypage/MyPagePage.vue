@@ -1,3 +1,30 @@
+<template>
+  <!--
+    MyPageContent는 화면 표시만 담당한다.
+    실제 상태(form, isEditing, 저장 함수)는 이 페이지가 소유한다.
+  -->
+  <MyPageContent
+    :user="authStore.user"
+    :form="form"
+    :is-editing="isEditing"
+    :is-saving="isSaving"
+    :error-message="authStore.errorMessage"
+    :is-password-modal-open="isPasswordModalOpen"
+    :password-form="passwordForm"
+    :password-error-message="passwordErrorMessage"
+    :is-password-saving="isPasswordSaving"
+    @update:form="form = $event"
+    @edit-start="handleEditStart"
+    @edit-cancel="handleEditCancel"
+    @save="handleSave"
+    @logout="handleLogout"
+    @open-password-modal="openPasswordModal"
+    @close-password-modal="closePasswordModal"
+    @update:password-form="passwordForm = $event"
+    @password-change="handlePasswordChange"
+  />
+</template>
+
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -28,6 +55,19 @@ const form = ref({
   email: '',
   phone: '',
 });
+
+// PASSWORD 관련 STATE
+const isPasswordModalOpen = ref(false);
+
+const passwordForm = ref({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: '',
+});
+
+const passwordErrorMessage = ref('');
+
+const isPasswordSaving = ref(false);
 
 /**
  * 현재 로그인 사용자 정보를 form으로 복사한다.
@@ -155,23 +195,47 @@ const handleSave = async () => {
  * 템플릿에서는 마이페이지 관점의 이름(isSaving)으로 읽는 편이 이해하기 쉽다.
  */
 const isSaving = computed(() => authStore.isLoading);
-</script>
 
-<template>
-  <!--
-    MyPageContent는 화면 표시만 담당한다.
-    실제 상태(form, isEditing, 저장 함수)는 이 페이지가 소유한다.
-  -->
-  <MyPageContent
-    :user="authStore.user"
-    :form="form"
-    :is-editing="isEditing"
-    :is-saving="isSaving"
-    :error-message="authStore.errorMessage"
-    @update:form="form = $event"
-    @edit-start="handleEditStart"
-    @edit-cancel="handleEditCancel"
-    @save="handleSave"
-    @logout="handleLogout"
-  />
-</template>
+// 모달 여-닫기 함수
+const openPasswordModal = () => {
+  passwordForm.value = {
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  };
+  passwordErrorMessage.value = '';
+  isPasswordModalOpen.value = true;
+};
+
+const closePasswordModal = () => {
+  isPasswordModalOpen.value = false;
+  passwordErrorMessage.value = '';
+  passwordForm.value = {
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  };
+};
+
+// 실제 검증 함수
+const handlePasswordChange = async () => {
+  passwordErrorMessage.value = '';
+  isPasswordSaving.value = true;
+
+  const result = await authStore.changePassword({
+    currentPassword: passwordForm.value.currentPassword,
+    newPassword: passwordForm.value.newPassword,
+    confirmPassword: passwordForm.value.confirmPassword,
+  });
+
+  isPasswordSaving.value = false;
+
+  if (!result.success) {
+    passwordErrorMessage.value = result.message;
+    return;
+  }
+
+  uiStore.showToast('비밀번호가 변경되었습니다.');
+  closePasswordModal();
+};
+</script>
