@@ -3,6 +3,9 @@ import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Home, BookOpen, Users, User } from 'lucide-vue-next';
 import { useAuthStore } from '@/stores/auth';
+import { useUiStore } from '@/stores/ui'; // 추가
+
+const uiStore = useUiStore();
 
 // 인증 store 사용
 const authstore = useAuthStore();
@@ -59,6 +62,7 @@ const goToPartnerInfo = () => {
 // 3. 로그인 페이지로 이동
 const handleLogout = () => {
   authstore.logout();
+  uiStore.showToast('로그아웃 했습니다.');
   isProfileMenuOpen.value = false;
   router.push('/auth/login');
 };
