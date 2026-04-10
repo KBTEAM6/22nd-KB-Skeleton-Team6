@@ -4,7 +4,7 @@
     현재 로그인 사용자 요약 정보만 보여주는 순수 표시 컴포넌트다.
   -->
   <div
-    class="d-flex flex-column align-items-center bg-white p-4 p-lg-5 shadow-sm border h-100"
+    class="d-flex flex-column align-items-center bg-white p-4 shadow-sm border h-100 profile-card"
     style="border-radius: 2rem"
   >
     <div
@@ -14,12 +14,14 @@
     </div>
 
     <div class="text-center">
-      <h3 class="fs-4 fw-bold mb-1">{{ displayName }}</h3>
+      <h3 class="fs-3 fw-bold mb-1">{{ displayName }}</h3>
       <p class="small text-muted m-0">회원 ID: {{ user?.id ?? 'N/A' }}</p>
     </div>
 
     <div class="mt-4 d-flex flex-wrap justify-content-center gap-2">
-      <span class="px-3 py-1 bg-secondary bg-opacity-10 text-secondary small fw-bold rounded-pill">
+      <span
+        class="px-3 py-1 bg-secondary bg-opacity-10 text-secondary small fw-bold rounded-pill"
+      >
         일반 회원
       </span>
     </div>
@@ -38,15 +40,52 @@ const props = defineProps({
 });
 
 // 이름이 없을 경우를 대비해 fallback을 둔다.
-const displayName = computed(() => props.user?.name || props.user?.nickname || '사용자');
+const displayName = computed(
+  () => props.user?.name || props.user?.nickname || '사용자',
+);
 
 // 프로필 뱃지에 표시할 첫 글자
 const userInitial = computed(() => displayName.value.charAt(0).toUpperCase());
 </script>
 
 <style scoped>
+.profile-card {
+  min-width: 220px;
+}
 .profile-badge {
-  width: 10rem;
-  height: 10rem;
+  width: clamp(5.5rem, 11vw, 8rem);
+  height: clamp(5.5rem, 11vw, 8rem);
+}
+
+.profile-action-links {
+  margin-top: 1rem;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.9rem;
+}
+
+.profile-text-action {
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.profile-text-action:hover {
+  opacity: 0.75;
+}
+
+.profile-text-action-primary {
+  color: #0d6efd;
+}
+
+.profile-text-action-danger {
+  color: #dc3545;
 }
 </style>
