@@ -84,12 +84,16 @@ export const useUiStore = defineStore('ui', () => {
    * 토스트 메시지 표시
    * @param {string} message - 표시할 메시지
    */
-  const showToast = (message) => {
+  const showToast = (message, type = 'info') => {
+    const validTypes = ['info', 'success', 'error', 'warning'];
+    const safeType = validTypes.includes(type) ? type : 'info';
+
     const id = Date.now() + Math.random();
 
     toasts.value.push({
       id,
       message,
+      type: safeType,
       visible: true,
     });
 

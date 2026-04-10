@@ -291,33 +291,42 @@ export const usecouplesStore = defineStore('couples', () => {
       isLoading.value = true;
       errorMessage.value = '';
 
-      await createcouple({
-        user1Id: request.fromId,
-        user2Id: request.toId,
+      const createdCouple = await createcouple({
+        user1Id: Number(request.fromId),
+        user2Id: Number(request.toId),
         status: true,
         createdAt: new Date().toISOString(),
       });
 
-      await deleteRelatedPendingRequests(request.fromId, request.toId);
+      allcouples.value.unshift(createdCouple);
+
+      await deleteRelatedPendingRequests(
+        Number(request.fromId),
+        Number(request.toId),
+      );
 
       receivedRequests.value = receivedRequests.value.filter(
         (item) =>
-          item.fromId !== request.fromId &&
-          item.toId !== request.fromId &&
-          item.fromId !== request.toId &&
-          item.toId !== request.toId,
+          Number(item.fromId) !== Number(request.fromId) &&
+          Number(item.toId) !== Number(request.fromId) &&
+          Number(item.fromId) !== Number(request.toId) &&
+          Number(item.toId) !== Number(request.toId),
       );
+
       sentRequests.value = sentRequests.value.filter(
         (item) =>
-          item.fromId !== request.fromId &&
-          item.toId !== request.fromId &&
-          item.fromId !== request.toId &&
-          item.toId !== request.toId,
+          Number(item.fromId) !== Number(request.fromId) &&
+          Number(item.toId) !== Number(request.fromId) &&
+          Number(item.fromId) !== Number(request.toId) &&
+          Number(item.toId) !== Number(request.toId),
       );
+
       searchResults.value = searchResults.value.filter(
-        (user) => user.id !== request.fromId && user.id !== request.toId,
+        (user) =>
+          Number(user.id) !== Number(request.fromId) &&
+          Number(user.id) !== Number(request.toId),
       );
-      await fetchAllcouples();
+
       return { success: true };
     } catch (error) {
       errorMessage.value = error.message || '친구 요청 수락에 실패했습니다.';
