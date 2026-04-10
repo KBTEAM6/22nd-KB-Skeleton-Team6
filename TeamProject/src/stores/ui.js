@@ -21,15 +21,15 @@ export const useUiStore = defineStore('ui', () => {
   /** 날짜 상세 모달 열림 상태 */
   const isDateDetailModalOpen = ref(false);
 
-  /** 토스트 메시지 내용 (빈 문자열이면 표시하지 않음) */
-  const toastMessage = ref('');
+  // 토스트 스택 형식으로 바꾸기 위해 배열로 변경
+  const toasts = ref([]);
 
   /** 전역 로딩 상태 (전체 앱에 걸친 로딩 표시) */
   const isGlobalLoading = ref(false);
 
   // ===== GETTERS (계산된 값) =====
   /** 토스트 메시지가 있는지 여부 */
-  const hasToast = computed(() => !!toastMessage.value);
+  const hasToast = computed(() => toasts.value.length > 0);
 
   // ===== ACTIONS (액션들) =====
 
@@ -68,19 +68,45 @@ export const useUiStore = defineStore('ui', () => {
     isDateDetailModalOpen.value = false;
   };
 
+  const hideToast = (id) => {
+    const target = toasts.value.find((toast) => toast.id === id);
+    if (target) {
+      target.visible = false;
+    }
+  };
+
+  // 특정 토스트를 배열에서 완전히 제거
+  const removeToast = (id) => {
+    toasts.value = toasts.value.filter((toast) => toast.id !== id);
+  };
+
   /**
    * 토스트 메시지 표시
    * @param {string} message - 표시할 메시지
    */
   const showToast = (message) => {
-    toastMessage.value = message;
+    const id = Date.now() + Math.random();
+
+    toasts.value.push({
+      id,
+      message,
+      visible: true,
+    });
+
+    // 3초 뒤 먼저 fade-out 상태로 변경
+    setTimeout(() => {
+      hideToast(id);
+    }, 3000);
+
+    // fade-out 애니메이션이 끝난 뒤 실제 제거
+    setTimeout(() => {
+      removeToast(id);
+    }, 3300);
   };
 
-  /**
-   * 토스트 메시지 제거
-   */
+  // 모든 토스트 제거
   const clearToast = () => {
-    toastMessage.value = '';
+    toasts.value = [];
   };
 
   /**
@@ -97,7 +123,7 @@ export const useUiStore = defineStore('ui', () => {
     isSidebarOpen,
     isAddLedgerModalOpen,
     isDateDetailModalOpen,
-    toastMessage,
+    toasts,
     isGlobalLoading,
 
     // Getters
@@ -110,6 +136,8 @@ export const useUiStore = defineStore('ui', () => {
     openDateDetailModal,
     closeDateDetailModal,
     showToast,
+    hideToast,
+    removeToast,
     clearToast,
     setGlobalLoading,
   };

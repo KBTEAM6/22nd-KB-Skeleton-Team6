@@ -1,71 +1,80 @@
 <template>
-  <transition name="toast-fade">
+  <div
+    v-if="uiStore.hasToast"
+    class="toast-container position-fixed top-0 end-0 p-3"
+  >
+    <!--
+      토스트를 배열로 순회해서 스택형으로 렌더링
+      visible 값에 따라 보여짐 / 사라짐 상태를 나눔
+    -->
     <div
-      v-if="uiStore.hasToast"
-      class="toast-container position-fixed top-0 end-0 p-3"
-      style="z-index: 9999"
+      v-for="toast in uiStore.toasts"
+      :key="toast.id"
+      class="toast-box"
+      :class="toast.visible ? 'toast-show' : 'toast-hide'"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
     >
-      <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-body">
-          {{ uiStore.toastMessage }}
-        </div>
-      </div>
+      {{ toast.message }}
     </div>
-  </transition>
+  </div>
 </template>
 
 <script setup>
 import { useUiStore } from '@/stores/ui';
-import { watch } from 'vue';
 
 const uiStore = useUiStore();
-
-// 토스트가 표시되면 3초 후 자동으로 사라지게 함
-watch(
-  () => uiStore.hasToast,
-  (hasToast) => {
-    if (hasToast) {
-      setTimeout(() => {
-        uiStore.clearToast();
-      }, 3000); // 3초 후 사라짐
-    }
-  },
-);
 </script>
 
 <style scoped>
+/* 토스트 전체 컨테이너 */
 .toast-container {
-  max-width: 350px;
+  z-index: 9999;
+  width: min(22rem, calc(100vw - 1.5rem));
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
 }
 
-.toast {
+/* 토스트 하나의 기본 스타일 */
+.toast-box {
+  padding: 0.9rem 1rem;
   background-color: var(--kb-yellow);
   color: var(--kb-gray);
-  border: none;
-  border-radius: 0.5rem;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-
-.toast-body {
-  font-weight: 500;
-}
-
-.toast-fade-enter-from,
-.toast-fade-leave-to {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.toast-fade-enter-active,
-.toast-fade-leave-active {
+  border-radius: 0.9rem;
+  box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.14);
+  font-weight: 600;
+  line-height: 1.4;
+  word-break: keep-all;
   transition:
     opacity 250ms ease,
     transform 250ms ease;
 }
 
-.toast-fade-enter-to,
-.toast-fade-leave-from {
+/* 화면에 보이는 상태 */
+.toast-show {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* 사라지는 상태
+   바로 제거하지 않고 자기 자리에서 서서히 사라지게 함 */
+.toast-hide {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .toast-container {
+    width: min(20rem, calc(100vw - 1rem));
+    padding: 0.75rem;
+  }
+
+  .toast-box {
+    padding: 0.8rem 0.9rem;
+    font-size: 0.92rem;
+  }
 }
 </style>

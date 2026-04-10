@@ -70,6 +70,7 @@ onMounted(() => {
  */
 const handleLogout = () => {
   authStore.logout();
+  uiStore.showToast('로그아웃 했습니다.');
   router.push({ name: 'login' });
 };
 
