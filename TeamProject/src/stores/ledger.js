@@ -326,17 +326,11 @@ export const useLedgerStore = defineStore('ledger', () => {
     activeUserTransactions,
     monthlyTransactions,
     selectedDateTransactions,
-    activeUserTransactions,
     totalIncome,
     totalExpense,
     totalSaving,
-<<<<<<< HEAD
     categoryExpenseChartData,
     calendarData,
-=======
-
-    // Actions
->>>>>>> 13f6814 (feat: uiToast 구현 + 마이페이지 연동중 db.json변경 직전 commit)
     fetchTransactions,
     refreshTransactions,
     addTransaction,
