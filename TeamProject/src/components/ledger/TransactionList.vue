@@ -85,13 +85,21 @@ const props = defineProps({
 const ledgerStore = useLedgerStore();
 
 const filteredTransactions = computed(() => {
-  // 현재 스토어에 로드된 이번 달 거래 내역 가져오기
+  // 이번 달 전체 데이터를 가져오기
   const data = ledgerStore.monthlyTransactions;
 
-  // 카테고리 필터링 로직 유지
+  // 카테고리가 선택된 경우 (차트를 클릭한 경우)
   if (props.selectedCategory) {
-    return data.filter((t) => t.category === props.selectedCategory);
+    return data.filter(
+      (t) =>
+        // 카테고리 명칭이 일치하면서
+        t.category === props.selectedCategory &&
+        // 동시에 타입이 지출(EXPENSE)인 것만 필터링
+        t.type === "EXPENSE",
+    );
   }
+
+  // 3. 카테고리 선택이 없는 평상시에는 전체 데이터(수입+지출)를 반환
   return data;
 });
 
