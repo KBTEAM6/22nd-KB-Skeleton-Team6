@@ -1,17 +1,10 @@
 <script setup>
-import { usecouplesStore } from "@/stores/couples";
-import { useAuthStore } from "@/stores/auth";
-
-const coupleStore = usecouplesStore();
-const authStore = useAuthStore();
-
-const myId = authStore.user.id;
 const props = defineProps({
   user: Object,
   type: String,
   requestId: Number,
 });
-const emit = defineEmits(["action"]);
+const emit = defineEmits(['action']);
 </script>
 <template>
   <div
@@ -25,7 +18,9 @@ const emit = defineEmits(["action"]);
         src="https://lh3.googleusercontent.com/aida-public/AB6AXuDftwAZ6yHDb__srqcdXMrN_IYNTXVXvQJkK2pE2fVNcgUHorcnWJB-C8ZGK5a9_FjfswfOTntz6snsOsYdkLA0gD9Wah_YVTKhB4K8UUFP1rBKI__mJ17uTk1oNAYoABuXovMCCKys_fMdY2eG_zUtgFvIZSB_ETVO7M2REjK6xHT68SrlYGN3F842Vam4Rm_-0EJrqtPUbIDlFPOOEjcIU9gICXH2Y5K3jtcivyeiiif0X38GAlYECUjqaOWPsOMpSDwmFUixZm-f"
       />
       <div>
-        <h3 class="fw-bold m-0 fs-6">{{ user.nickname }}</h3>
+        <h3 class="fw-bold m-0 fs-6">
+          {{ user.name || user.nickname || '이름 없음' }}
+        </h3>
         <p class="small text-muted m-0">{{ user.email }}</p>
       </div>
     </div>
@@ -34,25 +29,9 @@ const emit = defineEmits(["action"]);
         v-if="type === 'search'"
         @click="$emit('action', { type: 'request', user })"
         class="btn rounded-pill px-4 py-2 small fw-bold text-white"
-        :style="{
-          backgroundColor:
-            coupleStore.isAlreadyRequested(myId, user.id) ||
-            coupleStore.isTargetAlreadyCoupled(user.id)
-              ? '#e57373'
-              : '#4a90e2',
-          border: 'none',
-        }"
-        :disabled="
-          coupleStore.isAlreadyRequested(myId, user.id) ||
-          coupleStore.isTargetAlreadyCoupled(user.id)
-        "
+        style="background-color: #4a90e2; border: none"
       >
-        {{
-          coupleStore.isAlreadyRequested(myId, user.id) ||
-          coupleStore.isTargetAlreadyCoupled(user.id)
-            ? "요청불가"
-            : "부부 요청"
-        }}
+        파트너 요청
       </button>
       <template v-else-if="type === 'received'">
         <button
@@ -79,6 +58,15 @@ const emit = defineEmits(["action"]);
           style="background-color: #e57373; border: none"
         >
           전송 취소
+        </button>
+      </template>
+      <template v-else-if="type === 'matched'">
+        <button
+          class="btn rounded-pill px-4 py-2 small fw-bold"
+          style="background-color: #e9ecef; color: #6c757d; border: none"
+          disabled
+        >
+          매칭된 사용자
         </button>
       </template>
     </div>

@@ -1,14 +1,12 @@
 <script setup>
-import { usecouplesStore } from "@/stores/couples.js";
-import { useAuthStore } from "@/stores/auth.js";
-import { ref, onMounted } from "vue";
-import CoupleCard from "@/components/common/CoupleCard.vue";
-import { useRouter } from "vue-router";
+import { usecouplesStore } from '@/stores/couples.js';
+import { useAuthStore } from '@/stores/auth.js';
+import { ref, onMounted } from 'vue';
+import CoupleCard from '@/components/common/CoupleCard.vue';
 
-const router = useRouter();
 const coupleStore = usecouplesStore();
 const authStore = useAuthStore();
-const keyword = ref("");
+const keyword = ref('');
 
 const handleSearch = () => {
   if (!keyword.value.trim()) {
@@ -19,31 +17,43 @@ const handleSearch = () => {
 };
 
 const resetSearch = () => {
-  keyword.value = "";
+  keyword.value = '';
   coupleStore.searchResults = [];
 };
+const getUserCardType = (user) => {
+  const receivedReq = coupleStore.pendingReceivedRequests.find(
+    (req) => req.user?.id === user.id,
+  );
+  if (receivedReq) return 'received';
 
-onMounted(async () => {
-  const userId = authStore.user.id;
-  await coupleStore.fetchAllcouples();
-
-  const isCoupled = coupleStore.allcouples.some(
-    (c) => c.user1Id === userId || c.user2Id === userId,
+  const sentReq = coupleStore.pendingSentRequests.find(
+    (req) => req.user?.id === user.id,
+  );
+  if (sentReq) return 'sent';
+  if (coupleStore.isTargetAlreadyCoupled(user.id)) {
+    return 'matched';
+  }
+  return 'search';
+};
+const getRequestIdByUser = (user) => {
+  const sentReq = coupleStore.pendingSentRequests.find(
+    (req) => req.user?.id === user.id,
   );
 
-  if (isCoupled) {
-    router.push("/couples2");
-    return;
-  }
+  return sentReq?.id ?? null;
+};
+const getReceivedRequestUser = (user) => {
+  const receivedReq = coupleStore.pendingReceivedRequests.find(
+    (req) => req.user?.id === user.id,
+  );
 
-  await coupleStore.fetchReceivedRequests(userId);
-  await coupleStore.fetchSentRequests(userId);
-});
+  return receivedReq ?? user;
+};
 
 const handleAction = async ({ type, user, requestId }) => {
   const myId = authStore.user.id;
 
-  if (type === "request") {
+  if (type === 'request') {
     await coupleStore.sendcoupleRequest({
       requesterId: myId,
       targetUserId: user.id,
@@ -51,21 +61,21 @@ const handleAction = async ({ type, user, requestId }) => {
     await coupleStore.fetchSentRequests(myId);
   }
 
-  if (type === "accept") {
+  if (type === 'accept') {
     const result = await coupleStore.acceptcoupleRequest(user);
     if (result.success) {
-      router.push("/couples2");
+      await coupleStore.fetchAllcouples();
       return;
     }
     await coupleStore.fetchReceivedRequests(myId);
   }
 
-  if (type === "reject") {
+  if (type === 'reject') {
     await coupleStore.rejectcoupleRequest(user.id);
     await coupleStore.fetchReceivedRequests(myId);
   }
 
-  if (type === "cancel") {
+  if (type === 'cancel') {
     await coupleStore.cancelcoupleRequest(requestId);
     await coupleStore.fetchSentRequests(myId);
   }
@@ -138,8 +148,18 @@ const handleAction = async ({ type, user, requestId }) => {
                   v-for="user in coupleStore.searchResults"
                   :key="user.id"
                   :user="user"
-                  type="search"
-                  @action="handleAction"
+                  :type="getUserCardType(user)"
+                  :request-id="getRequestIdByUser(user)"
+                  @action="
+                    (payload) =>
+                      handleAction({
+                        ...payload,
+                        user:
+                          payload.type === 'accept' || payload.type === 'reject'
+                            ? getReceivedRequestUser(user)
+                            : user,
+                      })
+                  "
                 />
               </template>
 

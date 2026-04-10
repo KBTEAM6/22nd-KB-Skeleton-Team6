@@ -10,8 +10,7 @@ import LoginPage from '@/pages/auth/LoginPage.vue';
 import SignupPage from '@/pages/auth/SignupPage.vue';
 import HomePage from '@/pages/home/HomePage.vue';
 import LedgerPage from '@/pages/ledger/LedgerPage.vue';
-import CoupleDetailPage from '@/pages/couples/coupleDetailPage.vue';
-import CoupleLedgerPage from '@/pages/couples/CoupleLedgerPage.vue';
+import CoupleDashboardPage from '@/pages/couples/CoupleDashboardPage.vue'; //커플 페이지 통합
 import MyPagePage from '@/pages/mypage/MyPagePage.vue';
 import SettingsPage from '@/pages/settings/SettingsPage.vue';
 
@@ -49,12 +48,7 @@ const routes = [
       {
         path: 'couples',
         name: 'couples',
-        component: CoupleLedgerPage,
-      },
-      {
-        path: 'couples2',
-        name: 'couples2',
-        component: CoupleDetailPage,
+        component: CoupleDashboardPage,
       },
       {
         path: 'mypage',

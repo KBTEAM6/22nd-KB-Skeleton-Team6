@@ -14,6 +14,7 @@ import {
   getcouplesByUserId,
   createcouple,
   deletecouple,
+  getAllcoupleRequests,
 } from '@/api/couples';
 import { getUserById } from '@/api/auth';
 import { deletecoupleRequest } from '@/api/couples'; //요청취소 불러오기
@@ -203,9 +204,10 @@ export const usecouplesStore = defineStore('couples', () => {
       isLoading.value = true;
       errorMessage.value = '';
 
-      await updatecoupleRequest(requestId, { status: 'rejected' });
-      receivedRequests.value = receivedRequests.value.map((item) =>
-        item.id === requestId ? { ...item, status: 'rejected' } : item,
+      await deletecoupleRequest(requestId);
+
+      receivedRequests.value = receivedRequests.value.filter(
+        (item) => item.id !== requestId,
       );
 
       return { success: true };
@@ -289,8 +291,6 @@ export const usecouplesStore = defineStore('couples', () => {
       isLoading.value = true;
       errorMessage.value = '';
 
-      await updatecoupleRequest(request.id, { status: 'accepted' });
-
       await createcouple({
         user1Id: request.fromId,
         user2Id: request.toId,
@@ -298,12 +298,26 @@ export const usecouplesStore = defineStore('couples', () => {
         createdAt: new Date().toISOString(),
       });
 
-      await fetchAllcouples();
+      await deleteRelatedPendingRequests(request.fromId, request.toId);
 
-      receivedRequests.value = receivedRequests.value.map((item) =>
-        item.id === request.id ? { ...item, status: 'accepted' } : item,
+      receivedRequests.value = receivedRequests.value.filter(
+        (item) =>
+          item.fromId !== request.fromId &&
+          item.toId !== request.fromId &&
+          item.fromId !== request.toId &&
+          item.toId !== request.toId,
       );
-
+      sentRequests.value = sentRequests.value.filter(
+        (item) =>
+          item.fromId !== request.fromId &&
+          item.toId !== request.fromId &&
+          item.fromId !== request.toId &&
+          item.toId !== request.toId,
+      );
+      searchResults.value = searchResults.value.filter(
+        (user) => user.id !== request.fromId && user.id !== request.toId,
+      );
+      await fetchAllcouples();
       return { success: true };
     } catch (error) {
       errorMessage.value = error.message || '친구 요청 수락에 실패했습니다.';
@@ -406,6 +420,22 @@ export const usecouplesStore = defineStore('couples', () => {
   const isTargetAlreadyCoupled = (targetId) => {
     return allcouples.value.some(
       (c) => c.user1Id === targetId || c.user2Id === targetId,
+    );
+  };
+  const deleteRelatedPendingRequests = async (userAId, userBId) => {
+    const allRequests = await getAllcoupleRequests();
+
+    const relatedPendingRequests = allRequests.filter(
+      (req) =>
+        req.status === 'pending' &&
+        (req.fromId === userAId ||
+          req.toId === userAId ||
+          req.fromId === userBId ||
+          req.toId === userBId),
+    );
+
+    await Promise.all(
+      relatedPendingRequests.map((req) => deletecoupleRequest(req.id)),
     );
   };
 
