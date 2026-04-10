@@ -139,20 +139,30 @@ export const useLedgerStore = defineStore('ledger', () => {
   const categoryExpenseChartData = computed(() => {
     const result = {};
 
+    // 모든 지출 카테고리를 초기화
+    expenseCategories.forEach(category => {
+      result[category] = 0;
+    });
+
     monthlyTransactions.value
       .filter((item) => item.type === 'EXPENSE')
       .forEach((item) => {
-        if (!result[item.category]) {
-          result[item.category] = 0;
+        // 정의된 카테고리에 해당하는 경우 합산
+        if (result.hasOwnProperty(item.category)) {
+          result[item.category] += item.amount;
+        } else {
+          // 정의되지 않은 카테고리는 '기타'로 합산하거나 무시
+          result['기타'] = (result['기타'] || 0) + item.amount;
         }
-        result[item.category] += item.amount;
       });
 
-    return Object.entries(result).map(([category, value]) => ({
-      category,
-      value,
-      color: categoryPalette[category] ?? '#cdd5df',
-    }));
+    return Object
+      .entries(result)
+      .map(([category, value]) => ({
+        category,
+        value,
+        color: categoryPalette[category] ?? '#cdd5df',
+      }));
   });
 
   // 달력에 표시할 날짜별 수입/지출 합산 계산
