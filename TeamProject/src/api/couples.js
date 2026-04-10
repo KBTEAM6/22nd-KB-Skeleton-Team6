@@ -108,3 +108,8 @@ export const getAllcouples = async () => {
   const response = await api.get('/couples');
   return response.data;
 };
+//전체 커플 요청 조회
+export const getAllcoupleRequests = async () => {
+  const response = await api.get('/coupleRequests');
+  return response.data;
+};
