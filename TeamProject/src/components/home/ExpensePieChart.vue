@@ -3,6 +3,12 @@
     <h3 class="fw-bold mb-4 fs-5">카테고리별 지출</h3>
 
     <div class="position-relative" style="height: 16rem">
+      <div
+        v-if="total === 0"
+        class="position-absolute top-50 start-50 translate-middle text-muted small"
+      >
+        지출 내역이 없습니다
+      </div>
       <Pie :data="chartData" :options="chartOptions" />
     </div>
 
@@ -27,7 +33,7 @@
         <div class="small">
           <span class="fw-medium"> {{ item.value.toLocaleString() }}원 </span>
           <span class="text-muted ms-2">
-            ({{ ((item.value / total) * 100).toFixed(1) }}%)
+            ({{ getPercentage(item.value) }}%)
           </span>
         </div>
       </div>
@@ -55,16 +61,28 @@ const total = computed(() =>
   chartSource.value.reduce((sum, item) => sum + item.value, 0),
 );
 
-const chartData = computed(() => ({
-  labels: chartSource.value.map((item) => item.category),
-  datasets: [
-    {
-      backgroundColor: chartSource.value.map((item) => item.color),
-      data: chartSource.value.map((item) => item.value),
-      borderWidth: 0,
-    },
-  ],
-}));
+const chartData = computed(() => {
+  const values = chartSource.value.map((item) => item.value);
+  const isAllZero = values.every((v) => v === 0);
+
+  return {
+    labels: chartSource.value.map((item) => item.category),
+    datasets: [
+      {
+        backgroundColor: isAllZero
+          ? chartSource.value.map(() => "#f0f0f0")
+          : chartSource.value.map((item) => item.color),
+        data: isAllZero ? [1] : values,
+        borderWidth: 0,
+      },
+    ],
+  };
+});
+
+const getPercentage = (value) => {
+  if (total.value === 0) return "0.0";
+  return ((value / total.value) * 100).toFixed(1);
+};
 
 const chartOptions = {
   responsive: true,
