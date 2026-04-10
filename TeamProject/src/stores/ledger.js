@@ -82,12 +82,14 @@ export const useLedgerStore = defineStore('ledger', () => {
    * 현재 사용자의 모든 거래 내역
    * @returns {Array} 필터링된 거래 내역
    */
-  const activeUserTransactions = computed(() =>
-    transactions.value.filter(
-      // (item) => Number(item.userId) === Number(authStore.activeUserId),
-      (item) => Number(item.userId) === Number(1),
-    ),
-  );
+  const activeUserTransactions = computed(() => {
+    const currentUserId = authStore.user?.id;
+    if (!currentUserId) return [];
+
+    return transactions.value.filter(
+      (item) => Number(item.userId) === Number(currentUserId)
+    );
+  });
 
   /**
    * 현재 월의 거래 내역
@@ -195,15 +197,14 @@ export const useLedgerStore = defineStore('ledger', () => {
    * @returns {Promise<void>}
    */
   async function fetchTransactions() {
-    // 쿼리 파라미터로 현재 로그인한 사용자의 ID를 전달
-    // 해당 사용자의 거래 내역만 조회
+    const currentUserId = authStore.user?.id;
+    if (!currentUserId) return;
+
     const res = await api.get('/transactions', {
       params: {
-        userId: 1,
-        // userId: authStore.activeUserId
+        userId: currentUserId,
       },
     });
-    // 응답 데이터를 거래 내역 상태에 저장
     transactions.value = res.data;
   }
 
@@ -227,6 +228,9 @@ export const useLedgerStore = defineStore('ledger', () => {
    * @throws {Error} 카테고리 검증 실패 시
    */
   async function addTransaction(payload) {
+    const currentUserId = authStore.user?.id;
+    if (!currentUserId) throw new Error('로그인이 필요합니다.');
+
     const allowedCategories = categoryByType[payload.type] ?? [];
     if (!allowedCategories.includes(payload.category)) {
       throw new Error(`${payload.type} 유형에 맞는 카테고리를 선택해주세요.`);
@@ -234,7 +238,7 @@ export const useLedgerStore = defineStore('ledger', () => {
 
     const response = await api.post('/transactions', {
       ...payload,
-      userId: authStore.activeUserId,
+      userId: currentUserId,
     });
     transactions.value.push(response.data);
     await refreshTransactions();
@@ -248,11 +252,11 @@ export const useLedgerStore = defineStore('ledger', () => {
    * @throws {Error} 권한 없음 또는 카테고리 검증 실패 시
    */
   async function updateTransaction(id, payload) {
+    const currentUserId = authStore.user?.id;
     const target = transactions.value.find((item) => item.id === id);
-    if (
-      target &&
-      Number(target.userId ?? authStore.activeUserId) !== Number(authStore.activeUserId)
-    ) {
+
+    // 본인의 거래 내역인지 검증
+    if (target && Number(target.userId) !== Number(currentUserId)) {
       throw new Error('현재 사용자 거래내역만 수정할 수 있습니다.');
     }
 
@@ -272,11 +276,10 @@ export const useLedgerStore = defineStore('ledger', () => {
    * @throws {Error} 권한 없음 시
    */
   async function deleteTransaction(id) {
+    const currentUserId = authStore.user?.id;
     const target = transactions.value.find((item) => item.id === id);
-    if (
-      target &&
-      Number(target.userId ?? authStore.activeUserId) !== Number(authStore.activeUserId)
-    ) {
+
+    if (target && Number(target.userId) !== Number(currentUserId)) {
       throw new Error('현재 사용자 거래내역만 삭제할 수 있습니다.');
     }
 
