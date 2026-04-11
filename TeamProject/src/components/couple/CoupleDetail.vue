@@ -24,6 +24,7 @@
       >
         <span class="material-symbols-outlined fs-5">edit</span>
       </button>
+
       <div
         class="position-relative z-3 d-flex align-items-center justify-content-center w-100"
         style="max-width: 64rem"
@@ -44,6 +45,7 @@
                 edit
               </span>
             </button>
+
             <template v-if="editingMessage === 'user'">
               <div class="d-flex align-items-center gap-2">
                 <input
@@ -66,6 +68,7 @@
               {{ statusMessages.user }}
             </template>
           </div>
+
           <div class="d-flex flex-column align-items-center gap-2">
             <div
               class="rounded-circle border border-4 border-white shadow-sm overflow-hidden"
@@ -94,13 +97,14 @@
             <span
               class="material-symbols-outlined fs-4"
               style="font-variation-settings: 'FILL' 1"
-              >favorite</span
             >
+              favorite
+            </span>
           </div>
           <div class="d-flex gap-4 mt-1">
-            <span class="material-symbols-outlined text-black-50 fs-5"
-              >sync_alt</span
-            >
+            <span class="material-symbols-outlined text-black-50 fs-5">
+              sync_alt
+            </span>
           </div>
         </div>
 
@@ -123,6 +127,7 @@
               {{ partnerName }}
             </span>
           </div>
+
           <div
             class="message-box bg-white px-3 py-2 rounded-4 shadow-sm text-black small fw-bold d-none d-xl-block position-relative"
             style="white-space: nowrap"
@@ -136,6 +141,7 @@
                 edit
               </span>
             </button>
+
             <template v-if="editingMessage === 'partner'">
               <div class="d-flex align-items-center gap-2">
                 <input
@@ -171,7 +177,7 @@
     <div class="row g-4">
       <div class="col-12 col-lg-8">
         <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm border h-100">
-          <div class="d-flex align-items-center justify-content-between mb-5">
+          <div class="d-flex align-items-center justify-content-between mb-3">
             <h3 class="fs-5 fw-bold m-0">이번 달 금융 현황 비교</h3>
             <span
               class="small fw-medium text-muted bg-light px-3 py-1 rounded-pill"
@@ -180,7 +186,12 @@
             </span>
           </div>
 
+          <p class="small text-muted mb-5">
+            막대 길이는 전체 금액 기준으로 표시됩니다.
+          </p>
+
           <div class="d-flex flex-column gap-5">
+            <!-- 수입 -->
             <div class="position-relative">
               <div
                 class="d-flex justify-content-between align-items-center mb-2 px-2"
@@ -193,14 +204,16 @@
                     {{ summary.myIncome.toLocaleString() }}원
                   </p>
                 </div>
+
                 <div class="text-center flex-1" style="width: 33%">
-                  <span class="small fw-bold bg-light px-3 py-1 rounded-pill"
-                    >수입</span
-                  >
+                  <span class="small fw-bold bg-light px-3 py-1 rounded-pill">
+                    수입
+                  </span>
                   <p class="mt-2 small fw-bold text-muted m-0">
                     합산: {{ summary.totalIncome.toLocaleString() }}원
                   </p>
                 </div>
+
                 <div class="text-end flex-1" style="width: 33%">
                   <p class="text-muted fw-bold mb-1 small text-uppercase">
                     {{ partnerName }}
@@ -210,6 +223,7 @@
                   </p>
                 </div>
               </div>
+
               <div
                 class="d-flex align-items-center w-100 bg-light rounded-pill overflow-hidden"
                 style="height: 1rem"
@@ -224,10 +238,12 @@
                     }"
                   ></div>
                 </div>
+
                 <div
                   class="h-100 bg-white"
                   style="width: 2px; z-index: 2"
                 ></div>
+
                 <div class="flex-grow-1 d-flex justify-content-start h-100">
                   <div
                     class="h-100"
@@ -241,6 +257,7 @@
               </div>
             </div>
 
+            <!-- 지출 -->
             <div class="position-relative">
               <div
                 class="d-flex justify-content-between align-items-center mb-2 px-2"
@@ -250,20 +267,23 @@
                     {{ summary.myExpense.toLocaleString() }}원
                   </p>
                 </div>
+
                 <div class="text-center" style="width: 33%">
-                  <span class="small fw-bold bg-light px-3 py-1 rounded-pill"
-                    >지출</span
-                  >
+                  <span class="small fw-bold bg-light px-3 py-1 rounded-pill">
+                    지출
+                  </span>
                   <p class="mt-2 small fw-bold text-muted m-0">
                     합산: {{ summary.totalExpense.toLocaleString() }}원
                   </p>
                 </div>
+
                 <div class="text-end" style="width: 33%">
                   <p class="fs-5 fw-bold m-0" style="color: #1e88e5">
                     {{ summary.partnerExpense.toLocaleString() }}원
                   </p>
                 </div>
               </div>
+
               <div
                 class="d-flex align-items-center w-100 bg-light rounded-pill overflow-hidden"
                 style="height: 1rem"
@@ -278,10 +298,12 @@
                     }"
                   ></div>
                 </div>
+
                 <div
                   class="h-100 bg-white"
                   style="width: 2px; z-index: 2"
                 ></div>
+
                 <div class="flex-grow-1 d-flex justify-content-start h-100">
                   <div
                     class="h-100"
@@ -295,15 +317,20 @@
               </div>
             </div>
 
+            <!-- 순수익 -->
             <div class="position-relative">
               <div
                 class="d-flex justify-content-between align-items-center mb-2 px-2"
               >
                 <div class="text-start" style="width: 33%">
-                  <p class="fs-5 fw-bold m-0" style="color: #e53935">
-                    {{ summary.myProfit.toLocaleString() }}원
+                  <p
+                    class="fs-5 fw-bold m-0"
+                    style="color: #e53935;"
+                  >
+                    {{ formatSignedCurrency(summary.myProfit) }}
                   </p>
                 </div>
+
                 <div
                   class="d-flex flex-column align-items-center text-center"
                   style="width: 33%"
@@ -312,42 +339,17 @@
                     순 수익
                   </span>
                   <p class="mt-2 small fw-bold text-muted m-0">
-                    합산: {{ summary.totalProfit.toLocaleString() }}원
+                    합산: {{ formatSignedCurrency(summary.totalProfit) }}
                   </p>
                 </div>
+
                 <div class="text-end" style="width: 33%">
-                  <p class="fs-5 fw-bold m-0" style="color: #1e88e5">
-                    {{ summary.partnerProfit.toLocaleString() }}원
+                  <p
+                    class="fs-5 fw-bold m-0"
+                    style="color: #1e88e5;"
+                  >
+                    {{ formatSignedCurrency(summary.partnerProfit) }}
                   </p>
-                </div>
-              </div>
-              <div
-                class="d-flex align-items-center w-100 bg-light rounded-pill overflow-hidden"
-                style="height: 1rem"
-              >
-                <div class="flex-grow-1 d-flex justify-content-end h-100">
-                  <div
-                    class="h-100 shadow-sm"
-                    :style="{
-                      backgroundColor: '#e53935',
-                      width: profitBar.myWidth,
-                      borderRadius: '50rem 0 0 50rem',
-                    }"
-                  ></div>
-                </div>
-                <div
-                  class="h-100 bg-white"
-                  style="width: 2px; z-index: 2"
-                ></div>
-                <div class="flex-grow-1 d-flex justify-content-start h-100">
-                  <div
-                    class="h-100 shadow-sm"
-                    :style="{
-                      backgroundColor: '#1e88e5',
-                      width: profitBar.partnerWidth,
-                      borderRadius: '0 50rem 50rem 0',
-                    }"
-                  ></div>
                 </div>
               </div>
             </div>
@@ -387,9 +389,11 @@
             <span
               class="bg-primary text-white px-2 py-1 rounded-pill"
               style="font-size: 10px"
-              >New</span
             >
+              New
+            </span>
           </h3>
+
           <div class="d-flex flex-column gap-3">
             <div
               class="bg-light p-3 rounded-3 d-flex align-items-center gap-3 border"
@@ -408,6 +412,7 @@
                 <p class="text-muted mt-1 m-0" style="font-size: 9px">5분 전</p>
               </div>
             </div>
+
             <div
               class="bg-light p-3 rounded-3 d-flex align-items-center gap-3 border"
             >
@@ -446,6 +451,7 @@
           </span>
         </button>
       </div>
+
       <div class="row g-4">
         <div
           v-for="cat in visibleCategories"
@@ -459,28 +465,30 @@
                 :class="cat.bgClass"
                 style="width: 40px; height: 40px"
               >
-                <span class="material-symbols-outlined fs-5">{{
-                  cat.icon
-                }}</span>
+                <span class="material-symbols-outlined fs-5">
+                  {{ cat.icon }}
+                </span>
               </div>
               <span class="fw-bold">{{ cat.name }}</span>
             </div>
+
             <div class="d-flex flex-column gap-2">
               <div
                 class="d-flex justify-content-between align-items-center small"
               >
                 <span class="text-muted">{{ userName }}</span>
-                <span class="fw-bold" style="color: #e53935">{{
-                  cat.val1
-                }}</span>
+                <span class="fw-bold" style="color: #e53935">
+                  {{ cat.val1 }}
+                </span>
               </div>
+
               <div
                 class="d-flex justify-content-between align-items-center small"
               >
                 <span class="text-muted">{{ partnerName }}</span>
-                <span class="fw-bold" style="color: #1e88e5">{{
-                  cat.val2
-                }}</span>
+                <span class="fw-bold" style="color: #1e88e5">
+                  {{ cat.val2 }}
+                </span>
               </div>
             </div>
           </div>
@@ -497,6 +505,10 @@ import { usecouplesStore } from '../../stores/couples';
 import { getUserById } from '../../api/auth';
 import { useRouter } from 'vue-router';
 import { useUiStore } from '@/stores/ui';
+import {
+  getCoupleMonthlySummary,
+  getCoupleTransactions,
+} from '@/api/coupleLedger';
 
 const router = useRouter();
 const uiStore = useUiStore();
@@ -516,14 +528,17 @@ const partnerId = computed(() => {
 });
 
 const partnerName = computed(() => partner.value?.name || '배우자');
+
 const statusMessages = ref({
   user: '오늘도 절약 화이팅!',
   partner: '같이 부자되자!',
 });
+
 const editableMessages = ref({
   user: statusMessages.value.user,
   partner: statusMessages.value.partner,
 });
+
 const editingMessage = ref(null);
 
 const coupleDays = computed(() => {
@@ -532,6 +547,7 @@ const coupleDays = computed(() => {
   const today = new Date();
   return Math.floor((today - createdDate) / (1000 * 60 * 60 * 24)) + 1;
 });
+
 const categoryMeta = {
   식비: {
     icon: 'restaurant',
@@ -563,6 +579,74 @@ const categoryMeta = {
   },
 };
 
+const summary = ref({
+  myIncome: 0,
+  partnerIncome: 0,
+  totalIncome: 0,
+  myExpense: 0,
+  partnerExpense: 0,
+  totalExpense: 0,
+  myProfit: 0,
+  partnerProfit: 0,
+  totalProfit: 0,
+  transactions: [],
+});
+
+const monthKey = computed(() => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  return `${year}-${month}`;
+});
+
+const comparisonScale = computed(() => {
+  const incomeA = Number(summary.value.myIncome || 0);
+  const incomeB = Number(summary.value.partnerIncome || 0);
+  const expenseA = Number(summary.value.myExpense || 0);
+  const expenseB = Number(summary.value.partnerExpense || 0);
+  const netA = Number(summary.value.myProfit || 0);
+  const netB = Number(summary.value.partnerProfit || 0);
+
+  const globalMax = Math.max(
+    Math.abs(incomeA),
+    Math.abs(incomeB),
+    Math.abs(expenseA),
+    Math.abs(expenseB),
+    Math.abs(netA),
+    Math.abs(netB),
+    1,
+  );
+
+  const toWidth = (value) =>
+    `${(Math.abs(Number(value || 0)) / globalMax) * 100}%`;
+
+  return {
+    globalMax,
+    incomeAWidth: toWidth(incomeA),
+    incomeBWidth: toWidth(incomeB),
+    expenseAWidth: toWidth(expenseA),
+    expenseBWidth: toWidth(expenseB),
+  };
+});
+
+const incomeBar = computed(() => ({
+  myWidth: comparisonScale.value.incomeAWidth,
+  partnerWidth: comparisonScale.value.incomeBWidth,
+}));
+
+const expenseBar = computed(() => ({
+  myWidth: comparisonScale.value.expenseAWidth,
+  partnerWidth: comparisonScale.value.expenseBWidth,
+}));
+
+const formatSignedCurrency = (value) => {
+  const amount = Number(value || 0);
+  if (amount < 0) {
+    return `-${Math.abs(amount).toLocaleString()}원`;
+  }
+  return `${amount.toLocaleString()}원`;
+};
+
 const categories = computed(() => {
   const map = {};
 
@@ -570,7 +654,7 @@ const categories = computed(() => {
     if (item.type !== 'EXPENSE') return;
 
     const categoryName = item.category || '기타';
-    const meta = categoryMeta[categoryName] || categoryMeta['기타'];
+    const meta = categoryMeta[categoryName] || categoryMeta.기타;
 
     if (!map[categoryName]) {
       map[categoryName] = {
@@ -603,6 +687,7 @@ const categories = computed(() => {
       val2: `${item.partnerAmount.toLocaleString()}원`,
     }));
 });
+
 const showAllCategories = ref(false);
 
 const visibleCategories = computed(() => {
@@ -615,92 +700,6 @@ const visibleCategories = computed(() => {
 
 const hasMoreCategories = computed(() => categories.value.length > 4);
 
-import {
-  getCoupleMonthlySummary,
-  getCoupleTransactions,
-} from '@/api/coupleLedger';
-
-const summary = ref({
-  myIncome: 0,
-  partnerIncome: 0,
-  totalIncome: 0,
-  myExpense: 0,
-  partnerExpense: 0,
-  totalExpense: 0,
-  myProfit: 0,
-  partnerProfit: 0,
-  totalProfit: 0,
-  transactions: [],
-});
-
-const monthKey = computed(() => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  return `${year}-${month}`;
-});
-
-const incomeBar = computed(() => {
-  const total = summary.value.totalIncome;
-
-  if (!total) {
-    return {
-      myWidth: '0%',
-      partnerWidth: '0%',
-    };
-  }
-
-  return {
-    myWidth: `${(summary.value.myIncome / total) * 100}%`,
-    partnerWidth: `${(summary.value.partnerIncome / total) * 100}%`,
-  };
-});
-
-const expenseBar = computed(() => {
-  const total = summary.value.totalExpense;
-
-  if (!total) {
-    return {
-      myWidth: '0%',
-      partnerWidth: '0%',
-    };
-  }
-
-  return {
-    myWidth: `${(summary.value.myExpense / total) * 100}%`,
-    partnerWidth: `${(summary.value.partnerExpense / total) * 100}%`,
-  };
-});
-
-const profitBar = computed(() => {
-  let my;
-  if (summary.value.myProfit < 0) {
-    my = 0;
-  } else {
-    my = summary.value.myProfit;
-  }
-
-  let partner;
-  if (summary.value.partnerProfit < 0) {
-    partner = 0;
-  } else {
-    partner = summary.value.partnerProfit;
-  }
-
-  const total = my + partner;
-
-  if (!total) {
-    return {
-      myWidth: '0%',
-      partnerWidth: '0%',
-    };
-  }
-
-  return {
-    myWidth: `${(summary.value.myProfit / total) * 100}%`,
-    partnerWidth: `${(summary.value.partnerProfit / total) * 100}%`,
-  };
-});
 const myLatestTransaction = computed(() => {
   const myTransactions = summary.value.transactions.filter(
     (item) => Number(item.userId) === Number(userId.value),
@@ -734,10 +733,7 @@ const confirmDisconnectCouple = async () => {
     return;
   }
 
-  const confirmed = window.confirm(
-    '배우자와 연동을 정말로 해지하겠습니까?',
-  );
-
+  const confirmed = window.confirm('배우자와 연동을 정말로 해지하겠습니까?');
   if (!confirmed) return;
 
   const result = await couplesStore.removecouple(myCouple.value.id);
@@ -766,10 +762,8 @@ onMounted(async () => {
       monthKey.value,
     );
   }
-  const coupleTransactions = getCoupleTransactions(userId, partnerId);
-  console.log('부부 트랜잭션', coupleTransactions);
-  console.log('summary', summary.value);
-  console.log('income', summary.value.totalIncome);
+
+  //  const coupleTransactions = getCoupleTransactions(userId, partnerId);
 });
 </script>
 
