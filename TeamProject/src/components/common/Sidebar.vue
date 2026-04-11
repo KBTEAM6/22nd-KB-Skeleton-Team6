@@ -106,7 +106,7 @@ const handleMenuClick = () => {
   />
 
   <!-- 모바일 상단 바 -->
-  <div class="mobile-topbar d-lg-none">
+  <div v-if="!uiStore.isSidebarOpen" class="mobile-topbar d-lg-none">
     <button type="button" class="hamburger-btn" @click="toggleSidebar">
       <Menu :size="22" />
     </button>
@@ -140,7 +140,7 @@ const handleMenuClick = () => {
         </div>
         <div>
           <h1 class="fw-bold fs-5 mb-0">가계쀼</h1>
-          <p class="small text-muted mb-0">Boo-jet</p>
+          <p class="small mb-0 brand-subtitle">Boo-jet</p>
         </div>
       </div>
 
@@ -281,29 +281,32 @@ const handleMenuClick = () => {
 
 <style scoped>
 .mobile-topbar {
-  position: sticky;
-  top: 0;
-  z-index: 1040;
-  height: 64px;
-  padding: 0 1rem;
-  background: var(--card-bg);
-  border-bottom: 1px solid var(--border-color);
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 1060;
+  height: auto;
+  padding: 0;
+  background: transparent;
+  border-bottom: none;
   color: var(--text-color);
   display: flex;
   align-items: center;
-  gap: 0.9rem;
+  gap: 0;
 }
 
 .hamburger-btn,
 .sidebar-close-btn {
   border: 0;
-  background: transparent;
+  background: var(--card-bg);
+  color: var(--text-color);
   width: 40px;
   height: 40px;
   border-radius: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: var(--shadow-sm);
 }
 
 .hamburger-btn:hover,
@@ -341,7 +344,7 @@ const handleMenuClick = () => {
   z-index: 1050;
   background: var(--card-bg);
   color: var(--text-color);
-  border-color: var(--border-color) !important;
+  border: none;
 }
 
 .profile-area {
@@ -520,6 +523,19 @@ const handleMenuClick = () => {
 }
 
 .profile-email {
+  color: var(--text-muted);
+}
+
+/* 메뉴 hover */
+.profile-menu-item:hover {
+  background-color: var(--sub-bg);
+}
+
+/* 사이드바 전체 글자 */
+.app-sidebar {
+  color: var(--text-color);
+}
+.brand-subtitle {
   color: var(--text-muted);
 }
 </style>
