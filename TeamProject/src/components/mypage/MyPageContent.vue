@@ -292,6 +292,44 @@
     </div>
   </div>
 
+  <div v-if="isLogoutModalOpen" class="password-modal-backdrop">
+    <div
+      class="password-modal-card logout-modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="logout-modal-title"
+      @click.stop
+    >
+      <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+        <div>
+          <h5 id="logout-modal-title" class="fw-bold mb-1">로그아웃</h5>
+          <p class="text-muted small mb-0">정말 로그아웃 하시겠어요?</p>
+        </div>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="닫기"
+          @click="$emit('close-logout-modal')"
+        ></button>
+      </div>
+
+      <div class="logout-modal-copy">현재 세션이 종료되고 로그인 페이지로 이동합니다.</div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          @click="$emit('close-logout-modal')"
+        >
+          취소
+        </button>
+        <button type="button" class="btn btn-dark" @click="$emit('confirm-logout')">
+          로그아웃
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div v-if="isDeleteModalOpen" class="password-modal-backdrop">
     <div
       class="password-modal-card delete-modal-card"
@@ -417,6 +455,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isLogoutModalOpen: {
+    type: Boolean,
+    default: false,
+  },
   isDeleteModalOpen: {
     type: Boolean,
     default: false,
@@ -430,6 +472,7 @@ const props = defineProps({
 // 이 컴포넌트는 화면 표시 위주라, 실제 동작은 이벤트로 부모에게 위임한다.
 defineEmits([
   'logout',
+  'confirm-logout',
   'edit-start',
   'edit-cancel',
   'save',
@@ -439,6 +482,7 @@ defineEmits([
   'password-change',
   'update:password-form',
   'delete-account',
+  'close-logout-modal',
   'open-delete-modal',
   'close-delete-modal',
   'confirm-delete-account',
@@ -625,6 +669,7 @@ const formattedJoinDate = computed(() => {
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  overflow-y: auto;
   background-color: rgba(17, 24, 39, 0.45);
 }
 .mypage-header {
@@ -639,13 +684,16 @@ const formattedJoinDate = computed(() => {
 
 .password-modal-card {
   width: min(100%, 30rem);
+  max-height: calc(100dvh - 2rem);
   border: 1px solid var(--border-color);
   border-radius: 1.25rem;
   background-color: var(--card-bg);
   color: var(--text-color);
   box-shadow: 0 1.25rem 2.5rem rgba(15, 23, 42, 0.18);
   padding: 1.25rem;
+  overflow-y: auto;
 }
+
 @media (min-width: 768px) {
   .mypage-page {
     width: calc(100% + 6rem);
@@ -657,11 +705,33 @@ const formattedJoinDate = computed(() => {
   }
 }
 
+@media (max-width: 768px) {
+  .password-modal-card {
+    width: 100%;
+    max-height: calc(100dvh - 1.5rem);
+    padding: 1rem;
+    border-radius: 1rem;
+  }
+}
+
 .password-error-text {
   margin-top: 0.75rem;
   color: #dc3545;
   font-size: 0.92rem;
   font-weight: 500;
+}
+
+.logout-modal-card {
+  width: min(100%, 26rem);
+}
+
+.logout-modal-copy {
+  border-radius: 1rem;
+  border: 1px solid #e9ecef;
+  background: #f8f9fa;
+  padding: 1rem;
+  color: #495057;
+  line-height: 1.55;
 }
 
 .delete-modal-card {

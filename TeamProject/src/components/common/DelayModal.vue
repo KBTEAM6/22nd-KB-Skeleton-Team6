@@ -38,14 +38,17 @@ defineProps({
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  overflow-y: auto;
   background-color: rgba(17, 24, 39, 0.45);
 }
 
 .delay-modal-card {
   width: min(100%, 32rem);
   max-width: 100%;
+  max-height: calc(100dvh - 2rem);
   padding: 1.25rem;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   border: 1px solid #e5e7eb;
   border-radius: 1.5rem;
   background-color: #ffffff;
@@ -54,7 +57,10 @@ defineProps({
 
 @media (max-width: 768px) {
   .delay-modal-card {
+    width: 100%;
+    max-height: calc(100dvh - 1.5rem);
     padding: 1rem;
+    border-radius: 1.25rem;
   }
 }
 </style>

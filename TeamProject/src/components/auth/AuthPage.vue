@@ -50,12 +50,12 @@ const props = defineProps({
 
 const hasAside = computed(() => Boolean(props.asideImage));
 const containerClass = computed(() =>
-  hasAside.value ? 'col-12 col-lg-10 col-xl-9' : 'col-12 col-md-8 col-lg-6',
+  hasAside.value ? 'col-12 col-lg-11 col-xl-10' : 'col-12 col-md-9 col-lg-7 col-xl-6',
 );
 const bodyClass = computed(() =>
   hasAside.value
-    ? 'card-body p-4 p-md-5 auth-card-body with-aside'
-    : 'card-body p-4 p-md-5 auth-card-body',
+    ? 'card-body p-4 p-md-5 p-lg-5 auth-card-body with-aside'
+    : 'card-body p-4 p-md-5 p-lg-5 auth-card-body',
 );
 const titleClass = computed(() => (hasAside.value ? 'mb-4 text-start' : 'text-center mb-5'));
 </script>

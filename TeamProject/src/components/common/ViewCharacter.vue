@@ -12,6 +12,7 @@ import { computed } from 'vue';
 import withdrawSadCharacter from '@/assets/withdraw-sad-character.png';
 import happyCharacter from '@/assets/happy-character.png';
 import errorCharacter from '@/assets/error-character.png';
+import goodbyeCharacter from '@/assets/goodbye-character.png';
 
 const props = defineProps({
   type: {
@@ -32,6 +33,7 @@ const imageMap = {
   withdraw: withdrawSadCharacter,
   loading: happyCharacter,
   error: errorCharacter,
+  goodbye: goodbyeCharacter,
 };
 
 const selectedImage = computed(() => imageMap[props.type]);
