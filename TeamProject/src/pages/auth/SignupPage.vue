@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useUiStore } from '@/stores/ui';
@@ -66,8 +66,13 @@ const submitSignup = async () => {
   });
 
   if (result.success) {
-    uiStore.showToast('회원가입이 완료되었습니다.');
-    router.push({ name: 'mypage' });
+    uiStore.showToast('회원가입이 완료되었습니다. 로그인해주세요.');
+    router.push({ name: 'login' });
   }
 };
+
+onMounted(() => {
+  // 회원가입 페이지 진입 시 기존 에러 메시지 초기화
+  store.clearError();
+});
 </script>

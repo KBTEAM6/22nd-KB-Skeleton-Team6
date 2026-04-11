@@ -93,7 +93,7 @@ const syncForm = () => {
  */
 onMounted(() => {
   authStore.loadUserFromStorage();
-
+  authStore.clearError();
   if (!authStore.user) {
     router.push({ name: 'login' });
     return;

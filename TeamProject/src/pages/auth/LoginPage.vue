@@ -32,6 +32,7 @@ const router = useRouter();
 // 로그인 폼 입력값
 const email = ref('');
 const password = ref('');
+<<<<<<< HEAD
 const rememberEmail = ref(false);
 
 // onMounted에서 localStorage에 저장된 이메일이 있으면 불러와서 입력값과 rememberEmail 상태를 초기화한다.
@@ -51,6 +52,8 @@ const syncRememberEmail = () => {
 
   localStorage.removeItem(REMEMBERED_EMAIL_KEY);
 };
+=======
+>>>>>>> 74e89f2 (fix: 회원가입이후 라우팅 오류 + 개발을위한 mock Data 삭제 + errorMessage 관련 이슈 수정)
 
 /**
  * 로그인 제출 처리
@@ -74,4 +77,9 @@ const submitLogin = async () => {
     uiStore.showToast(result.message || '로그인에 실패했습니다.', 'error');
   }
 };
+
+onMounted(() => {
+  // 로그인 페이지 진입 시 기존 에러 메시지 초기화
+  store.clearError();
+});
 </script>
