@@ -1,19 +1,21 @@
 <template>
-  <div class="bg-white rounded-4 p-4 shadow-sm">
+  <div class="calendar-card rounded-4 p-4">
     <div class="d-flex align-items-center justify-content-between mb-4">
       <h2 class="fs-5 fw-bold m-0">{{ year }}년 {{ month + 1 }}월</h2>
+
       <div class="d-flex gap-2">
         <button
           @click="prevMonth"
-          class="btn btn-light d-flex align-items-center justify-content-center p-0 border-0"
-          style="width: 36px; height: 36px; border-radius: 0.75rem"
+          class="calendar-nav-btn d-flex align-items-center justify-content-center p-0 border-0"
+          type="button"
         >
           <ChevronLeft style="width: 20px; height: 20px" />
         </button>
+
         <button
           @click="nextMonth"
-          class="btn btn-light d-flex align-items-center justify-content-center p-0 border-0"
-          style="width: 36px; height: 36px; border-radius: 0.75rem"
+          class="calendar-nav-btn d-flex align-items-center justify-content-center p-0 border-0"
+          type="button"
         >
           <ChevronRight style="width: 20px; height: 20px" />
         </button>
@@ -28,7 +30,9 @@
         v-for="(dayName, idx) in weekDays"
         :key="dayName"
         class="text-center small fw-medium py-2"
-        :class="idx === 0 ? '' : idx === 6 ? 'text-primary' : 'text-muted'"
+        :class="
+          idx === 0 ? '' : idx === 6 ? 'text-primary' : 'calendar-weekday'
+        "
         :style="idx === 0 ? 'color: rgb(240,68,82);' : ''"
       >
         {{ dayName }}
@@ -36,14 +40,15 @@
 
       <template v-for="(day, idx) in days" :key="`day-${idx}`">
         <div v-if="!day"></div>
+
         <button
           v-else
           @click="handleClick(day)"
           :class="[
-            'btn border-0 p-1 text-start rounded-3 position-relative',
+            'calendar-day-btn border-0 p-1 text-start rounded-3 position-relative',
             ledgerStore.calendarData[day]
-              ? 'btn-light'
-              : 'bg-transparent opacity-50',
+              ? 'calendar-day-active'
+              : 'calendar-day-empty',
           ]"
           :style="{
             pointerEvents: ledgerStore.calendarData[day] ? 'auto' : 'none',
@@ -69,6 +74,7 @@
             >
               +{{ ledgerStore.calendarData[day].income.toLocaleString() }}
             </div>
+
             <div
               v-if="ledgerStore.calendarData[day].expense > 0"
               class="text-truncate"
@@ -144,3 +150,43 @@ const handleClick = (day) => {
   });
 };
 </script>
+<style scoped>
+.calendar-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.calendar-weekday {
+  color: var(--text-muted);
+}
+
+.calendar-nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 0.75rem;
+  background: var(--sub-bg);
+  color: var(--text-color);
+}
+
+.calendar-nav-btn:hover {
+  background: var(--card-bg);
+}
+
+.calendar-day-btn {
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.calendar-day-active {
+  background: var(--sub-bg);
+  color: var(--text-color);
+}
+
+.calendar-day-empty {
+  background: transparent;
+  opacity: 0.5;
+  color: var(--text-muted);
+}
+</style>

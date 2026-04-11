@@ -1,11 +1,11 @@
 <template>
-  <div class="bg-white rounded-4 p-4 shadow-sm">
+  <div class="pie-card rounded-4 p-4">
     <h3 class="fw-bold mb-4 fs-5">카테고리별 지출</h3>
 
     <div class="position-relative" style="height: 16rem">
       <div
         v-if="total === 0"
-        class="position-absolute top-50 start-50 translate-middle text-muted small"
+        class="position-absolute top-50 start-50 translate-middle pie-empty-text small"
       >
         지출 내역이 없습니다
       </div>
@@ -31,8 +31,8 @@
         </div>
 
         <div class="small">
-          <span class="fw-medium"> {{ item.value.toLocaleString() }}원 </span>
-          <span class="text-muted ms-2">
+          <span class="fw-medium">{{ item.value.toLocaleString() }}원</span>
+          <span class="pie-meta ms-2">
             ({{ getPercentage(item.value) }}%)
           </span>
         </div>
@@ -93,3 +93,15 @@ const chartOptions = {
   cutout: "60%",
 };
 </script>
+<style scoped>
+.pie-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.pie-empty-text,
+.pie-meta {
+  color: var(--text-muted);
+}
+</style>

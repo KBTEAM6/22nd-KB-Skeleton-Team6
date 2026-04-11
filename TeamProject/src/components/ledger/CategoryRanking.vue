@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded-4 p-4 shadow-sm">
+  <div class="ledger-card rounded-4 p-4">
     <h3 class="fw-bold mb-4 fs-5">카테고리별 지출 순위</h3>
 
     <div v-if="rankingData.length > 0" class="d-flex flex-column gap-4">
@@ -7,11 +7,12 @@
         <div class="d-flex align-items-center justify-content-between mb-2">
           <div class="d-flex align-items-center gap-3">
             <div
-              class="rounded-3 bg-light d-flex align-items-center justify-content-center fw-bold small"
+              class="rank-badge rounded-3 d-flex align-items-center justify-content-center fw-bold small"
               style="width: 32px; height: 32px"
             >
               {{ index + 1 }}
             </div>
+
             <div class="d-flex align-items-center gap-2">
               <div
                 class="rounded-circle"
@@ -24,15 +25,17 @@
               <span class="fw-medium m-0">{{ item.category }}</span>
             </div>
           </div>
+
           <div class="text-end">
             <div class="fw-bold m-0">{{ item.value.toLocaleString() }}원</div>
-            <div class="small text-muted m-0">
+            <div class="small ranking-subtext m-0">
               {{ getCategoryCount(item.category) }}건
             </div>
           </div>
         </div>
+
         <div
-          class="w-100 bg-light rounded-pill overflow-hidden"
+          class="ranking-track w-100 rounded-pill overflow-hidden"
           style="height: 8px"
         >
           <div
@@ -47,7 +50,7 @@
     </div>
 
     <div v-else class="py-5 text-center">
-      <p class="text-muted mb-0">이번 달 지출 내역이 없습니다.</p>
+      <p class="ranking-subtext mb-0">이번 달 지출 내역이 없습니다.</p>
     </div>
   </div>
 </template>
@@ -85,7 +88,26 @@ const getCategoryCount = (categoryName) => {
 </script>
 
 <style scoped>
+.ledger-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
 .transition-all {
   transition: width 0.5s ease-in-out;
+}
+
+.rank-badge {
+  background: var(--sub-bg);
+  color: var(--text-color);
+}
+
+.ranking-subtext {
+  color: var(--text-muted);
+}
+
+.ranking-track {
+  background: var(--sub-bg);
 }
 </style>
