@@ -7,6 +7,7 @@ import {
   deletecouple,
   deletecoupleRequest,
 } from '@/api/couples';
+import { mockDelay } from '@/service/mockDelay';
 
 // MOCK SERVER ONLY:
 // 실제 서버 전환 시 회원탈퇴 후 연관 데이터 정리는 백엔드가 처리하는 것이 맞다.
@@ -15,6 +16,7 @@ import {
 // 대체되거나 제거되어야 한다.
 export async function withdrawUser(userId) {
   const numericUserId = Number(userId);
+  await mockDelay(500);
 
   // MOCK SERVER ONLY:
   // 실제 서버 전환 시 아래 연관 데이터 조회/삭제 코드는 프론트에서 제거되어야 한다.

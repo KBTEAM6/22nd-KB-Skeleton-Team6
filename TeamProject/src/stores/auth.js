@@ -245,6 +245,7 @@ export const useAuthStore = defineStore('auth', () => {
   const signup = async ({ name, email, phone, password }) => {
     isLoading.value = true;
     clearError();
+    await mockDelay(500);
 
     try {
       const users = await findUserByEmail(email);
