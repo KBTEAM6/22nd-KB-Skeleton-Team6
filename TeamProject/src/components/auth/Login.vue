@@ -23,6 +23,16 @@
         required
       />
     </div>
+    <div class="form-check mb-4">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        id="rememberEmail"
+        :checked="rememberEmail"
+        @change="$emit('update:rememberEmail', $event.target.checked)"
+      />
+      <label class="form-check-label" for="rememberEmail"> 이메일 저장 </label>
+    </div>
 
     <div v-if="store.errorMessage" class="text-danger small mb-4">
       {{ store.errorMessage }}
@@ -47,9 +57,10 @@ defineProps({
   email: String,
   password: String,
   store: Object,
+  rememberEmail: Boolean,
 });
 
-defineEmits(['update:email', 'update:password', 'submit']);
+defineEmits(['update:email', 'update:password', 'submit', 'update:rememberEmail']);
 </script>
 
 <style scoped>
