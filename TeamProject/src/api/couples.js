@@ -65,11 +65,19 @@ export const updatecoupleRequest = async (requestId, payload) => {
  * @param {number} userId - 사용자 ID
  * @returns {Promise<Array>} 커플 관계 배열
  */
-export const getcouplesByUserId = async (userId) => {
-  const response = await api.get(`/couples?user1Id=${userId}`);
-  return response.data;
-};
+// export const getcouplesByUserId = async (userId) => {
+//   const response = await api.get(`/couples?user1Id=${userId}`);
+//   return response.data;
+// }; //getcouplesByuserId 수정했습니다 혹시 사용하고 계신분이 계신다면 아래 것으로 바꿨음을 확인해주세요
 
+export const getcouplesByUserId = async (userId) => {
+  const [asUser1, asUser2] = await Promise.all([
+    api.get(`/couples?user1Id=${userId}`),
+    api.get(`/couples?user2Id=${userId}`),
+  ]);
+
+  return [...asUser1.data, ...asUser2.data];
+};
 /**
  * 부부 관계 생성
  * @param {Object} payload - 커플 데이터
