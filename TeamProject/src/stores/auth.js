@@ -120,7 +120,7 @@ export const useAuthStore = defineStore('auth', () => {
     isLoading.value = true;
     clearError();
 
-    await mockDelay(500);
+    await mockDelay();
     try {
       const users = await findUserByEmail(email);
       const foundUser = users[0];
@@ -245,7 +245,7 @@ export const useAuthStore = defineStore('auth', () => {
   const signup = async ({ name, email, phone, password }) => {
     isLoading.value = true;
     clearError();
-    await mockDelay(500);
+    await mockDelay();
 
     try {
       const users = await findUserByEmail(email);
@@ -327,6 +327,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     isLoading.value = true;
     clearError();
+    await mockDelay();
 
     try {
       const usersWithSameEmail = await findUserByEmail(email);

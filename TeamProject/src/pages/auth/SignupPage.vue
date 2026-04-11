@@ -1,9 +1,25 @@
 <template>
-  <!--
-    Signup 컴포넌트는 입력 UI만 담당하고,
-    실제 회원가입/검증/이동 흐름은 이 페이지에서 제어한다.
-  -->
-  <AuthPage title="회원가입">
+  <AuthPage
+    title="회원가입"
+    :aside-image="currentAsideImage"
+    :aside-alt="currentAsideAlt"
+    :aside-text="currentAsideText"
+  >
+    <template #header>
+      <div class="signup-brand">
+        <div class="logo-box">
+          <img :src="logoImage" alt="KB 가계부 로고" class="sidebar-logo" />
+        </div>
+      </div>
+    </template>
+
+    <DelayModal
+      :is-open="store.isLoading"
+      type="loading"
+      message="회원가입을 준비 중이에요..."
+      :size="1000"
+    />
+
     <Signup
       v-model:name="name"
       v-model:phone="phone"
@@ -17,34 +33,39 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useUiStore } from '@/stores/ui';
 import AuthPage from '../../components/auth/AuthPage.vue';
 import Signup from '../../components/auth/Signup.vue';
+import DelayModal from '../../components/common/DelayModal.vue';
+import happyCharacter from '@/assets/happy-character.png';
+import errorCharacter from '@/assets/error-character.png';
+import logoImage from '@/assets/Logo.png';
+
+const DEFAULT_ASIDE_TEXT = '가계쀼와 함께 새 가계부를 시작해요';
 
 const store = useAuthStore();
 const uiStore = useUiStore();
 const router = useRouter();
 
-// 회원가입 폼 입력값
 const name = ref('');
 const email = ref('');
 const phone = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 
-/**
- * 회원가입 제출 처리
- *
- * 페이지 단계에서 먼저 기본 검증을 처리한다.
- * - 비밀번호 일치 여부
- * - 최소 길이
- *
- * 검증 통과 후 store.signup을 호출하면,
- * 실제 서버 저장과 로그인 상태 반영은 store가 담당한다.
- */
+const currentAsideImage = computed(() =>
+  store.errorMessage ? errorCharacter : happyCharacter,
+);
+
+const currentAsideAlt = computed(() =>
+  store.errorMessage ? 'Signup error character' : 'Happy character',
+);
+
+const currentAsideText = computed(() => store.errorMessage || DEFAULT_ASIDE_TEXT);
+
 const submitSignup = async () => {
   store.clearError();
 
@@ -72,7 +93,31 @@ const submitSignup = async () => {
 };
 
 onMounted(() => {
-  // 회원가입 페이지 진입 시 기존 에러 메시지 초기화
   store.clearError();
 });
 </script>
+
+<style scoped>
+.signup-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(255, 204, 80, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-logo {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+</style>
