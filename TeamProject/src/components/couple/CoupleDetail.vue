@@ -20,7 +20,7 @@
         type="button"
         class="btn btn-light rounded-circle d-flex align-items-center justify-content-center position-absolute top-0 end-0 m-3 shadow-sm border-0 z-3"
         style="width: 3rem; height: 3rem"
-        @click="confirmDisconnectCouple"
+        @click="startEditingMessage('user')"
       >
         <span class="material-symbols-outlined fs-5">edit</span>
       </button>
@@ -36,16 +36,6 @@
             class="message-box bg-white px-3 py-2 rounded-4 shadow-sm text-black small fw-bold d-none d-xl-block position-relative"
             style="white-space: nowrap"
           >
-            <button
-              type="button"
-              class="edit-btn btn btn-link p-0 position-absolute top-0 end-0 translate-middle text-muted"
-              @click="startEditingMessage('user')"
-            >
-              <span class="material-symbols-outlined" style="font-size: 16px">
-                edit
-              </span>
-            </button>
-
             <template v-if="editingMessage === 'user'">
               <div class="d-flex align-items-center gap-2">
                 <input
@@ -55,13 +45,6 @@
                   maxlength="20"
                   @keyup.enter="saveMessage('user')"
                 />
-                <button
-                  type="button"
-                  class="btn btn-sm btn-dark"
-                  @click="saveMessage('user')"
-                >
-                  저장
-                </button>
               </div>
             </template>
             <template v-else>
@@ -90,9 +73,11 @@
         <div
           class="d-flex flex-column align-items-center gap-2 px-3 px-md-5 flex-shrink-0"
         >
-          <div
-            class="rounded-circle bg-white d-flex align-items-center justify-content-center shadow-sm text-danger"
-            style="width: 48px; height: 48px"
+          <button
+            type="button"
+            class="rounded-circle bg-white d-flex align-items-center justify-content-center shadow-sm text-danger border-0"
+            style="width: 48px; height: 48px; cursor: pointer"
+            @click="confirmDisconnectCouple"
           >
             <span
               class="material-symbols-outlined fs-4"
@@ -100,7 +85,7 @@
             >
               favorite
             </span>
-          </div>
+          </button>
           <div class="d-flex gap-4 mt-1">
             <span class="material-symbols-outlined text-black-50 fs-5">
               sync_alt
@@ -132,37 +117,7 @@
             class="message-box bg-white px-3 py-2 rounded-4 shadow-sm text-black small fw-bold d-none d-xl-block position-relative"
             style="white-space: nowrap"
           >
-            <button
-              type="button"
-              class="edit-btn btn btn-link p-0 position-absolute top-0 end-0 translate-middle text-muted"
-              @click="startEditingMessage('partner')"
-            >
-              <span class="material-symbols-outlined" style="font-size: 16px">
-                edit
-              </span>
-            </button>
-
-            <template v-if="editingMessage === 'partner'">
-              <div class="d-flex align-items-center gap-2">
-                <input
-                  v-model="editableMessages.partner"
-                  type="text"
-                  class="form-control form-control-sm"
-                  maxlength="20"
-                  @keyup.enter="saveMessage('partner')"
-                />
-                <button
-                  type="button"
-                  class="btn btn-sm btn-dark"
-                  @click="saveMessage('partner')"
-                >
-                  저장
-                </button>
-              </div>
-            </template>
-            <template v-else>
-              {{ statusMessages.partner }}
-            </template>
+            {{ statusMessages.partner }}
           </div>
         </div>
       </div>
@@ -323,10 +278,7 @@
                 class="d-flex justify-content-between align-items-center mb-2 px-2"
               >
                 <div class="text-start" style="width: 33%">
-                  <p
-                    class="fs-5 fw-bold m-0"
-                    style="color: #e53935;"
-                  >
+                  <p class="fs-5 fw-bold m-0" style="color: #e53935">
                     {{ formatSignedCurrency(summary.myProfit) }}
                   </p>
                 </div>
@@ -344,10 +296,7 @@
                 </div>
 
                 <div class="text-end" style="width: 33%">
-                  <p
-                    class="fs-5 fw-bold m-0"
-                    style="color: #1e88e5;"
-                  >
+                  <p class="fs-5 fw-bold m-0" style="color: #1e88e5">
                     {{ formatSignedCurrency(summary.partnerProfit) }}
                   </p>
                 </div>
@@ -503,6 +452,7 @@ import { computed, ref, onMounted } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import { usecouplesStore } from '../../stores/couples';
 import { getUserById } from '../../api/auth';
+import api from '@/api/api';
 import { useRouter } from 'vue-router';
 import { useUiStore } from '@/stores/ui';
 import {
@@ -530,14 +480,40 @@ const partnerId = computed(() => {
 const partnerName = computed(() => partner.value?.name || '배우자');
 
 const statusMessages = ref({
-  user: '오늘도 절약 화이팅!',
-  partner: '같이 부자되자!',
+  user: '',
+  partner: '',
 });
 
 const editableMessages = ref({
   user: statusMessages.value.user,
-  partner: statusMessages.value.partner,
 });
+
+const userStatusField = computed(() => {
+  if (!myCouple.value || !userId.value) return null;
+  return myCouple.value.user1Id === userId.value
+    ? 'user1Message'
+    : 'user2Message';
+});
+
+const partnerStatusField = computed(() => {
+  if (!myCouple.value || !userId.value) return null;
+  return myCouple.value.user1Id === userId.value
+    ? 'user2Message'
+    : 'user1Message';
+});
+
+const loadStatusMessages = () => {
+  if (!myCouple.value) return;
+
+  const userMessage =
+    myCouple.value[userStatusField.value] || statusMessages.value.user;
+  const partnerMessage =
+    myCouple.value[partnerStatusField.value] || statusMessages.value.partner;
+
+  statusMessages.value.user = userMessage;
+  statusMessages.value.partner = partnerMessage;
+  editableMessages.value.user = userMessage;
+};
 
 const editingMessage = ref(null);
 
@@ -717,14 +693,54 @@ const partnerLatestTransaction = computed(() => {
 });
 
 const startEditingMessage = (target) => {
-  editableMessages.value[target] = statusMessages.value[target];
-  editingMessage.value = target;
+  if (target !== 'user') return;
+
+  if (editingMessage.value === 'user') {
+    // 두 번째 클릭 시 편집 취소
+    editableMessages.value.user = statusMessages.value.user;
+    editingMessage.value = null;
+    return;
+  }
+
+  editableMessages.value.user = statusMessages.value.user;
+  editingMessage.value = 'user';
 };
 
-const saveMessage = (target) => {
-  statusMessages.value[target] =
-    editableMessages.value[target].trim() || statusMessages.value[target];
+const persistStatusMessage = async (message) => {
+  if (!myCouple.value?.id || !userStatusField.value) return;
+
+  const updatedCouple = {
+    ...myCouple.value,
+    [userStatusField.value]: message,
+  };
+
+  await api.put(`/couples/${myCouple.value.id}`, updatedCouple);
+
+  const index = couplesStore.couples.findIndex(
+    (item) => item.id === myCouple.value.id,
+  );
+  if (index !== -1) {
+    couplesStore.couples.splice(index, 1, updatedCouple);
+  }
+};
+
+const saveMessage = async (target) => {
+  if (target !== 'user') return;
+
+  const message = editableMessages.value.user.trim();
+  if (!message) {
+    editingMessage.value = null;
+    return;
+  }
+
+  statusMessages.value.user = message;
   editingMessage.value = null;
+
+  try {
+    await persistStatusMessage(message);
+  } catch (error) {
+    window.alert('상태 메시지 저장에 실패했습니다. 다시 시도해주세요.');
+  }
 };
 
 const confirmDisconnectCouple = async () => {
@@ -752,6 +768,7 @@ const confirmDisconnectCouple = async () => {
 
 onMounted(async () => {
   await couplesStore.fetchcouples(userId.value);
+  loadStatusMessages();
 
   if (myCouple.value && partnerId.value) {
     partner.value = await getUserById(partnerId.value);
@@ -777,14 +794,4 @@ onMounted(async () => {
   color: #9b51e0;
 }
 
-.message-box .edit-btn {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-}
-
-.message-box:hover .edit-btn {
-  opacity: 1;
-  pointer-events: auto;
-}
 </style>
