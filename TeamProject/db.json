@@ -68,7 +68,9 @@
       "user1Id": 1,
       "user2Id": 2,
       "status": true,
-      "createdAt": "2026-04-01"
+      "createdAt": "2026-04-01",
+      "user1Message": "오늘도 절약 화이팅!",
+      "user2Message": "같이 부자되자!"
     }
   ],
   "coupleRequests": [

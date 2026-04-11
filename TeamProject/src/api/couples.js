@@ -121,3 +121,19 @@ export const getAllcoupleRequests = async () => {
   const response = await api.get('/coupleRequests');
   return response.data;
 };
+
+//추가
+/**
+ * 커플 정보 수정
+ * @param {number} id - 커플 관계 ID
+ * @param {Object} payload - 수정할 데이터
+ * @returns {Promise<Object>} 수정된 커플 객체
+ */
+export const updatecouple = async (id, payload) => {
+  const { data: existing } = await api.get(`/couples/${id}`);
+  const response = await api.put(`/couples/${id}`, {
+    ...existing,
+    ...payload,
+  });
+  return response.data;
+};
