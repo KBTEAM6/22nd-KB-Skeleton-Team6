@@ -1,9 +1,18 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { Home, BookOpen, Users, User, Menu, X } from 'lucide-vue-next';
-import { useAuthStore } from '@/stores/auth';
-import { useUiStore } from '@/stores/ui';
+import { ref, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import {
+  Home,
+  BookOpen,
+  Users,
+  User,
+  Menu,
+  X,
+  Moon,
+  Sun,
+} from "lucide-vue-next";
+import { useAuthStore } from "@/stores/auth";
+import { useUiStore } from "@/stores/ui";
 
 const uiStore = useUiStore();
 const authstore = useAuthStore();
@@ -15,25 +24,25 @@ const isProfileMenuOpen = ref(false);
 const props = defineProps({
   currentView: {
     type: String,
-    default: '',
+    default: "",
   },
 });
 
 const menuItems = [
-  { id: 'home', label: '홈', icon: Home, to: '/home' },
-  { id: 'ledger', label: '가계부', icon: BookOpen, to: '/ledger' },
-  { id: 'couples', label: '부부 가계부', icon: Users, to: '/couples' },
-  { id: 'mypage', label: '마이페이지', icon: User, to: '/mypage' },
+  { id: "home", label: "홈", icon: Home, to: "/home" },
+  { id: "ledger", label: "가계부", icon: BookOpen, to: "/ledger" },
+  { id: "couples", label: "부부 가계부", icon: Users, to: "/couples" },
+  { id: "mypage", label: "마이페이지", icon: User, to: "/mypage" },
 ];
 
 const activeView = computed(() => {
   if (props.currentView) return props.currentView;
   const path = route.path;
-  if (path === '/') return 'home';
-  if (path.startsWith('/ledger')) return 'ledger';
-  if (path.startsWith('/couples')) return 'couples';
-  if (path.startsWith('/mypage')) return 'mypage';
-  return 'home';
+  if (path === "/") return "home";
+  if (path.startsWith("/ledger")) return "ledger";
+  if (path.startsWith("/couples")) return "couples";
+  if (path.startsWith("/mypage")) return "mypage";
+  return "home";
 });
 
 const toggleProfileMenu = () => {
@@ -41,7 +50,7 @@ const toggleProfileMenu = () => {
 };
 
 const goToPartnerInfo = () => {
-  router.push('/couples');
+  router.push("/couples");
   isProfileMenuOpen.value = false;
   uiStore.isSidebarOpen = false;
 };
@@ -57,13 +66,22 @@ const closeSidebar = () => {
 const toggleSidebar = () => {
   uiStore.toggleSidebar();
 };
+const handleThemeToggle = () => {
+  uiStore.toggleTheme();
 
+  uiStore.showToast(
+    uiStore.isDarkMode
+      ? "다크모드로 변경되었습니다."
+      : "라이트모드로 변경되었습니다.",
+    "info",
+  );
+};
 const handleLogout = () => {
   authstore.logout();
-  uiStore.showToast('로그아웃 했습니다.');
+  uiStore.showToast("로그아웃 했습니다.");
   isProfileMenuOpen.value = false;
   uiStore.isSidebarOpen = false;
-  router.push('/auth/login');
+  router.push("/auth/login");
 };
 
 const handleMenuClick = () => {
@@ -89,7 +107,7 @@ const handleMenuClick = () => {
 
   <!-- 사이드바 -->
   <aside
-    class="app-sidebar d-flex flex-column bg-white border-end"
+    class="app-sidebar d-flex flex-column border-end"
     :class="{ 'sidebar-open': uiStore.isSidebarOpen }"
   >
     <div
@@ -130,13 +148,17 @@ const handleMenuClick = () => {
         :key="item.id"
         :to="item.to"
         class="w-100 d-flex align-items-center gap-3 px-4 py-3 rounded-4 mb-2 border-0 text-start btn sidebar-btn text-decoration-none"
-        :class="activeView === item.id ? 'text-dark fw-medium' : 'text-muted'"
+        :class="
+          activeView === item.id
+            ? 'sidebar-link-active fw-medium'
+            : 'sidebar-link'
+        "
         :style="
           activeView === item.id ? 'background-color: rgb(255,204,80);' : ''
         "
         @click="handleMenuClick"
       >
-        <component :is="item.icon" style="width: 20px; height: 20px" />
+        <component :is="item.icon" class="sidebar-icon" />
         <span>{{ item.label }}</span>
       </RouterLink>
     </nav>
@@ -161,17 +183,29 @@ const handleMenuClick = () => {
           </div>
 
           <div class="flex-grow-1">
-            <p class="fw-medium mb-0">{{ authstore.user?.name ?? '' }}</p>
-            <p class="small text-muted mb-0">
-              {{ authstore.user?.email ?? '' }}
+            <p class="fw-medium mb-0 profile-name">
+              {{ authstore.user?.name ?? "" }}
+            </p>
+            <p class="small mb-0 profile-email">
+              {{ authstore.user?.email ?? "" }}
             </p>
           </div>
         </button>
 
         <div v-if="isProfileMenuOpen" class="profile-menu-card">
+          <button
+            type="button"
+            class="profile-menu-item"
+            @click="handleThemeToggle"
+          >
+            <span class="menu-item-inner">
+              <component :is="uiStore.isDarkMode ? Sun : Moon" :size="16" />
+              <span>{{ uiStore.isDarkMode ? "라이트모드" : "다크모드" }}</span>
+            </span>
+          </button>
           <RouterLink
             to="/mypage"
-            class="profile-menu-item text-decoration-none text-dark"
+            class="profile-menu-item text-decoration-none"
             @click="handleMenuClick"
           >
             설정
@@ -205,8 +239,9 @@ const handleMenuClick = () => {
   z-index: 1040;
   height: 64px;
   padding: 0 1rem;
-  background: #ffffff;
-  border-bottom: 1px solid #e9ecef;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
   display: flex;
   align-items: center;
   gap: 0.9rem;
@@ -226,7 +261,7 @@ const handleMenuClick = () => {
 
 .hamburger-btn:hover,
 .sidebar-close-btn:hover {
-  background: #f3f4f6;
+  background: var(--sub-bg);
 }
 
 .mobile-brand {
@@ -243,7 +278,7 @@ const handleMenuClick = () => {
 
 .mobile-title {
   font-weight: 700;
-  color: #212529;
+  color: var(--text-color);
 }
 
 .sidebar-overlay {
@@ -257,7 +292,9 @@ const handleMenuClick = () => {
   width: 256px;
   height: 100vh;
   z-index: 1050;
-  background: #fff;
+  background: var(--card-bg);
+  color: var(--text-color);
+  border-color: var(--border-color) !important;
 }
 
 .profile-area {
@@ -270,7 +307,7 @@ const handleMenuClick = () => {
 }
 
 .profile-trigger:hover {
-  background-color: #e9ecef;
+  background-color: var(--sub-bg);
 }
 
 .profile-trigger-open {
@@ -287,13 +324,12 @@ const handleMenuClick = () => {
   flex-direction: column;
   gap: 0.35rem;
   padding: 0.5rem;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--border-color);
   border-radius: 1rem;
-  background-color: #fff;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  background-color: var(--card-bg);
+  box-shadow: var(--shadow-sm);
   max-width: 100%;
 }
-
 .profile-menu-item {
   display: flex;
   align-items: center;
@@ -302,7 +338,7 @@ const handleMenuClick = () => {
   border: 0;
   border-radius: 0.8rem;
   background: transparent;
-  color: #212529;
+  color: var(--text-color);
   font-size: 0.95rem;
   text-align: left;
   cursor: pointer;
@@ -310,18 +346,13 @@ const handleMenuClick = () => {
 }
 
 .profile-menu-item:hover {
-  background-color: #f8f9fa;
+  background-color: var(--sub-bg);
 }
-
-.profile-menu-item-danger {
-  color: #dc3545;
-}
-
 .logo-box {
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background-color: #f3f4f6;
+  background-color: var(--sub-bg);
   border: 2px solid rgb(255, 204, 80);
   display: flex;
   align-items: center;
@@ -370,5 +401,44 @@ const handleMenuClick = () => {
     padding: 0.7rem 0.8rem;
     font-size: 0.9rem;
   }
+}
+.menu-item-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+/* 메뉴 텍스트 */
+.sidebar-link {
+  color: var(--text-muted) !important;
+}
+
+.sidebar-link-active {
+  color: var(--text-color) !important;
+}
+
+/* 아이콘 */
+.sidebar-icon {
+  width: 20px;
+  height: 20px;
+  color: inherit;
+}
+
+/* 프로필 */
+.profile-name {
+  color: var(--text-color);
+}
+
+.profile-email {
+  color: var(--text-muted);
+}
+
+/* 메뉴 hover */
+.profile-menu-item:hover {
+  background-color: var(--sub-bg);
+}
+
+/* 사이드바 전체 글자 */
+.app-sidebar {
+  color: var(--text-color);
 }
 </style>

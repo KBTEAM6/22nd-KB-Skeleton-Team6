@@ -3,14 +3,15 @@
  * @description 전역 UI 상태(모달, 사이드바, 토스트 등)를 중앙 집중 관리
  */
 
-import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { defineStore } from "pinia";
+import { ref, computed } from "vue";
+const THEME_KEY = "budget-theme"; //다크모드용
 
 /**
  * UI 상태 관리 스토어
  * 모달, 사이드바, 토스트 메시지 등의 UI 상태를 관리
  */
-export const useUiStore = defineStore('ui', () => {
+export const useUiStore = defineStore("ui", () => {
   // ===== STATE (상태) =====
   /** 사이드바 열림/닫힘 상태 */
   const isSidebarOpen = ref(false);
@@ -26,10 +27,20 @@ export const useUiStore = defineStore('ui', () => {
 
   /** 전역 로딩 상태 (전체 앱에 걸친 로딩 표시) */
   const isGlobalLoading = ref(false);
-
+  const theme = ref("light"); //다크모드용
   // ===== GETTERS (계산된 값) =====
   /** 토스트 메시지가 있는지 여부 */
   const hasToast = computed(() => toasts.value.length > 0);
+  const isDarkMode = computed(() => theme.value === "dark");
+  const applyThemeToDom = () => {
+    const root = document.documentElement;
+
+    if (theme.value === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+  };
 
   // ===== ACTIONS (액션들) =====
 
@@ -84,9 +95,9 @@ export const useUiStore = defineStore('ui', () => {
    * 토스트 메시지 표시
    * @param {string} message - 표시할 메시지
    */
-  const showToast = (message, type = 'info') => {
-    const validTypes = ['info', 'success', 'error', 'warning'];
-    const safeType = validTypes.includes(type) ? type : 'info';
+  const showToast = (message, type = "info") => {
+    const validTypes = ["info", "success", "error", "warning"];
+    const safeType = validTypes.includes(type) ? type : "info";
 
     const id = Date.now() + Math.random();
 
@@ -120,6 +131,27 @@ export const useUiStore = defineStore('ui', () => {
   const setGlobalLoading = (value) => {
     isGlobalLoading.value = value;
   };
+  const setTheme = (newTheme) => {
+    theme.value = newTheme === "dark" ? "dark" : "light";
+    localStorage.setItem(THEME_KEY, theme.value);
+    applyThemeToDom();
+  };
+
+  const toggleTheme = () => {
+    setTheme(theme.value === "dark" ? "light" : "dark");
+  };
+
+  const initTheme = () => {
+    const savedTheme = localStorage.getItem(THEME_KEY);
+
+    if (savedTheme === "dark" || savedTheme === "light") {
+      theme.value = savedTheme;
+    } else {
+      theme.value = "light";
+    }
+
+    applyThemeToDom();
+  };
 
   // ===== STORE 반환 =====
   return {
@@ -129,10 +161,11 @@ export const useUiStore = defineStore('ui', () => {
     isDateDetailModalOpen,
     toasts,
     isGlobalLoading,
+    theme,
 
     // Getters
     hasToast,
-
+    isDarkMode,
     // Actions
     toggleSidebar,
     openAddLedgerModal,
@@ -144,5 +177,9 @@ export const useUiStore = defineStore('ui', () => {
     removeToast,
     clearToast,
     setGlobalLoading,
+
+    setTheme,
+    toggleTheme,
+    initTheme,
   };
 });

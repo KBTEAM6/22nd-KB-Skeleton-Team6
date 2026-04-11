@@ -4,7 +4,7 @@
     현재 로그인 사용자 요약 정보만 보여주는 순수 표시 컴포넌트다.
   -->
   <div
-    class="d-flex flex-column align-items-center bg-white p-4 shadow-sm border h-100 profile-card"
+    class="d-flex flex-column align-items-center p-4 h-100 profile-card"
     style="border-radius: 2rem"
   >
     <div
@@ -15,13 +15,11 @@
 
     <div class="text-center">
       <h3 class="fs-3 fw-bold mb-1">{{ displayName }}</h3>
-      <p class="small text-muted m-0">회원 ID: {{ user?.id ?? 'N/A' }}</p>
+      <p class="small profile-subtext m-0">회원 ID: {{ user?.id ?? "N/A" }}</p>
     </div>
 
     <div class="mt-4 d-flex flex-wrap justify-content-center gap-2">
-      <span
-        class="px-3 py-1 bg-secondary bg-opacity-10 text-secondary small fw-bold rounded-pill"
-      >
+      <span class="member-badge px-3 py-1 small fw-bold rounded-pill">
         일반 회원
       </span>
     </div>
@@ -29,7 +27,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed } from "vue";
 
 const props = defineProps({
   // 부모(MyPageContent)에서 현재 로그인 사용자 정보를 그대로 내려준다.
@@ -41,7 +39,7 @@ const props = defineProps({
 
 // 이름이 없을 경우를 대비해 fallback을 둔다.
 const displayName = computed(
-  () => props.user?.name || props.user?.nickname || '사용자',
+  () => props.user?.name || props.user?.nickname || "사용자",
 );
 
 // 프로필 뱃지에 표시할 첫 글자
@@ -87,5 +85,21 @@ const userInitial = computed(() => displayName.value.charAt(0).toUpperCase());
 
 .profile-text-action-danger {
   color: #dc3545;
+}
+.profile-card {
+  min-width: 220px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-subtext {
+  color: var(--text-muted);
+}
+
+.member-badge {
+  background: var(--sub-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-light);
 }
 </style>

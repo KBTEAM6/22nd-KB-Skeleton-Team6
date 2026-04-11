@@ -12,12 +12,14 @@
   >
     <div class="d-flex align-items-center gap-3 flex-grow-1">
       <div
-        class="rounded-circle bg-light d-flex align-items-center justify-content-center text-muted detail-icon"
+        class="detail-icon-wrap rounded-circle d-flex align-items-center justify-content-center"
       >
-        <span class="material-symbols-outlined">{{ icon }}</span>
+        <span class="material-symbols-outlined detail-icon-symbol">{{
+          icon
+        }}</span>
       </div>
       <div class="flex-grow-1">
-        <p class="small text-muted mb-1 d-block">{{ label }}</p>
+        <p class="small field-label mb-1 d-block">{{ label }}</p>
         <slot name="value" />
       </div>
     </div>
@@ -50,14 +52,28 @@ defineProps({
 <style scoped>
 .material-symbols-outlined {
   font-variation-settings:
-    'FILL' 0,
-    'wght' 400,
-    'GRAD' 0,
-    'opsz' 24;
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
 }
 
 .detail-icon {
   width: 40px;
   height: 40px;
+}
+.detail-icon-wrap {
+  width: 40px;
+  height: 40px;
+  background: var(--sub-bg);
+  color: var(--text-muted);
+}
+
+.detail-icon-symbol {
+  color: inherit;
+}
+
+.field-label {
+  color: var(--text-muted);
 }
 </style>
