@@ -1,20 +1,21 @@
 <template>
-  <div class="bg-white rounded-4 p-4 shadow-sm" style="min-height: 400px">
+  <div class="ledger-card rounded-4 p-4" style="min-height: 400px">
     <div class="d-flex align-items-center justify-content-between mb-4">
       <h3 class="fw-bold m-0 fs-5">
         거래 내역
-        <span v-if="selectedCategory" class="small fw-normal text-muted ms-2">
+        <span v-if="selectedCategory" class="small fw-normal list-subtext ms-2">
           ({{ selectedCategory }})
         </span>
       </h3>
-      <div v-if="selectedCategory" class="small text-muted">
+
+      <div v-if="selectedCategory" class="small list-subtext">
         {{ filteredTransactions.length }}건 검색됨
       </div>
     </div>
 
     <div
       v-if="filteredTransactions.length === 0"
-      class="text-center py-5 text-muted"
+      class="text-center py-5 list-subtext"
     >
       이번 달 거래 내역이 없습니다.
     </div>
@@ -23,15 +24,15 @@
       <div
         v-for="transaction in filteredTransactions"
         :key="transaction.id"
-        class="d-flex align-items-center justify-content-between py-3 border-bottom"
+        class="transaction-row d-flex align-items-center justify-content-between py-3"
       >
         <div class="d-flex align-items-center gap-3">
           <div
-            class="d-flex align-items-center justify-content-center rounded-3"
-            :style="
+            class="transaction-icon d-flex align-items-center justify-content-center rounded-3"
+            :class="
               transaction.type === 'INCOME'
-                ? 'width: 40px; height: 40px; background-color: rgba(13, 110, 253, 0.1);'
-                : 'width: 40px; height: 40px; background-color: rgba(240, 68, 82, 0.1);'
+                ? 'transaction-icon-income'
+                : 'transaction-icon-expense'
             "
           >
             <ArrowUpRight
@@ -41,7 +42,8 @@
             />
             <ArrowDownRight
               v-else
-              style="width: 20px; height: 20px; color: rgb(240, 68, 82)"
+              class="expense-arrow"
+              style="width: 20px; height: 20px"
             />
           </div>
 
@@ -49,7 +51,7 @@
             <div class="fw-medium mb-0">
               {{ transaction.memo || "내역 없음" }}
             </div>
-            <div class="small text-muted mb-0">
+            <div class="small list-subtext mb-0">
               {{ transaction.category }} · {{ formatDate(transaction.date) }}
             </div>
           </div>
@@ -57,9 +59,8 @@
 
         <div
           class="fw-bold"
-          :class="transaction.type === 'INCOME' ? 'text-primary' : ''"
-          :style="
-            transaction.type === 'EXPENSE' ? 'color: rgb(240, 68, 82);' : ''
+          :class="
+            transaction.type === 'INCOME' ? 'text-primary' : 'expense-text'
           "
         >
           {{ transaction.type === "INCOME" ? "+" : "-"
@@ -111,3 +112,40 @@ const formatDate = (dateStr) => {
   });
 };
 </script>
+<style scoped>
+.ledger-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.list-subtext {
+  color: var(--text-muted);
+}
+
+.transaction-row {
+  border-bottom: 1px solid var(--border-light);
+}
+
+.transaction-row:last-child {
+  border-bottom: none;
+}
+
+.transaction-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.transaction-icon-income {
+  background-color: rgba(13, 110, 253, 0.1);
+}
+
+.transaction-icon-expense {
+  background-color: rgba(240, 68, 82, 0.1);
+}
+
+.expense-arrow,
+.expense-text {
+  color: rgb(240, 68, 82);
+}
+</style>

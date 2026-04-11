@@ -5,7 +5,7 @@ const props = defineProps({
   requestId: Number,
 });
 
-defineEmits(['action']);
+defineEmits(["action"]);
 </script>
 
 <template>
@@ -18,7 +18,7 @@ defineEmits(['action']);
       />
       <div class="user-info">
         <h3 class="user-name">
-          {{ user.name || user.nickname || '이름 없음' }}
+          {{ user.name || user.nickname || "이름 없음" }}
         </h3>
         <p class="user-email">{{ user.email }}</p>
       </div>
@@ -74,10 +74,10 @@ defineEmits(['action']);
   justify-content: space-between;
   gap: 1rem;
   padding: 1.1rem 1.25rem;
-  background: #fff;
-  border: 1px solid #dfe6ee;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 1.25rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
   transition: all 0.25s ease;
 }
 
@@ -86,7 +86,7 @@ defineEmits(['action']);
   box-shadow:
     0 8px 20px rgba(0, 0, 0, 0.08),
     0 16px 32px rgba(0, 0, 0, 0.1);
-  border-color: #d6dee8;
+  border-color: var(--border-light);
 }
 
 .card-left {
@@ -103,6 +103,7 @@ defineEmits(['action']);
   border-radius: 999px;
   object-fit: cover;
   flex-shrink: 0;
+  border: 1px solid var(--border-light);
 }
 
 .user-info {
@@ -113,13 +114,13 @@ defineEmits(['action']);
   margin: 0;
   font-size: 0.98rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-color);
 }
 
 .user-email {
   margin: 0.2rem 0 0;
   font-size: 0.86rem;
-  color: #6b7280;
+  color: var(--text-muted);
   word-break: break-all;
 }
 
@@ -165,8 +166,9 @@ defineEmits(['action']);
 }
 
 .btn-disabled {
-  background-color: #e9ecef;
-  color: #6c757d;
+  background-color: var(--sub-bg);
+  color: var(--text-muted);
+  border: 1px solid var(--border-light);
 }
 
 /* 태블릿 */

@@ -1,15 +1,15 @@
 <script setup>
-import { usecouplesStore } from '@/stores/couples.js';
-import { useAuthStore } from '@/stores/auth.js';
-import { ref, onMounted } from 'vue';
-import CoupleCard from '@/components/common/CoupleCard.vue';
-import { useUiStore } from '@/stores/ui';
+import { usecouplesStore } from "@/stores/couples.js";
+import { useAuthStore } from "@/stores/auth.js";
+import { ref, onMounted } from "vue";
+import CoupleCard from "@/components/common/CoupleCard.vue";
+import { useUiStore } from "@/stores/ui";
 
 const uiStore = useUiStore();
 
 const coupleStore = usecouplesStore();
 const authStore = useAuthStore();
-const keyword = ref('');
+const keyword = ref("");
 
 const handleSearch = () => {
   if (!keyword.value.trim()) {
@@ -20,23 +20,23 @@ const handleSearch = () => {
 };
 
 const resetSearch = () => {
-  keyword.value = '';
+  keyword.value = "";
   coupleStore.searchResults = [];
 };
 const getUserCardType = (user) => {
   const receivedReq = coupleStore.pendingReceivedRequests.find(
     (req) => req.user?.id === user.id,
   );
-  if (receivedReq) return 'received';
+  if (receivedReq) return "received";
 
   const sentReq = coupleStore.pendingSentRequests.find(
     (req) => req.user?.id === user.id,
   );
-  if (sentReq) return 'sent';
+  if (sentReq) return "sent";
   if (coupleStore.isTargetAlreadyCoupled(user.id)) {
-    return 'matched';
+    return "matched";
   }
-  return 'search';
+  return "search";
 };
 const getRequestIdByUser = (user) => {
   const sentReq = coupleStore.pendingSentRequests.find(
@@ -56,7 +56,7 @@ const getReceivedRequestUser = (user) => {
 const handleAction = async ({ type, user, requestId }) => {
   const myId = authStore.user.id;
 
-  if (type === 'request') {
+  if (type === "request") {
     const result = await coupleStore.sendcoupleRequest({
       requesterId: myId,
       targetUserId: user.id,
@@ -64,55 +64,55 @@ const handleAction = async ({ type, user, requestId }) => {
 
     if (result.success) {
       await coupleStore.fetchSentRequests(myId);
-      uiStore.showToast('파트너 요청을 보냈습니다.');
+      uiStore.showToast("파트너 요청을 보냈습니다.");
     } else {
-      uiStore.showToast(result.message || '요청 전송에 실패했습니다.');
+      uiStore.showToast(result.message || "요청 전송에 실패했습니다.");
     }
   }
 
-  if (type === 'accept') {
+  if (type === "accept") {
     const request = user;
     const result = await coupleStore.acceptcoupleRequest(request);
 
     if (result.success) {
-      uiStore.showToast('커플 연결이 완료되었습니다.');
+      uiStore.showToast("커플 연결이 완료되었습니다.");
       return;
     }
 
-    uiStore.showToast(result.message || '요청 수락에 실패했습니다.');
+    uiStore.showToast(result.message || "요청 수락에 실패했습니다.");
   }
 
-  if (type === 'reject') {
+  if (type === "reject") {
     const request = user;
     const result = await coupleStore.rejectcoupleRequest(request.id);
 
     if (result.success) {
       await coupleStore.fetchReceivedRequests(myId);
-      uiStore.showToast('요청을 거절했습니다.', 'error');
+      uiStore.showToast("요청을 거절했습니다.", "error");
     } else {
-      uiStore.showToast(result.message || '거절 실패', 'error');
+      uiStore.showToast(result.message || "거절 실패", "error");
     }
   }
 
-  if (type === 'cancel') {
+  if (type === "cancel") {
     const result = await coupleStore.cancelcoupleRequest(requestId);
 
     if (result.success) {
       await coupleStore.fetchSentRequests(myId);
-      uiStore.showToast('요청을 취소했습니다.', 'error');
+      uiStore.showToast("요청을 취소했습니다.", "error");
     } else {
-      uiStore.showToast(result.message || '취소 실패', 'error');
+      uiStore.showToast(result.message || "취소 실패", "error");
     }
   }
 };
 </script>
 
 <template>
-  <div class="couples-page min-vh-100 p-4 p-md-5">
-    <div class="container-fluid px-0 mx-auto" style="max-width: 86rem">
+  <div class="couples-page">
+    <div class="couples-inner container-fluid mx-auto">
       <header class="mb-4">
         <h1 class="fs-4 fw-bold mb-2">배우자 관리</h1>
-        <p class="small text-muted mb-0">
+        <p class="small section-desc mb-0">
           함께 자산을 관리할 배우자를 찾고 연결하세요.
         </p>
       </header>
@@ -123,7 +123,7 @@ const handleAction = async ({ type, user, requestId }) => {
             <div class="d-flex align-items-center justify-content-between mb-3">
               <div>
                 <h2 class="fs-5 fw-bold mb-1">배우자 검색</h2>
-                <p class="small text-muted mb-0">
+                <p class="small section-desc mb-0">
                   이름 또는 이메일로 검색할 수 있습니다.
                 </p>
               </div>
@@ -201,7 +201,7 @@ const handleAction = async ({ type, user, requestId }) => {
               >
                 <div>
                   <h2 class="fs-5 fw-bold mb-1">받은 요청</h2>
-                  <p class="small text-muted mb-0">
+                  <p class="small section-desc mb-0">
                     상대방이 보낸 부부 연결 요청입니다.
                   </p>
                 </div>
@@ -233,7 +233,7 @@ const handleAction = async ({ type, user, requestId }) => {
               >
                 <div>
                   <h2 class="fs-5 fw-bold mb-1">보낸 요청</h2>
-                  <p class="small text-muted mb-0">
+                  <p class="small section-desc mb-0">
                     내가 보낸 부부 연결 요청입니다.
                   </p>
                 </div>
@@ -263,32 +263,51 @@ const handleAction = async ({ type, user, requestId }) => {
     </div>
   </div>
 </template>
-
 <style scoped>
 .couples-page {
-  background: #f6f8fb;
+  min-height: 100vh;
+  width: calc(100% + 3rem);
+  margin: -1.5rem;
+  background: var(--page-bg);
+  color: var(--text-color);
+}
+
+.couples-inner {
+  max-width: 86rem;
+  padding: 5.5rem 1.5rem 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .couples-page {
+    width: calc(100% + 6rem);
+    margin: -3rem;
+  }
 }
 
 .content-panel {
-  background: #ffffff;
-  border: 1px solid #cfd8e3;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 1.5rem;
   padding: 1.5rem;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+  box-shadow: var(--shadow-sm);
+}
+
+.section-desc {
+  color: var(--text-muted);
 }
 
 .empty-box {
-  background: #f8fafc;
-  border: 1px dashed #d7e0ea;
+  background: var(--sub-bg);
+  border: 1px dashed var(--border-light);
   border-radius: 1rem;
   padding: 1.2rem 1rem;
-  color: #6b7280;
+  color: var(--text-muted);
   font-size: 0.95rem;
 }
 
 .count-badge {
-  background: rgba(74, 144, 226, 0.1);
-  color: #4a90e2;
+  background: rgba(255, 188, 0, 0.14);
+  color: var(--kb-yellow);
   padding: 0.45rem 0.9rem;
   border-radius: 999px;
   font-size: 0.82rem;
@@ -298,7 +317,7 @@ const handleAction = async ({ type, user, requestId }) => {
 .form {
   --width-of-input: 100%;
   --height-of-input: 50px;
-  --input-bg: #f8f9fb;
+  --input-bg: var(--sub-bg);
   --border-radius: 30px;
 
   position: relative;
@@ -309,14 +328,14 @@ const handleAction = async ({ type, user, requestId }) => {
   padding-inline: 1rem;
   border-radius: var(--border-radius);
   background: var(--input-bg);
-  border: 1px solid #e5e9f0;
+  border: 1px solid var(--border-light);
   transition: all 0.25s ease;
 }
 
 .form button {
   border: none;
   background: none;
-  color: #8b8ba7;
+  color: var(--text-muted);
 }
 
 .input {
@@ -326,6 +345,11 @@ const handleAction = async ({ type, user, requestId }) => {
   height: 100%;
   border: none;
   padding-inline: 0.6rem;
+  color: var(--text-color);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
 }
 
 .input:focus {
@@ -354,7 +378,7 @@ input:not(:placeholder-shown) ~ .reset {
 
 .form svg {
   width: 17px;
-  color: #9aa4b2;
+  color: var(--text-muted);
 }
 
 @media (max-width: 1199.98px) {
