@@ -13,6 +13,8 @@
     :password-form="passwordForm"
     :password-error-message="passwordErrorMessage"
     :is-password-saving="isPasswordSaving"
+    :is-delete-modal-open="isDeleteModalOpen"
+    :is-deleting-account="isDeletingAccount"
     @update:form="form = $event"
     @edit-start="handleEditStart"
     @edit-cancel="handleEditCancel"
@@ -22,6 +24,10 @@
     @close-password-modal="closePasswordModal"
     @update:password-form="passwordForm = $event"
     @password-change="handlePasswordChange"
+    @delete-account="handleDeleteAccount"
+    @open-delete-modal="openDeleteModal"
+    @close-delete-modal="closeDeleteModal"
+    @confirm-delete-account="handleDeleteAccount"
   />
 </template>
 
@@ -31,6 +37,8 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useUiStore } from '@/stores/ui';
 import MyPageContent from '@/components/mypage/MyPageContent.vue';
+
+import { withdrawUser } from '@/service/withdrawUser';
 
 const authStore = useAuthStore();
 const uiStore = useUiStore();
@@ -68,6 +76,8 @@ const passwordForm = ref({
 const passwordErrorMessage = ref('');
 
 const isPasswordSaving = ref(false);
+const isDeleteModalOpen = ref(false);
+const isDeletingAccount = ref(false);
 
 /**
  * 현재 로그인 사용자 정보를 form으로 복사한다.
@@ -217,6 +227,14 @@ const closePasswordModal = () => {
   };
 };
 
+const openDeleteModal = () => {
+  isDeleteModalOpen.value = true;
+};
+
+const closeDeleteModal = () => {
+  isDeleteModalOpen.value = false;
+};
+
 // 실제 검증 함수
 const handlePasswordChange = async () => {
   passwordErrorMessage.value = '';
@@ -237,5 +255,25 @@ const handlePasswordChange = async () => {
 
   uiStore.showToast('비밀번호가 변경되었습니다.');
   closePasswordModal();
+};
+
+// 계정 삭제 처리
+const handleDeleteAccount = async () => {
+  if (isDeletingAccount.value) return;
+
+  closeDeleteModal();
+  isDeletingAccount.value = true;
+
+  try {
+    await withdrawUser(authStore.user.id);
+    authStore.logout();
+    uiStore.showToast('계정이 삭제되었습니다.');
+    router.push({ name: 'login' });
+  } catch (error) {
+    console.error('회원탈퇴 실패:', error);
+    uiStore.showToast('계정 삭제에 실패했습니다.', 'error');
+  } finally {
+    isDeletingAccount.value = false;
+  }
 };
 </script>

@@ -1,9 +1,6 @@
 <template>
   <div class="bg-light min-vh-100 p-4 p-md-5">
-    <div
-      class="container-fluid px-0 mx-auto d-flex flex-column gap-4"
-      style="max-width: 80rem"
-    >
+    <div class="container-fluid px-0 mx-auto d-flex flex-column gap-4" style="max-width: 80rem">
       <!--
         상단 헤더 영역
         실제 로그아웃 동작은 부모 페이지가 처리하고, 여기서는 이벤트만 올린다.
@@ -13,9 +10,7 @@
       >
         <div class="text-start">
           <h2 class="fs-4 fw-bold mb-1">마이페이지</h2>
-          <p class="text-muted fw-medium m-0">
-            개인 정보와 계정 상태를 확인하고 수정할 수 있어요.
-          </p>
+          <p class="text-muted fw-medium m-0">개인 정보와 계정 상태를 확인하고 수정할 수 있어요.</p>
         </div>
       </div>
 
@@ -23,9 +18,7 @@
         <!-- 왼쪽은 사용자 요약 카드 -->
         <div class="col-12 col-lg-5 col-xl-4">
           <MyPageProfileCard :user="user" />
-          <button class="btn btn-danger w-100 mt-3" @click="$emit('logout')">
-            로그아웃
-          </button>
+          <button class="btn btn-danger w-100 mt-3" @click="$emit('logout')">로그아웃</button>
         </div>
 
         <!-- 오른쪽은 상세 정보 + 편집 영역 -->
@@ -74,11 +67,7 @@
             </div>
 
             <!-- 부모 페이지에서 만든 에러 메시지를 그대로 표시 -->
-            <div
-              v-if="errorMessage"
-              class="alert alert-danger py-2 mb-4"
-              role="alert"
-            >
+            <div v-if="errorMessage" class="alert alert-danger py-2 mb-4" role="alert">
               {{ errorMessage }}
             </div>
 
@@ -155,11 +144,7 @@
                 </template>
               </MyPageFieldRow>
 
-              <MyPageFieldRow
-                icon="calendar_month"
-                label="가입일"
-                :bordered="false"
-              >
+              <MyPageFieldRow icon="calendar_month" label="가입일" :bordered="false">
                 <template #value>
                   <p class="fw-bold m-0">{{ formattedJoinDate }}</p>
                 </template>
@@ -172,9 +157,7 @@
                 class="btn btn-light w-100 d-flex align-items-center justify-content-between px-4 py-3 rounded-4 border text-start"
               >
                 <div class="d-flex align-items-center gap-3 text-dark">
-                  <span class="material-symbols-outlined text-secondary"
-                    >account_circle</span
-                  >
+                  <span class="material-symbols-outlined text-secondary">account_circle</span>
                   <span class="small fw-bold m-0">
                     {{
                       isEditing
@@ -201,6 +184,7 @@
                 <button
                   type="button"
                   class="profile-text-action profile-text-action-danger"
+                  @click="$emit('open-delete-modal')"
                 >
                   회원탈퇴
                 </button>
@@ -223,9 +207,7 @@
       <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
         <div>
           <h5 id="password-modal-title" class="fw-bold mb-1">비밀번호 변경</h5>
-          <p class="text-muted small mb-0">
-            현재 비밀번호를 확인한 뒤 새 비밀번호를 입력하세요.
-          </p>
+          <p class="text-muted small mb-0">현재 비밀번호를 확인한 뒤 새 비밀번호를 입력하세요.</p>
         </div>
         <button
           type="button"
@@ -285,11 +267,7 @@
         </div>
       </div>
 
-      <div
-        v-if="passwordErrorMessage"
-        class="alert alert-danger py-2 mt-3 mb-0"
-        role="alert"
-      >
+      <div v-if="passwordErrorMessage" class="alert alert-danger py-2 mt-3 mb-0" role="alert">
         {{ passwordErrorMessage }}
       </div>
       <div class="d-flex justify-content-end gap-2 mt-4">
@@ -311,12 +289,74 @@
       </div>
     </div>
   </div>
+
+  <div v-if="isDeleteModalOpen" class="password-modal-backdrop">
+    <div
+      class="password-modal-card delete-modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-modal-title"
+      @click.stop
+    >
+      <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+        <div>
+          <h5 id="delete-modal-title" class="fw-bold mb-1 text-danger">회원탈퇴</h5>
+          <p class="text-muted small mb-0">탈퇴 전 아래 내용을 꼭 확인해주세요.</p>
+        </div>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="닫기"
+          @click="$emit('close-delete-modal')"
+        ></button>
+      </div>
+      <WithdrawCharacter />
+      <div class="delete-warning-box">
+        <div class="d-flex align-items-center gap-2 mb-2 text-danger fw-bold">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>주의</span>
+        </div>
+
+        <p class="mb-2">회원탈퇴를 진행하면 현재 계정 정보가 삭제됩니다.</p>
+        <p class="mb-2">
+          Mock 서버 환경에서는 시연용 정합성을 위해 거래내역, 커플 정보, 커플 요청 데이터도 함께
+          정리됩니다.
+        </p>
+        <p class="mb-0 fw-semibold">이 작업은 되돌릴 수 없습니다.</p>
+      </div>
+
+      <ul class="delete-checklist mt-3 mb-0">
+        <li>계정 정보가 삭제됩니다.</li>
+        <li>로그인 세션이 종료됩니다.</li>
+        <li>관련 Mock 데이터가 함께 정리됩니다.</li>
+      </ul>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          @click="$emit('close-delete-modal')"
+        >
+          취소
+        </button>
+        <button
+          type="button"
+          class="btn btn-danger"
+          :disabled="isDeletingAccount"
+          @click="$emit('confirm-delete-account')"
+        >
+          {{ isDeletingAccount ? '회원탈퇴 처리 중...' : '회원탈퇴' }}
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue';
 import MyPageFieldRow from '@/components/mypage/MyPageFieldRow.vue';
 import MyPageProfileCard from '@/components/mypage/MyPageProfileCard.vue';
+import WithdrawCharacter from '@/components/common/WithdrawCharacter.vue';
 
 const props = defineProps({
   // 현재 로그인 사용자 정보
@@ -375,6 +415,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isDeleteModalOpen: {
+    type: Boolean,
+    default: false,
+  },
+  isDeletingAccount: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // 이 컴포넌트는 화면 표시 위주라, 실제 동작은 이벤트로 부모에게 위임한다.
@@ -388,12 +436,14 @@ defineEmits([
   'close-password-modal',
   'password-change',
   'update:password-form',
+  'delete-account',
+  'open-delete-modal',
+  'close-delete-modal',
+  'confirm-delete-account',
 ]);
 
 // 이름이 비어 있거나 nickname만 있는 경우를 대비한 표시용 계산값
-const displayName = computed(
-  () => props.user?.name || props.user?.nickname || '사용자',
-);
+const displayName = computed(() => props.user?.name || props.user?.nickname || '사용자');
 
 // 서버 데이터가 비어 있거나 잘못된 경우에도 UI가 깨지지 않도록 방어적으로 처리
 const formattedJoinDate = computed(() => {
@@ -536,5 +586,32 @@ const formattedJoinDate = computed(() => {
   color: #dc3545;
   font-size: 0.92rem;
   font-weight: 500;
+}
+
+.delete-modal-card {
+  width: min(100%, 32rem);
+}
+
+.delete-warning-box {
+  border-radius: 1rem;
+  border: 1px solid #f1b0b7;
+  background: #fff5f5;
+  padding: 1rem;
+  color: #5f2128;
+}
+
+.delete-checklist {
+  padding-left: 1.2rem;
+  color: #495057;
+  font-size: 0.95rem;
+}
+
+.delete-checklist li + li {
+  margin-top: 0.35rem;
+}
+
+.btn-danger:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 </style>
