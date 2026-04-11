@@ -16,15 +16,17 @@ const categoryPalette = {
   '쇼핑/생활': '#8ec5ff',
   '의료/건강': '#92e9dc',
   '문화/여가': '#809dff',
+
+
+  '월급': '#4caf50',
+  '용돈': '#ff9800',
+  '보너스': '#26c6da',
+
   '기타': '#d8b86a',
-  '월급': '#9fd39d',
-  '부수입': '#9ad7a9',
-  '교통': '#f5e27f',
-  '취미': '#809dff',
 };
 
 // 수입/지출 카테고리 정의
-export const incomeCategories = ['월급', '부수입'];
+export const incomeCategories = ['월급', '용돈', '보너스', '기타'];
 
 export const expenseCategories = [
   '식비',
@@ -38,8 +40,8 @@ export const expenseCategories = [
 
 // 타입별 카테고리 매핑
 const categoryByType = {
-  income: incomeCategories,
-  expense: expenseCategories,
+  INCOME: incomeCategories,
+  EXPENSE: expenseCategories,
 };
 
 /**
@@ -219,7 +221,7 @@ export const useLedgerStore = defineStore('ledger', () => {
   /**
    * 새 거래 추가
    * @param {Object} payload - 거래 데이터
-   * @param {string} payload.type - 거래 유형 ('income' | 'expense')
+   * @param {string} payload.type - 거래 유형 ('INCOME' | 'EXPENSE')
    * @param {string} payload.category - 카테고리
    * @param {number} payload.amount - 금액
    * @param {string} payload.date - 거래일
@@ -228,10 +230,14 @@ export const useLedgerStore = defineStore('ledger', () => {
    * @throws {Error} 카테고리 검증 실패 시
    */
   async function addTransaction(payload) {
+    console.log(`가계부 생성 데이터 : ${payload.type}`);
+
     const currentUserId = authStore.user?.id;
+
     if (!currentUserId) throw new Error('로그인이 필요합니다.');
 
     const allowedCategories = categoryByType[payload.type] ?? [];
+    
     if (!allowedCategories.includes(payload.category)) {
       throw new Error(`${payload.type} 유형에 맞는 카테고리를 선택해주세요.`);
     }
@@ -240,6 +246,7 @@ export const useLedgerStore = defineStore('ledger', () => {
       ...payload,
       userId: currentUserId,
     });
+    
     transactions.value.push(response.data);
     await refreshTransactions();
   }
