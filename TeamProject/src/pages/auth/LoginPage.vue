@@ -1,9 +1,18 @@
 <template>
-  <!--
-    Login 컴포넌트는 입력 UI만 담당하고,
-    실제 로그인 로직은 이 페이지의 submitLogin 함수가 담당한다.
-  -->
-  <AuthPage title="로그인">
+  <AuthPage
+    title="로그인"
+    :aside-image="currentAsideImage"
+    :aside-alt="currentAsideAlt"
+    :aside-text="currentAsideText"
+  >
+    <template #header>
+      <div class="login-brand">
+        <div class="logo-box">
+          <img :src="logoImage" alt="KB 가계부 로고" class="sidebar-logo" />
+        </div>
+      </div>
+    </template>
+
     <Login
       v-model:email="email"
       v-model:password="password"
@@ -15,26 +24,37 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useUiStore } from '@/stores/ui';
 import AuthPage from '../../components/auth/AuthPage.vue';
 import Login from '../../components/auth/Login.vue';
+import happyCharacter from '@/assets/happy-character.png';
+import errorCharacter from '@/assets/error-character.png';
+import logoImage from '@/assets/Logo.png';
 
 const REMEMBERED_EMAIL_KEY = 'rememberedEmail';
+const DEFAULT_ASIDE_TEXT = '가계쀼와 함께 오늘도 가볍게 시작해요';
 
-// 인증 상태와 사용자 피드백(토스트)을 각각 store에서 관리한다.
 const authStore = useAuthStore();
 const uiStore = useUiStore();
 const router = useRouter();
 
-// 로그인 폼 입력값
 const email = ref('');
 const password = ref('');
 const rememberEmail = ref(false);
 
-// onMounted에서 localStorage에 저장된 이메일이 있으면 불러와서 입력값과 rememberEmail 상태를 초기화한다.
+const currentAsideImage = computed(() =>
+  authStore.errorMessage ? errorCharacter : happyCharacter,
+);
+
+const currentAsideAlt = computed(() =>
+  authStore.errorMessage ? 'Login error character' : 'Happy character',
+);
+
+const currentAsideText = computed(() => authStore.errorMessage || DEFAULT_ASIDE_TEXT);
+
 onMounted(() => {
   const savedEmail = localStorage.getItem(REMEMBERED_EMAIL_KEY);
   if (savedEmail) {
@@ -52,14 +72,6 @@ const syncRememberEmail = () => {
   localStorage.removeItem(REMEMBERED_EMAIL_KEY);
 };
 
-/**
- * 로그인 제출 처리
- *
- * 흐름:
- * 1. 화면 입력값을 authStore.login으로 전달
- * 2. store에서 서버 검증 + 세션 저장 수행
- * 3. 성공하면 토스트를 띄우고 home으로 이동
- */
 const submitLogin = async () => {
   const result = await authStore.login({
     email: email.value,
@@ -70,13 +82,38 @@ const submitLogin = async () => {
     syncRememberEmail();
     uiStore.showToast('로그인에 성공했습니다.');
     router.push({ name: 'home' });
-  } else {
-    uiStore.showToast(result.message || '로그인에 실패했습니다.', 'error');
+    return;
   }
+
+  uiStore.showToast(result.message || '로그인에 실패했습니다.', 'error');
 };
 
 onMounted(() => {
-  // 로그인 페이지 진입 시 기존 에러 메시지 초기화
   authStore.clearError();
 });
 </script>
+
+<style scoped>
+.login-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(255, 204, 80, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-logo {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+</style>

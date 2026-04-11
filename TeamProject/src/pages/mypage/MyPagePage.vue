@@ -3,6 +3,18 @@
     MyPageContent는 화면 표시만 담당한다.
     실제 상태(form, isEditing, 저장 함수)는 이 페이지가 소유한다.
   -->
+  <DelayModal
+    :is-open="isProfileSaving"
+    type="loading"
+    message="프로필을 저장하고 있어요..."
+    :size="1000"
+  />
+  <DelayModal
+    :is-open="isDeletingAccount"
+    type="withdraw"
+    message="회원탈퇴를 처리하고 있어요..."
+    :size="1000"
+  />
   <MyPageContent
     :user="authStore.user"
     :form="form"
@@ -37,6 +49,7 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useUiStore } from '@/stores/ui';
 import MyPageContent from '@/components/mypage/MyPageContent.vue';
+import DelayModal from '@/components/common/DelayModal.vue';
 
 import { withdrawUser } from '@/service/withdrawUser';
 
@@ -76,6 +89,7 @@ const passwordForm = ref({
 const passwordErrorMessage = ref('');
 
 const isPasswordSaving = ref(false);
+const isProfileSaving = ref(false);
 const isDeleteModalOpen = ref(false);
 const isDeletingAccount = ref(false);
 
@@ -185,11 +199,13 @@ const handleSave = async () => {
     return;
   }
 
+  isProfileSaving.value = true;
   const result = await authStore.updateProfile({
     name: trimmedName,
     email: trimmedEmail,
     phone: trimmedPhone,
   });
+  isProfileSaving.value = false;
 
   if (result.success) {
     isEditing.value = false;
