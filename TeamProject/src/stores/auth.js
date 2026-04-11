@@ -1,11 +1,7 @@
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
-import {
-  findUserByEmail,
-  createUser,
-  getUserById,
-  updateUser,
-} from '@/api/auth';
+import { findUserByEmail, createUser, getUserById, updateUser, deleteUser } from '@/api/auth';
+import { mockDelay } from '@/service/mockDelay';
 
 /**
  * 로그인 사용자 정보를 저장할 sessionStorage 키
@@ -124,6 +120,7 @@ export const useAuthStore = defineStore('auth', () => {
     isLoading.value = true;
     clearError();
 
+    await mockDelay(500);
     try {
       const users = await findUserByEmail(email);
       const foundUser = users[0];
@@ -171,11 +168,7 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   // 비밀번호 변경 로직 추가
-  const changePassword = async ({
-    currentPassword,
-    newPassword,
-    confirmPassword,
-  }) => {
+  const changePassword = async ({ currentPassword, newPassword, confirmPassword }) => {
     if (!user.value?.id) {
       return {
         success: false,
