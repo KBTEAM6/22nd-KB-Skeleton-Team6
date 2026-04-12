@@ -1,11 +1,20 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { Home, BookOpen, Users, User, Menu, X, Moon, Sun } from 'lucide-vue-next';
-import { useAuthStore } from '@/stores/auth';
-import { useUiStore } from '@/stores/ui';
-import DelayModal from '@/components/common/DelayModal.vue';
-import { mockDelay } from '@/service/mockDelay';
+import { ref, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import {
+  Home,
+  BookOpen,
+  Users,
+  User,
+  Menu,
+  X,
+  Moon,
+  Sun,
+} from "lucide-vue-next";
+import { useAuthStore } from "@/stores/auth";
+import { useUiStore } from "@/stores/ui";
+import DelayModal from "@/components/common/DelayModal.vue";
+import { mockDelay } from "@/service/mockDelay";
 
 const uiStore = useUiStore();
 const authstore = useAuthStore();
@@ -19,25 +28,25 @@ const isLoggingOut = ref(false);
 const props = defineProps({
   currentView: {
     type: String,
-    default: '',
+    default: "",
   },
 });
 
 const menuItems = [
-  { id: 'home', label: '홈', icon: Home, to: '/home' },
-  { id: 'ledger', label: '가계부', icon: BookOpen, to: '/ledger' },
-  { id: 'couples', label: '부부 가계부', icon: Users, to: '/couples' },
-  { id: 'mypage', label: '마이페이지', icon: User, to: '/mypage' },
+  { id: "home", label: "홈", icon: Home, to: "/home" },
+  { id: "ledger", label: "가계부", icon: BookOpen, to: "/ledger" },
+  { id: "couples", label: "부부 가계부", icon: Users, to: "/couples" },
+  { id: "mypage", label: "마이페이지", icon: User, to: "/mypage" },
 ];
 
 const activeView = computed(() => {
   if (props.currentView) return props.currentView;
   const path = route.path;
-  if (path === '/') return 'home';
-  if (path.startsWith('/ledger')) return 'ledger';
-  if (path.startsWith('/couples')) return 'couples';
-  if (path.startsWith('/mypage')) return 'mypage';
-  return 'home';
+  if (path === "/") return "home";
+  if (path.startsWith("/ledger")) return "ledger";
+  if (path.startsWith("/couples")) return "couples";
+  if (path.startsWith("/mypage")) return "mypage";
+  return "home";
 });
 
 const toggleProfileMenu = () => {
@@ -45,7 +54,7 @@ const toggleProfileMenu = () => {
 };
 
 const goToPartnerInfo = () => {
-  router.push('/couples');
+  router.push("/couples");
   isProfileMenuOpen.value = false;
   uiStore.isSidebarOpen = false;
 };
@@ -65,8 +74,10 @@ const toggleSidebar = () => {
 const handleThemeToggle = () => {
   uiStore.toggleTheme();
   uiStore.showToast(
-    uiStore.isDarkMode ? '다크모드로 변경되었습니다.' : '라이트모드로 변경되었습니다.',
-    'info',
+    uiStore.isDarkMode
+      ? "다크모드로 변경되었습니다."
+      : "라이트모드로 변경되었습니다.",
+    "info",
   );
 };
 
@@ -84,11 +95,11 @@ const handleLogout = async () => {
   isLoggingOut.value = true;
   await mockDelay();
   authstore.logout();
-  uiStore.showToast('로그아웃 했습니다.');
+  uiStore.showToast("로그아웃 했습니다.");
   isProfileMenuOpen.value = false;
   uiStore.isSidebarOpen = false;
   isLoggingOut.value = false;
-  router.push('/auth/login');
+  router.push("/auth/login");
 };
 
 const handleMenuClick = () => {
@@ -124,7 +135,9 @@ const handleMenuClick = () => {
     class="app-sidebar d-flex flex-column border-end"
     :class="{ 'sidebar-open': uiStore.isSidebarOpen }"
   >
-    <div class="sidebar-header p-4 d-flex align-items-center justify-content-between">
+    <div
+      class="sidebar-header p-4 d-flex align-items-center justify-content-between"
+    >
       <div class="d-flex align-items-center gap-3">
         <div
           class="d-flex align-items-center justify-content-center rounded-3"
@@ -145,7 +158,11 @@ const handleMenuClick = () => {
       </div>
 
       <!-- 모바일 닫기 버튼 -->
-      <button type="button" class="sidebar-close-btn d-lg-none" @click="closeSidebar">
+      <button
+        type="button"
+        class="sidebar-close-btn d-lg-none"
+        @click="closeSidebar"
+      >
         <X :size="20" />
       </button>
     </div>
@@ -156,8 +173,14 @@ const handleMenuClick = () => {
         :key="item.id"
         :to="item.to"
         class="w-100 d-flex align-items-center gap-3 px-4 py-3 rounded-4 mb-2 border-0 text-start btn sidebar-btn text-decoration-none"
-        :class="activeView === item.id ? 'sidebar-link-active fw-medium' : 'sidebar-link'"
-        :style="activeView === item.id ? 'background-color: rgb(255,204,80);' : ''"
+        :class="
+          activeView === item.id
+            ? 'sidebar-link-active fw-medium'
+            : 'sidebar-link'
+        "
+        :style="
+          activeView === item.id ? 'background-color: rgb(255,204,80);' : ''
+        "
         @click="handleMenuClick"
       >
         <component :is="item.icon" class="sidebar-icon" />
@@ -175,17 +198,21 @@ const handleMenuClick = () => {
         >
           <div
             class="d-flex align-items-center justify-content-center rounded-circle"
-            style="width: 40px; height: 40px; background-color: rgb(255, 188, 80)"
+            style="
+              width: 40px;
+              height: 40px;
+              background-color: rgb(255, 188, 80);
+            "
           >
             <span>{{ authstore.user?.name?.slice(0, 1) }}</span>
           </div>
 
           <div class="flex-grow-1">
             <p class="fw-medium mb-0 profile-name">
-              {{ authstore.user?.name ?? '' }}
+              {{ authstore.user?.name ?? "" }}
             </p>
             <p class="small mb-0 profile-email">
-              {{ authstore.user?.email ?? '' }}
+              {{ authstore.user?.email ?? "" }}
             </p>
           </div>
         </button>
@@ -198,7 +225,7 @@ const handleMenuClick = () => {
           >
             <span class="menu-item-inner">
               <component :is="uiStore.isDarkMode ? Sun : Moon" :size="16" />
-              <span>{{ uiStore.isDarkMode ? '라이트모드' : '다크모드' }}</span>
+              <span>{{ uiStore.isDarkMode ? "라이트모드" : "다크모드" }}</span>
             </span>
           </button>
 
@@ -245,7 +272,7 @@ const handleMenuClick = () => {
       <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
         <div>
           <h5 id="sidebar-logout-modal-title" class="fw-bold mb-1">로그아웃</h5>
-          <p class="text-muted small mb-0">정말 로그아웃 하시겠어요?</p>
+          <p class="modal-desc small mb-0">정말 로그아웃 하시겠어요?</p>
         </div>
         <button
           type="button"
@@ -267,11 +294,7 @@ const handleMenuClick = () => {
         >
           취소
         </button>
-        <button
-          type="button"
-          class="btn btn-dark"
-          @click="handleLogout"
-        >
+        <button type="button" class="btn btn-dark" @click="handleLogout">
           로그아웃
         </button>
       </div>
@@ -422,9 +445,10 @@ const handleMenuClick = () => {
   overflow-y: auto;
   padding: 1.5rem;
   border-radius: 1.25rem;
-  border: 1px solid rgba(96, 88, 76, 0.14);
-  background: #ffffff;
-  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.18);
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-color);
+  box-shadow: var(--shadow-sm);
 }
 
 .logout-modal-card {
@@ -434,9 +458,13 @@ const handleMenuClick = () => {
 .logout-modal-copy {
   padding: 1rem 1.1rem;
   border-radius: 1rem;
-  background: #f8f6f1;
-  color: #60584c;
+  background: var(--sub-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
   line-height: 1.6;
+}
+.modal-desc {
+  color: var(--text-muted);
 }
 
 .logo-box {
