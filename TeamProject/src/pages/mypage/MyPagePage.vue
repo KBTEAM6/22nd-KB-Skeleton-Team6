@@ -15,12 +15,7 @@
     message="회원 탈퇴를 진행하고 있어요.."
     :size="1000"
   />
-  <DelayModal
-    :is-open="isLoggingOut"
-    type="goodbye"
-    message="금방 돌아오실거죠?"
-    :size="1000"
-  />
+  <DelayModal :is-open="isLoggingOut" type="goodbye" message="금방 돌아오실거죠?" :size="1000" />
   <MyPageContent
     :user="authStore.user"
     :form="form"
@@ -34,6 +29,13 @@
     :is-logout-modal-open="isLogoutModalOpen"
     :is-delete-modal-open="isDeleteModalOpen"
     :is-deleting-account="isDeletingAccount"
+    :is-profile-image-picker-open="isProfileImagePickerOpen"
+    :selected-profile-image-key="selectedProfileImageKey"
+    :profile-image-options="profileImageOptions"
+    :profile-image-map="profileImage"
+    @open-profile-image-picker="openProfileImagePicker"
+    @close-profile-image-picker="closeProfileImagePicker"
+    @update:selected-profile-image-key="selectedProfileImageKey = $event"
     @update:form="form = $event"
     @edit-start="handleEditStart"
     @edit-cancel="handleEditCancel"
@@ -63,6 +65,12 @@ import { mockDelay } from '@/service/mockDelay';
 
 import { withdrawUser } from '@/service/withdrawUser';
 
+import {
+  profileImages as profileImage,
+  profileImageOptions,
+  DEFAULT_PROFILE_IMAGE_KEY,
+} from '@/components/common/profileImages.js';
+
 const authStore = useAuthStore();
 const uiStore = useUiStore();
 const router = useRouter();
@@ -87,6 +95,8 @@ const form = ref({
   phone: '',
 });
 
+const selectedProfileImageKey = ref(DEFAULT_PROFILE_IMAGE_KEY);
+
 // 비밀번호 변경 관련 상태
 const isPasswordModalOpen = ref(false);
 
@@ -104,6 +114,7 @@ const isLogoutModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const isDeletingAccount = ref(false);
 const isLoggingOut = ref(false);
+const isProfileImagePickerOpen = ref(false);
 
 /**
  * 현재 로그인 사용자의 정보를 form으로 복사합니다.
@@ -120,6 +131,11 @@ const syncForm = () => {
     email: authStore.user?.email || '',
     phone: authStore.user?.phone || '',
   };
+
+  selectedProfileImageKey.value =
+    authStore.user?.profileImageKey && profileImage[authStore.user.profileImageKey]
+      ? authStore.user.profileImageKey
+      : DEFAULT_PROFILE_IMAGE_KEY;
 };
 
 /**
@@ -163,6 +179,15 @@ const closeLogoutModal = () => {
   isLogoutModalOpen.value = false;
 };
 
+const openProfileImagePicker = () => {
+  if (!isEditing.value) return;
+  isProfileImagePickerOpen.value = true;
+};
+
+const closeProfileImagePicker = () => {
+  isProfileImagePickerOpen.value = false;
+};
+
 /**
  * 편집 시작 처리
  *
@@ -182,6 +207,7 @@ const handleEditStart = () => {
  * 편집 모드를 종료합니다.
  */
 const handleEditCancel = () => {
+  closeProfileImagePicker();
   syncForm();
   authStore.clearError();
   isEditing.value = false;
@@ -229,11 +255,15 @@ const handleSave = async () => {
     name: trimmedName,
     email: trimmedEmail,
     phone: trimmedPhone,
+    profileImageKey: selectedProfileImageKey.value,
   });
   isProfileSaving.value = false;
 
   if (result.success) {
+    closeProfileImagePicker();
+    // 편집 모드 종료 및 성공 메시지 표시
     isEditing.value = false;
+    // form 동기화 (최신 사용자 정보로 업데이트)
     syncForm();
     uiStore.showToast('프로필 정보가 저장되었습니다.');
   }
@@ -318,4 +348,3 @@ const handleDeleteAccount = async () => {
   }
 };
 </script>
-

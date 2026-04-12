@@ -1,10 +1,6 @@
 <template>
   <div class="mypage-page">
     <div class="mypage-inner">
-      <!--
-        상단 헤더 영역
-        실제 로그아웃 동작은 부모 페이지가 처리하고, 여기서는 이벤트만 올린다.
-      -->
       <div
         class="mypage-header d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-3"
       >
@@ -16,23 +12,23 @@
         </div>
       </div>
 
-      <div class="row g-4 align-items-start">
-        <!-- 왼쪽은 사용자 요약 카드 -->
-        <div class="col-12 col-lg-5 col-xl-4">
-          <MyPageProfileCard :user="user" />
+      <div class="row g-4 align-items-stretch">
+        <div class="col-12 col-lg-5 col-xl-4 d-flex flex-column">
+          <MyPageProfileCard
+            class="flex-grow-1"
+            :user="user"
+            :profile-image-src="profileImageMap[selectedProfileImageKey]"
+            :is-editing="isEditing"
+            @open-profile-image-picker="$emit('open-profile-image-picker')"
+          />
           <button class="btn btn-danger w-100 mt-3" @click="$emit('logout')">로그아웃</button>
         </div>
 
-        <!-- 오른쪽은 상세 정보 + 편집 영역 -->
         <div class="col-12 col-lg-7 col-xl-8">
           <div
             class="mypage-detail-card p-3 p-md-4 p-lg-4 h-100 d-flex flex-column"
             style="border-radius: 2rem"
           >
-            <!--
-              편집 버튼 / 저장 버튼 영역
-              버튼 클릭 이벤트는 부모(MyPagePage)로 올려서 실제 상태 전환을 맡긴다.
-            -->
             <div
               class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between mb-4 gap-3"
             >
@@ -62,13 +58,12 @@
                     :disabled="isSaving"
                     @click="$emit('save')"
                   >
-                    {{ isSaving ? '저장 중...' : '저장' }}
+                    {{ isSaving ? '저장 중..' : '저장' }}
                   </button>
                 </template>
               </div>
             </div>
 
-            <!-- 부모 페이지에서 만든 에러 메시지를 그대로 표시 -->
             <div v-if="errorMessage" class="alert alert-danger py-2 mb-4" role="alert">
               {{ errorMessage }}
             </div>
@@ -76,10 +71,6 @@
             <div class="d-flex flex-column gap-4">
               <MyPageFieldRow icon="badge" label="이름">
                 <template #value>
-                  <!--
-                    편집 중이면 input을 보여주고,
-                    아닐 때는 현재 사용자 이름만 텍스트로 보여준다.
-                  -->
                   <input
                     v-if="isEditing"
                     class="form-control"
@@ -137,13 +128,6 @@
                     {{ user?.phone || '등록된 전화번호가 없습니다.' }}
                   </p>
                 </template>
-
-                <template #badge>
-                  <!--
-                    전화번호 존재 여부만 단순히 보여주는 상태 뱃지
-                    실제 인증 여부 필드가 따로 있는 것은 아니다.
-                  -->
-                </template>
               </MyPageFieldRow>
 
               <MyPageFieldRow icon="calendar_month" label="가입일" :bordered="false">
@@ -153,7 +137,6 @@
               </MyPageFieldRow>
             </div>
 
-            <!-- 하단 안내 문구 -->
             <div class="mt-4 pt-4 border-top">
               <div
                 class="info-summary-box w-100 d-flex align-items-center justify-content-between px-4 py-3 rounded-4 text-start"
@@ -173,8 +156,8 @@
                 </span>
               </div>
             </div>
+
             <div class="mt-auto pt-3 d-flex justify-content-end">
-              <!-- 비밀번호 변경 / 회원탈퇴 액션 영역 -->
               <div class="profile-action-links">
                 <button
                   type="button"
@@ -198,6 +181,56 @@
     </div>
   </div>
 
+  <div v-if="isProfileImagePickerOpen" class="password-modal-backdrop">
+    <div
+      class="password-modal-card profile-image-modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="profile-image-modal-title"
+      @click.stop
+    >
+      <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+        <div>
+          <h5 id="profile-image-modal-title" class="fw-bold mb-1">프로필 사진 변경</h5>
+          <p class="modal-desc small mb-0">마음에 드는 기본 프로필 이미지를 선택해주세요.</p>
+        </div>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="닫기"
+          @click="$emit('close-profile-image-picker')"
+        ></button>
+      </div>
+
+      <div class="profile-image-picker-grid">
+        <button
+          v-for="imageKey in profileImageOptions"
+          :key="imageKey"
+          type="button"
+          class="profile-image-option"
+          :class="{ active: selectedProfileImageKey === imageKey }"
+          @click="$emit('update:selected-profile-image-key', imageKey)"
+        >
+          <img
+            :src="profileImageMap[imageKey]"
+            :alt="imageKey"
+            class="profile-image-option-img"
+          />
+        </button>
+      </div>
+
+      <div class="d-flex justify-content-end mt-4">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          @click="$emit('close-profile-image-picker')"
+        >
+          닫기
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div v-if="isPasswordModalOpen" class="password-modal-backdrop">
     <div
       class="password-modal-card"
@@ -209,7 +242,9 @@
       <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
         <div>
           <h5 id="password-modal-title" class="fw-bold mb-1">비밀번호 변경</h5>
-          <p class="modal-desc small mb-0">현재 비밀번호를 확인한 뒤 새 비밀번호를 입력하세요.</p>
+          <p class="modal-desc small mb-0">
+            현재 비밀번호를 확인하고 새로운 비밀번호를 입력해주세요.
+          </p>
         </div>
         <button
           type="button"
@@ -286,7 +321,7 @@
           :disabled="isPasswordSaving"
           @click="$emit('password-change')"
         >
-          {{ isPasswordSaving ? '변경 중...' : '확인' }}
+          {{ isPasswordSaving ? '변경 중..' : '확인' }}
         </button>
       </div>
     </div>
@@ -313,7 +348,9 @@
         ></button>
       </div>
 
-      <div class="logout-modal-copy">현재 세션이 종료되고 로그인 페이지로 이동합니다.</div>
+      <div class="logout-modal-copy">
+        현재 세션을 종료하고 로그인 페이지로 이동합니다.
+      </div>
 
       <div class="d-flex justify-content-end gap-2 mt-4">
         <button
@@ -350,7 +387,13 @@
           @click="$emit('close-delete-modal')"
         ></button>
       </div>
-      <ViewCharacter type="withdraw" message="정말 회원탈퇴를 진행하시겠어요?" :size="320" />
+
+      <ViewCharacter
+        type="withdraw"
+        message="정말 회원탈퇴를 진행하시겠어요?"
+        :size="320"
+      />
+
       <div class="delete-warning-box">
         <div class="d-flex align-items-center gap-2 mb-2 text-danger fw-bold">
           <i class="fa-solid fa-triangle-exclamation"></i>
@@ -359,8 +402,8 @@
 
         <p class="mb-2">회원탈퇴를 진행하면 현재 계정 정보가 삭제됩니다.</p>
         <p class="mb-2">
-          Mock 서버 환경에서는 시연용 정합성을 위해 거래내역, 커플 정보, 커플 요청 데이터도 함께
-          정리됩니다.
+          Mock 서버 환경에서는 데이터 정합성을 위해 거래내역, 커플 정보, 커플 요청 데이터도
+          함께 정리됩니다.
         </p>
         <p class="mb-0 fw-semibold">이 작업은 되돌릴 수 없습니다.</p>
       </div>
@@ -385,7 +428,7 @@
           :disabled="isDeletingAccount"
           @click="$emit('confirm-delete-account')"
         >
-          {{ isDeletingAccount ? '회원탈퇴 처리 중...' : '회원탈퇴' }}
+          {{ isDeletingAccount ? '회원탈퇴 처리 중..' : '회원탈퇴' }}
         </button>
       </div>
     </div>
@@ -393,18 +436,16 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
+import ViewCharacter from '@/components/common/ViewCharacter.vue';
 import MyPageFieldRow from '@/components/mypage/MyPageFieldRow.vue';
 import MyPageProfileCard from '@/components/mypage/MyPageProfileCard.vue';
-import WithdrawCharacter from '@/components/common/WithdrawCharacter.vue';
 
 const props = defineProps({
-  // 현재 로그인 사용자 정보
   user: {
     type: Object,
     default: () => ({}),
   },
-  // 부모 페이지가 관리하는 수정용 form 상태
   form: {
     type: Object,
     default: () => ({
@@ -413,29 +454,22 @@ const props = defineProps({
       phone: '',
     }),
   },
-  // 현재 편집 모드 여부
   isEditing: {
     type: Boolean,
     default: false,
   },
-  // 저장 요청 진행 여부
   isSaving: {
     type: Boolean,
     default: false,
   },
-  // 부모 페이지 또는 store에서 만든 에러 메시지
   errorMessage: {
     type: String,
     default: '',
   },
-
-  // 비밀번호 변경 모달 열림 여부
   isPasswordModalOpen: {
     type: Boolean,
     default: false,
   },
-
-  // 비밀번호 변경 입력값
   passwordForm: {
     type: Object,
     default: () => ({
@@ -444,13 +478,10 @@ const props = defineProps({
       confirmPassword: '',
     }),
   },
-
-  // 비밀번호 변경 에러 메시지
   passwordErrorMessage: {
     type: String,
     default: '',
   },
-  // 비밀번호 변경 저장 중 여부
   isPasswordSaving: {
     type: Boolean,
     default: false,
@@ -467,11 +498,28 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isProfileImagePickerOpen: {
+    type: Boolean,
+    default: false,
+  },
+  selectedProfileImageKey: {
+    type: String,
+    default: 'profile-1',
+  },
+  profileImageOptions: {
+    type: Array,
+    default: () => [],
+  },
+  profileImageMap: {
+    type: Object,
+    default: () => ({}),
+  },
 });
 
-// 이 컴포넌트는 화면 표시 위주라, 실제 동작은 이벤트로 부모에게 위임한다.
 defineEmits([
   'logout',
+  'open-profile-image-picker',
+  'close-profile-image-picker',
   'confirm-logout',
   'edit-start',
   'edit-cancel',
@@ -481,17 +529,15 @@ defineEmits([
   'close-password-modal',
   'password-change',
   'update:password-form',
-  'delete-account',
   'close-logout-modal',
   'open-delete-modal',
   'close-delete-modal',
   'confirm-delete-account',
+  'update:selected-profile-image-key',
 ]);
 
-// 이름이 비어 있거나 nickname만 있는 경우를 대비한 표시용 계산값
 const displayName = computed(() => props.user?.name || props.user?.nickname || '사용자');
 
-// 서버 데이터가 비어 있거나 잘못된 경우에도 UI가 깨지지 않도록 방어적으로 처리
 const formattedJoinDate = computed(() => {
   if (!props.user?.createdAt) {
     return '가입일 정보가 없습니다.';
@@ -519,13 +565,13 @@ const formattedJoinDate = computed(() => {
     'GRAD' 0,
     'opsz' 24;
 }
+
 .mypage-inner {
   max-width: 86rem;
   margin: 0 auto;
   padding: 5.5rem 1.5rem 1.5rem;
 }
 
-/* 프로필 수정 버튼 */
 .custom-edit-btn {
   color: #4f473d;
   background-color: #fff3c4;
@@ -547,7 +593,6 @@ const formattedJoinDate = computed(() => {
   box-shadow: 0 4px 12px rgba(224, 185, 63, 0.22);
 }
 
-/* 하단 액션 링크 영역 */
 .profile-action-links {
   display: flex;
   justify-content: flex-end;
@@ -555,7 +600,6 @@ const formattedJoinDate = computed(() => {
   flex-wrap: wrap;
 }
 
-/* 텍스트형 액션 버튼 공통 */
 .profile-text-action {
   padding: 0;
   border: none;
@@ -573,15 +617,14 @@ const formattedJoinDate = computed(() => {
   text-decoration: underline;
 }
 
-/* 비밀번호 변경 */
 .profile-text-action-primary {
   color: #0d6efd;
 }
 
-/* 회원탈퇴 */
 .profile-text-action-danger {
   color: #dc3545;
 }
+
 .form-control {
   background-color: var(--sub-bg);
   border: 1px solid var(--border-light);
@@ -603,12 +646,10 @@ const formattedJoinDate = computed(() => {
   color: var(--text-color);
 }
 
-/* 카드 하단 안내 박스가 너무 무겁지 않게 */
 .info-summary-box {
   border-radius: 1.25rem;
 }
 
-/* 모바일 대응 */
 @media (max-width: 768px) {
   .custom-edit-btn {
     width: 100%;
@@ -624,6 +665,7 @@ const formattedJoinDate = computed(() => {
     font-size: 0.88rem;
   }
 }
+
 .mypage-page {
   min-height: 100vh;
   width: calc(100% + 3rem);
@@ -660,7 +702,6 @@ const formattedJoinDate = computed(() => {
   color: var(--text-muted);
 }
 
-/* password 변경 관련 style */
 .password-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -672,6 +713,7 @@ const formattedJoinDate = computed(() => {
   overflow-y: auto;
   background-color: rgba(17, 24, 39, 0.45);
 }
+
 .mypage-header {
   margin-bottom: 2rem;
 }
@@ -712,6 +754,10 @@ const formattedJoinDate = computed(() => {
     padding: 1rem;
     border-radius: 1rem;
   }
+
+  .profile-image-picker-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .password-error-text {
@@ -719,6 +765,46 @@ const formattedJoinDate = computed(() => {
   color: #dc3545;
   font-size: 0.92rem;
   font-weight: 500;
+}
+
+.profile-image-modal-card {
+  width: min(100%, 34rem);
+}
+
+.profile-image-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.profile-image-option {
+  padding: 0.35rem;
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  background: var(--sub-bg);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.profile-image-option:hover {
+  transform: translateY(-2px);
+  border-color: var(--kb-yellow);
+  box-shadow: 0 10px 24px rgba(255, 188, 0, 0.18);
+}
+
+.profile-image-option.active {
+  border-color: var(--kb-yellow);
+  box-shadow: 0 0 0 0.2rem rgba(255, 188, 0, 0.16);
+}
+
+.profile-image-option-img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 0.8rem;
+  display: block;
 }
 
 .logout-modal-card {

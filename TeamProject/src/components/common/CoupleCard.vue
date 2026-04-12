@@ -1,24 +1,25 @@
 <script setup>
+import { computed } from 'vue';
+import { getProfileImageSrc } from '@/components/common/profileImages.js';
+
 const props = defineProps({
   user: Object,
   type: String,
   requestId: Number,
 });
 
-defineEmits(["action"]);
+defineEmits(['action']);
+
+const profileImageSrc = computed(() => getProfileImageSrc(props.user?.profileImageKey));
 </script>
 
 <template>
   <div class="couple-card mx-auto w-100">
     <div class="card-left">
-      <img
-        class="profile-img"
-        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDftwAZ6yHDb__srqcdXMrN_IYNTXVXvQJkK2pE2fVNcgUHorcnWJB-C8ZGK5a9_FjfswfOTntz6snsOsYdkLA0gD9Wah_YVTKhB4K8UUFP1rBKI__mJ17uTk1oNAYoABuXovMCCKys_fMdY2eG_zUtgFvIZSB_ETVO7M2REjK6xHT68SrlYGN3F842Vam4Rm_-0EJrqtPUbIDlFPOOEjcIU9gICXH2Y5K3jtcivyeiiif0X38GAlYECUjqaOWPsOMpSDwmFUixZm-f"
-        alt="프로필 이미지"
-      />
+      <img class="profile-img" :src="profileImageSrc" alt="프로필 이미지" />
       <div class="user-info">
         <h3 class="user-name">
-          {{ user.name || user.nickname || "이름 없음" }}
+          {{ user.name || user.nickname || '이름 없음' }}
         </h3>
         <p class="user-email">{{ user.email }}</p>
       </div>
@@ -50,12 +51,10 @@ defineEmits(["action"]);
 
       <template v-else-if="type === 'sent'">
         <button
-          @click="
-            $emit('action', { type: 'cancel', requestId: props.requestId })
-          "
+          @click="$emit('action', { type: 'cancel', requestId: props.requestId })"
           class="action-btn btn-red"
         >
-          전송 취소
+          요청 취소
         </button>
       </template>
 
@@ -171,7 +170,6 @@ defineEmits(["action"]);
   border: 1px solid var(--border-light);
 }
 
-/* 태블릿 */
 @media (max-width: 992px) {
   .couple-card {
     padding: 1rem 1rem;
@@ -183,7 +181,6 @@ defineEmits(["action"]);
   }
 }
 
-/* 모바일 */
 @media (max-width: 768px) {
   .couple-card {
     flex-direction: column;
@@ -213,7 +210,6 @@ defineEmits(["action"]);
   }
 }
 
-/* 아주 작은 화면 */
 @media (max-width: 480px) {
   .profile-img {
     width: 48px;

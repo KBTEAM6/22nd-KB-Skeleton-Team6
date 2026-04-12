@@ -2,6 +2,7 @@ import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import { findUserByEmail, createUser, getUserById, updateUser, deleteUser } from '@/api/auth';
 import { mockDelay } from '@/service/mockDelay';
+import { DEFAULT_PROFILE_IMAGE_KEY } from '@/components/common/profileImages.js';
 
 /**
  * 로그인 사용자 정보를 저장할 sessionStorage 키
@@ -147,6 +148,7 @@ export const useAuthStore = defineStore('auth', () => {
         email: foundUser.email,
         phone: foundUser.phone,
         createdAt: foundUser.createdAt,
+        profileImageKey: foundUser.profileImageKey ?? DEFAULT_PROFILE_IMAGE_KEY,
       };
 
       setUser(safeUser);
@@ -265,6 +267,7 @@ export const useAuthStore = defineStore('auth', () => {
         phone,
         password,
         createdAt,
+        profileImageKey: DEFAULT_PROFILE_IMAGE_KEY,
       });
 
       const safeUser = {
@@ -273,6 +276,7 @@ export const useAuthStore = defineStore('auth', () => {
         email: createdUser.email,
         phone: createdUser.phone,
         createdAt: createdUser.createdAt,
+        profileImageKey: createdUser.profileImageKey ?? DEFAULT_PROFILE_IMAGE_KEY,
       };
 
       // setUser(safeUser);
@@ -316,7 +320,7 @@ export const useAuthStore = defineStore('auth', () => {
    * PUT은 전체 리소스 교체 방식이라,
    * 일부 필드만 보내지 않고 기존 사용자 전체 객체를 다시 만들어 보내는 것이 중요하다.
    */
-  const updateProfile = async ({ name, email, phone }) => {
+  const updateProfile = async ({ name, email, phone, profileImageKey }) => {
     if (!user.value?.id) {
       errorMessage.value = '로그인된 사용자 정보가 없습니다.';
       return {
@@ -349,6 +353,7 @@ export const useAuthStore = defineStore('auth', () => {
         name,
         email,
         phone,
+        profileImageKey: profileImageKey ?? currentUser.profileImageKey ?? DEFAULT_PROFILE_IMAGE_KEY,
       });
 
       setUser({
@@ -358,6 +363,8 @@ export const useAuthStore = defineStore('auth', () => {
         email: updatedUser.email ?? user.value.email,
         phone: updatedUser.phone ?? user.value.phone,
         createdAt: updatedUser.createdAt ?? user.value.createdAt,
+        profileImageKey:
+          updatedUser.profileImageKey ?? user.value.profileImageKey ?? DEFAULT_PROFILE_IMAGE_KEY,
       });
 
       return {
