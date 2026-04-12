@@ -311,50 +311,57 @@
         </div>
 
         <div class="col-12 col-lg-4 d-flex flex-column gap-4">
-          <div
-            v-if="!goalCards.length"
-            class="goal-empty-card rounded-4 border shadow-sm text-center p-4 p-md-5"
-            style="border-left: 4px solid #facc15 !important"
-          >
-            <div class="goal-empty-content">
-              <button
-                type="button"
-                class="goal-empty-button mx-auto mb-3 d-flex align-items-center justify-content-center border-0 shadow-sm"
-                @click="openGoalModal()"
-                aria-label="공동 목표 추가"
-              >
-                <span class="material-symbols-outlined">add</span>
-              </button>
-              <p class="small fw-bold text-primary mb-2">공동 목표</p>
-              <h4 class="fs-5 fw-bold mb-2">목표 추가하기</h4>
-              <p class="goal-subtext small mb-4">
-                수입 목표와 지출 목표를 만들고 커플 가계부와 연결해
-                관리해보세요.
-              </p>
-            </div>
-            <p class="small fw-bold text-primary mb-1">공동 목표</p>
-            <h4 class="fs-5 fw-bold mb-3">신혼 마련 적금</h4>
-            <div class="d-flex align-items-end gap-2 mb-2">
-              <span class="fs-3 fw-bold">78%</span>
-              <span class="small goal-subtext pb-1">3,400,000 / 5,000,000</span>
+          <div v-if="!goalCards.length || isGoalAddPageOpen" class="d-flex flex-column gap-3">
+            <div
+              v-if="goalCards.length > 0"
+              class="goal-overview-nav d-flex align-items-center justify-content-end px-1"
+            >
+              <div class="d-flex align-items-center gap-2">
+                <button
+                  type="button"
+                  class="goal-nav-btn d-flex align-items-center justify-content-center border-0"
+                  @click="handleGoalNavigationLeft"
+                  aria-label="새 목표 추가 또는 이전 목표"
+                >
+                  <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button
+                  type="button"
+                  class="goal-nav-btn d-flex align-items-center justify-content-center border-0"
+                  @click="handleGoalNavigation"
+                  aria-label="새 목표 추가 또는 다음 목표"
+                >
+                  <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+              </div>
             </div>
             <div
-              class="w-100 goal-progress-track rounded-pill overflow-hidden border"
-              style="height: 0.75rem"
+              class="goal-empty-card rounded-4 border shadow-sm text-center p-4 p-md-5"
+              style="border-left: 4px solid #facc15 !important"
             >
-              <div class="h-100 bg-primary" style="width: 78%"></div>
+              <div class="goal-empty-content">
+                <button
+                  type="button"
+                  class="goal-empty-button mx-auto mb-3 d-flex align-items-center justify-content-center border-0 shadow-sm"
+                  @click="openGoalModal()"
+                  aria-label="공동 목표 추가"
+                >
+                  <span class="material-symbols-outlined">add</span>
+                </button>
+                <p class="small fw-bold text-primary mb-2">공동 목표</p>
+                <h4 class="fs-5 fw-bold mb-2">목표 추가하기</h4>
+                <p class="goal-subtext small mb-4">
+                  수입 목표와 지출 목표를 만들고 커플 가계부와 연결해
+                  관리해보세요.
+                </p>
+              </div>
             </div>
-            <button
-              class="goal-detail-btn btn border mt-4 w-100 py-2 fw-bold rounded-3 shadow-sm"
-            >
-              상세 보기
-            </button>
           </div>
 
           <div v-else class="d-flex flex-column gap-3">
             <div
-              v-if="goalCards.length > 1"
-              class="d-flex align-items-center justify-content-between px-1"
+              v-if="goalCards.length > 0"
+              class="goal-overview-nav d-flex align-items-center justify-content-between px-1"
             >
               <div class="small goal-subtext fw-semibold">
                 {{ currentGoalIndex + 1 }} / {{ goalCards.length }}
@@ -1238,6 +1245,7 @@ const summary = ref({
 const allTransactions = ref([]);
 const coupleGoals = ref([]);
 const isGoalModalOpen = ref(false);
+const isGoalAddPageOpen = ref(false);
 const editingGoalId = ref(null);
 const currentGoalIndex = ref(0);
 const isGoalDetailModalOpen = ref(false);
@@ -1278,6 +1286,8 @@ const goalDatePicker = ref({
   month: new Date().getMonth(),
   tempStart: goalForm.value.startDate,
   tempEnd: goalForm.value.endDate,
+  originalStart: goalForm.value.startDate,
+  originalEnd: goalForm.value.endDate,
 });
 
 const goalPickerMonthItems = computed(() => {
@@ -1314,6 +1324,8 @@ const openGoalDatePicker = (field) => {
   goalDatePicker.value.month = date.getMonth();
   goalDatePicker.value.tempStart = goalForm.value.startDate;
   goalDatePicker.value.tempEnd = goalForm.value.endDate;
+  goalDatePicker.value.originalStart = goalForm.value.startDate;
+  goalDatePicker.value.originalEnd = goalForm.value.endDate;
 };
 
 const closeGoalDatePicker = () => {
@@ -1338,16 +1350,22 @@ const selectGoalDate = (date) => {
     goalDatePicker.value.tempStart = date;
     goalDatePicker.value.tempEnd = null;
     goalDatePicker.value.activeField = "end";
+    goalForm.value.startDate = date;
+    goalForm.value.endDate = date;
     return;
   }
 
   if (date < goalDatePicker.value.tempStart) {
     goalDatePicker.value.tempEnd = goalDatePicker.value.tempStart;
     goalDatePicker.value.tempStart = date;
+    goalForm.value.startDate = goalDatePicker.value.tempStart;
+    goalForm.value.endDate = goalDatePicker.value.tempEnd;
     return;
   }
 
   goalDatePicker.value.tempEnd = date;
+  goalForm.value.startDate = goalDatePicker.value.tempStart;
+  goalForm.value.endDate = goalDatePicker.value.tempEnd;
 };
 
 const prevGoalPickerMonth = () => {
@@ -1383,8 +1401,10 @@ const applyGoalDateRange = () => {
 };
 
 const cancelGoalDateRange = () => {
-  goalDatePicker.value.tempStart = goalForm.value.startDate;
-  goalDatePicker.value.tempEnd = goalForm.value.endDate;
+  goalDatePicker.value.tempStart = goalDatePicker.value.originalStart;
+  goalDatePicker.value.tempEnd = goalDatePicker.value.originalEnd;
+  goalForm.value.startDate = goalDatePicker.value.originalStart;
+  goalForm.value.endDate = goalDatePicker.value.originalEnd;
   closeGoalDatePicker();
 };
 
@@ -1479,6 +1499,24 @@ const activeGoalCard = computed(() => {
   return goalCards.value[safeIndex];
 });
 
+const isFirstGoal = computed(() => currentGoalIndex.value <= 0);
+
+const isLastGoal = computed(() => {
+  if (!goalCards.value.length) return true;
+  return currentGoalIndex.value >= goalCards.value.length - 1;
+});
+
+const showPrevGoal = () => {
+  currentGoalIndex.value = Math.max(0, currentGoalIndex.value - 1);
+};
+
+const showNextGoal = () => {
+  currentGoalIndex.value = Math.min(
+    goalCards.value.length - 1,
+    currentGoalIndex.value + 1,
+  );
+};
+
 const selectedGoalDetail = computed(() => {
   if (!selectedGoalDetailId.value) return null;
   return (
@@ -1566,44 +1604,39 @@ const openGoalModal = (goal = null) => {
     }
   }
 
+  isGoalAddPageOpen.value = false;
   isGoalModalOpen.value = true;
 };
 
-const showPrevGoal = () => {
-  if (!goalCards.value.length) return;
-  currentGoalIndex.value =
-    (currentGoalIndex.value - 1 + goalCards.value.length) %
-    goalCards.value.length;
-};
-
-const showNextGoal = () => {
-  if (!goalCards.value.length) return;
-  currentGoalIndex.value =
-    (currentGoalIndex.value + 1) % goalCards.value.length;
-};
-
-const isFirstGoal = computed(() => {
-  return goalCards.value.length > 0 && currentGoalIndex.value === 0;
-});
-
-const isLastGoal = computed(() => {
-  return (
-    goalCards.value.length > 0 &&
-    currentGoalIndex.value === goalCards.value.length - 1
-  );
-});
-
 const handleGoalNavigationLeft = () => {
+  if (isGoalAddPageOpen.value) {
+    if (goalCards.value.length > 0) {
+      isGoalAddPageOpen.value = false;
+      currentGoalIndex.value = goalCards.value.length - 1;
+    }
+    return;
+  }
+
+  if (!goalCards.value.length) return;
   if (isFirstGoal.value) {
-    openGoalModal();
+    isGoalAddPageOpen.value = true;
     return;
   }
   showPrevGoal();
 };
 
 const handleGoalNavigation = () => {
+  if (isGoalAddPageOpen.value) {
+    if (goalCards.value.length > 0) {
+      isGoalAddPageOpen.value = false;
+      currentGoalIndex.value = 0;
+    }
+    return;
+  }
+
+  if (!goalCards.value.length) return;
   if (isLastGoal.value) {
-    openGoalModal();
+    isGoalAddPageOpen.value = true;
     return;
   }
   showNextGoal();
@@ -2141,8 +2174,20 @@ onMounted(async () => {
   color: #1f2937;
 }
 
-.goal-empty-card > :not(.goal-empty-content) {
-  display: none !important;
+.goal-empty-card {
+  min-height: 25rem;
+}
+
+.goal-empty-content {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.goal-overview-nav {
+  padding-right: 0.25rem;
 }
 
 .goal-empty-button .material-symbols-outlined {
@@ -2277,12 +2322,33 @@ onMounted(async () => {
 }
 
 .goal-nav-btn {
-  width: 2rem;
-  height: 2rem;
+  width: 2.65rem;
+  height: 2.65rem;
   border-radius: 999px;
-  background: var(--card-bg);
-  color: var(--text-color);
-  box-shadow: var(--shadow-sm);
+  background: #ffffff;
+  color: #1f2937;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background-color 0.18s ease;
+}
+
+.goal-nav-btn .material-symbols-outlined {
+  font-size: 1.45rem;
+  font-weight: 500;
+}
+
+.goal-nav-btn:hover,
+.goal-nav-btn:focus-visible {
+  background: #fffdf7;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.12);
+  transform: translateY(-1px);
+}
+
+:global(html.dark) .goal-nav-btn {
+  background: #f9fafb;
+  color: #111827;
 }
 
 .goal-linked-item .fw-bold.mb-1 {
