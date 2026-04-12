@@ -20,9 +20,16 @@
           type="button"
           class="couple-edit-btn rounded-circle d-flex align-items-center justify-content-center position-absolute top-0 end-0 m-3 shadow-sm border-0 z-3"
           style="width: 3rem; height: 3rem"
-          @click="startEditingMessage('user')"
+          @click="
+            editingMessage === 'user'
+              ? saveMessage('user')
+              : startEditingMessage('user')
+          "
+          :title="editingMessage === 'user' ? '저장' : '상태 메시지 수정'"
         >
-          <span class="material-symbols-outlined fs-5">edit</span>
+          <span class="material-symbols-outlined fs-5">
+            {{ editingMessage === 'user' ? 'check' : 'edit' }}
+          </span>
         </button>
 
         <div
@@ -43,7 +50,6 @@
                     type="text"
                     class="form-control form-control-sm"
                     maxlength="20"
-                    @keyup.enter="saveMessage('user')"
                   />
                 </div>
               </template>
@@ -78,9 +84,11 @@
               class="heart-badge rounded-circle d-flex align-items-center justify-content-center shadow-sm border-0"
               style="width: 48px; height: 48px; cursor: pointer"
               @click="confirmDisconnectCouple"
+              @mouseenter="isHeartHovered = true"
+              @mouseleave="isHeartHovered = false"
             >
               <span class="material-symbols-outlined filled-icon">
-                favorite
+                {{ isHeartHovered ? 'heart_broken' : 'favorite' }}
               </span>
             </button>
             <div class="d-flex gap-4 mt-1">
@@ -304,7 +312,7 @@
           <div
             v-if="!goalCards.length"
             class="goal-empty-card rounded-4 border shadow-sm text-center p-4 p-md-5"
-            style="border-left: 4px solid var(--bs-primary) !important"
+            style="border-left: 4px solid #facc15 !important"
           >
             <div class="goal-empty-content">
               <button
@@ -321,13 +329,6 @@
                 수입 목표와 지출 목표를 만들고 커플 가계부와 연결해
                 관리해보세요.
               </p>
-              <button
-                type="button"
-                class="goal-create-btn btn w-100 py-3 fw-bold rounded-4"
-                @click="openGoalModal()"
-              >
-                목표 만들기
-              </button>
             </div>
             <p class="small fw-bold text-primary mb-1">공동 목표</p>
             <h4 class="fs-5 fw-bold mb-3">신혼 마련 적금</h4>
@@ -360,16 +361,16 @@
                 <button
                   type="button"
                   class="goal-nav-btn d-flex align-items-center justify-content-center border-0"
-                  @click="showPrevGoal"
-                  aria-label="이전 목표"
+                  @click="handleGoalNavigationLeft"
+                  aria-label="새 목표 추가 또는 이전 목표"
                 >
                   <span class="material-symbols-outlined">chevron_left</span>
                 </button>
                 <button
                   type="button"
                   class="goal-nav-btn d-flex align-items-center justify-content-center border-0"
-                  @click="showNextGoal"
-                  aria-label="다음 목표"
+                  @click="handleGoalNavigation"
+                  aria-label="새 목표 추가 또는 다음 목표"
                 >
                   <span class="material-symbols-outlined">chevron_right</span>
                 </button>
@@ -394,9 +395,11 @@
                 </div>
                 <div class="d-flex align-items-center gap-2">
                   <button
+                    v-if="activeGoalCard.type === 'INCOME'"
                     type="button"
-                    class="btn btn-warning goal-action-btn fw-bold"
-                    @click="openGoalModal()"
+                    class="btn btn-warning goal-action-btn fw-bold goal-action-add-icon"
+                    @click="openIncomeTransactionForActiveGoal"
+                    aria-label="수입 거래 추가"
                   >
                     추가
                   </button>
@@ -557,7 +560,7 @@
             @click="showAllCategories = !showAllCategories"
           >
             <span class="material-symbols-outlined fs-4">
-              {{ showAllCategories ? "remove" : "add" }}
+              {{ showAllCategories ? 'remove' : 'add' }}
             </span>
           </button>
         </div>
@@ -677,14 +680,8 @@
             />
           </div>
 
-          <div
-            class="row g-4"
-            :class="{ 'goal-form-grid-create': !editingGoalId }"
-          >
-            <div
-              class="col-12 col-lg-6"
-              :class="{ 'col-lg-12': !editingGoalId }"
-            >
+          <div class="d-flex flex-column gap-4">
+            <div>
               <label for="goal-amount" class="form-label fw-bold"
                 >목표 금액</label
               >
@@ -699,32 +696,154 @@
               />
             </div>
 
-            <div
-              class="col-12 col-lg-6"
-              :class="{ 'col-lg-12': !editingGoalId }"
-            >
+            <div>
               <label class="form-label fw-bold">목표 기간</label>
-              <div class="row g-2">
-                <div class="col-6">
+              <div class="goal-date-range-picker rounded-4 border p-3 mt-2">
+                <div class="goal-date-field mb-4">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="material-symbols-outlined text-muted"
+                      >calendar_month</span
+                    >
+                    <span class="goal-date-caption text-muted">Start</span>
+                  </div>
                   <input
                     v-model="goalForm.startDate"
-                    type="date"
+                    type="text"
                     class="form-control goal-form-control"
+                    readonly
+                    @focus="openGoalDatePicker('start')"
+                    @click="openGoalDatePicker('start')"
+                    aria-label="Start date"
                     required
                   />
                 </div>
-                <div class="col-6">
+                <div class="date-range-separator text-center text-muted mb-4">
+                  ~
+                </div>
+                <div class="goal-date-field">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="material-symbols-outlined text-muted"
+                      >calendar_month</span
+                    >
+                    <span class="goal-date-caption text-muted">End</span>
+                  </div>
                   <input
                     v-model="goalForm.endDate"
-                    type="date"
+                    type="text"
                     class="form-control goal-form-control"
+                    readonly
+                    @focus="openGoalDatePicker('end')"
+                    @click="openGoalDatePicker('end')"
+                    aria-label="End date"
                     required
                   />
                 </div>
+                <div
+                  v-if="goalDatePicker.visible"
+                  class="goal-date-picker-modal position-absolute top-100 start-50 translate-middle-x mt-3 p-3 rounded-4 border bg-white shadow"
+                >
+                  <div
+                    class="d-flex align-items-center justify-content-between mb-3"
+                  >
+                    <div class="fw-semibold">
+                      {{ goalPickerMonthItems[0].year }}년
+                      {{ goalPickerMonthItems[0].month + 1 }}월
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        @click="prevGoalPickerMonth"
+                      >
+                        <span class="material-symbols-outlined"
+                          >chevron_left</span
+                        >
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        @click="nextGoalPickerMonth"
+                      >
+                        <span class="material-symbols-outlined"
+                          >chevron_right</span
+                        >
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="goal-date-picker-grid mb-3">
+                    <div
+                      v-for="monthItem in goalPickerMonthItems"
+                      :key="`${monthItem.year}-${monthItem.month}`"
+                      class="goal-date-calendar p-2 rounded-3 border"
+                    >
+                      <div class="mb-2 fw-semibold">
+                        {{ monthItem.year }}년 {{ monthItem.month + 1 }}월
+                      </div>
+                      <div
+                        class="d-grid gap-2"
+                        :style="{
+                          gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
+                        }"
+                      >
+                        <div
+                          v-for="dayName in [
+                            'Su',
+                            'Mo',
+                            'Tu',
+                            'We',
+                            'Th',
+                            'Fr',
+                            'Sa',
+                          ]"
+                          :key="dayName"
+                          class="text-center small text-muted"
+                        >
+                          {{ dayName }}
+                        </div>
+                        <template
+                          v-for="(day, idx) in createCalendarDays(
+                            monthItem.year,
+                            monthItem.month,
+                          )"
+                          :key="`day-${monthItem.year}-${monthItem.month}-${idx}`"
+                        >
+                          <div v-if="!day"></div>
+                          <button
+                            v-else
+                            type="button"
+                            class="goal-date-picker-day border-0 rounded-2"
+                            :class="{
+                              'selected-day': isGoalPickerSelected(day.date),
+                              'in-range-day': isGoalPickerInRange(day.date),
+                            }"
+                            @click="selectGoalDate(day.date)"
+                          >
+                            {{ day.day }}
+                          </button>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="d-flex justify-content-end gap-2">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-secondary"
+                      @click="cancelGoalDateRange"
+                    >
+                      취소
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-primary"
+                      @click="applyGoalDateRange"
+                    >
+                      적용
+                    </button>
+                  </div>
+                </div>
               </div>
-              <p class="goal-subtext small mt-2 mb-0">
-                시작일은 직접 선택 가능하며 기본값은 오늘입니다.
-              </p>
             </div>
           </div>
 
@@ -752,7 +871,7 @@
               type="submit"
               class="btn goal-preview-btn py-3 px-4 fw-bold rounded-4"
             >
-              {{ editingGoalId ? "목표 수정" : "추가" }}
+              {{ editingGoalId ? '목표 수정' : '추가' }}
             </button>
             <button
               type="button"
@@ -893,7 +1012,7 @@
           <div>
             <h3 id="goal-income-transaction-title" class="fs-5 fw-bold mb-1">
               {{
-                editingGoalTransactionId ? "커플 수입 수정" : "커플 수입 추가"
+                editingGoalTransactionId ? '커플 수입 수정' : '커플 수입 추가'
               }}
             </h3>
             <p class="goal-modal-subtext mb-0">
@@ -959,7 +1078,7 @@
             <div class="small goal-subtext mb-1">추가 정보</div>
             <div class="fw-semibold">카테고리: 커플</div>
             <div class="small goal-subtext">
-              목표: {{ selectedGoalDetail?.title || "-" }}
+              목표: {{ selectedGoalDetail?.title || '-' }}
             </div>
           </div>
 
@@ -968,7 +1087,7 @@
               type="submit"
               class="btn goal-preview-btn py-3 px-4 fw-bold rounded-4 flex-grow-1"
             >
-              {{ editingGoalTransactionId ? "수정" : "추가" }}
+              {{ editingGoalTransactionId ? '수정' : '추가' }}
             </button>
             <button
               type="button"
@@ -984,18 +1103,18 @@
   </div>
 </template>
 <script setup>
-import { computed, ref, onMounted } from "vue";
-import { useAuthStore } from "../../stores/auth";
-import { usecouplesStore } from "../../stores/couples";
-import { getUserById } from "../../api/auth";
-import api from "@/api/api";
-import { useRouter } from "vue-router";
-import { useUiStore } from "@/stores/ui";
+import { computed, ref, onMounted } from 'vue';
+import { useAuthStore } from '../../stores/auth';
+import { usecouplesStore } from '../../stores/couples';
+import { getUserById } from '../../api/auth';
+import api from '@/api/api';
+import { useRouter } from 'vue-router';
+import { useUiStore } from '@/stores/ui';
 import {
   getCoupleMonthlySummary,
   getCoupleTransactions,
-} from "@/api/coupleLedger";
-import { getProfileImageSrc } from "@/components/common/profileImages.js";
+} from '@/api/coupleLedger';
+import { getProfileImageSrc } from '@/components/common/profileImages.js';
 
 const router = useRouter();
 const uiStore = useUiStore();
@@ -1009,7 +1128,7 @@ const partnerProfileImageSrc = computed(() =>
   getProfileImageSrc(partner.value?.profileImageKey),
 );
 
-const userName = computed(() => authStore.user?.name || "사용자");
+const userName = computed(() => authStore.user?.name || '사용자');
 const userId = computed(() => authStore.user?.id);
 const myCouple = computed(() => couplesStore.couples[0] || null);
 
@@ -1020,29 +1139,31 @@ const partnerId = computed(() => {
     : myCouple.value.user1Id;
 });
 
-const partnerName = computed(() => partner.value?.name || "배우자");
+const partnerName = computed(() => partner.value?.name || '배우자');
 
 const statusMessages = ref({
-  user: "",
-  partner: "",
+  user: '',
+  partner: '',
 });
 
 const editableMessages = ref({
   user: statusMessages.value.user,
 });
 
+const isHeartHovered = ref(false);
+
 const userStatusField = computed(() => {
   if (!myCouple.value || !userId.value) return null;
   return myCouple.value.user1Id === userId.value
-    ? "user1Message"
-    : "user2Message";
+    ? 'user1Message'
+    : 'user2Message';
 });
 
 const partnerStatusField = computed(() => {
   if (!myCouple.value || !userId.value) return null;
   return myCouple.value.user1Id === userId.value
-    ? "user2Message"
-    : "user1Message";
+    ? 'user2Message'
+    : 'user1Message';
 });
 
 const loadStatusMessages = () => {
@@ -1069,32 +1190,32 @@ const coupleDays = computed(() => {
 
 const categoryMeta = {
   식비: {
-    icon: "restaurant",
-    bgClass: "bg-danger bg-opacity-10 text-danger",
+    icon: 'restaurant',
+    bgClass: 'bg-danger bg-opacity-10 text-danger',
   },
-  "주거/통신": {
-    icon: "home",
-    bgClass: "bg-primary bg-opacity-10 text-primary",
+  '주거/통신': {
+    icon: 'home',
+    bgClass: 'bg-primary bg-opacity-10 text-primary',
   },
-  "교통/차량": {
-    icon: "directions_car",
-    bgClass: "bg-warning bg-opacity-10 text-warning",
+  '교통/차량': {
+    icon: 'directions_car',
+    bgClass: 'bg-warning bg-opacity-10 text-warning',
   },
-  "쇼핑/생활": {
-    icon: "shopping_bag",
-    bgClass: "bg-success bg-opacity-10 text-success",
+  '쇼핑/생활': {
+    icon: 'shopping_bag',
+    bgClass: 'bg-success bg-opacity-10 text-success',
   },
-  "의료/건강": {
-    icon: "medical_services",
-    bgClass: "bg-info bg-opacity-10 text-info",
+  '의료/건강': {
+    icon: 'medical_services',
+    bgClass: 'bg-info bg-opacity-10 text-info',
   },
-  "문화/여가": {
-    icon: "sports_esports",
-    bgClass: "culture-badge",
+  '문화/여가': {
+    icon: 'sports_esports',
+    bgClass: 'culture-badge',
   },
   기타: {
-    icon: "category",
-    bgClass: "bg-dark bg-opacity-10 text-dark",
+    icon: 'category',
+    bgClass: 'bg-dark bg-opacity-10 text-dark',
   },
 };
 
@@ -1129,9 +1250,9 @@ const createDefaultGoalForm = () => {
   end.setMonth(end.getMonth() + 1);
 
   return {
-    type: "INCOME",
-    title: "",
-    targetAmount: "",
+    type: 'INCOME',
+    title: '',
+    targetAmount: '',
     startDate: today.toISOString().slice(0, 10),
     endDate: end.toISOString().slice(0, 10),
     categories: [],
@@ -1140,16 +1261,135 @@ const createDefaultGoalForm = () => {
 
 const goalForm = ref(createDefaultGoalForm());
 const goalIncomeForm = ref({
-  amount: "",
+  amount: '',
   date: createTodayDate(),
-  memo: "",
+  memo: '',
 });
+
+const pad2 = (value) => String(value).padStart(2, '0');
+
+const goalDatePicker = ref({
+  visible: false,
+  activeField: 'start',
+  year: new Date().getFullYear(),
+  month: new Date().getMonth(),
+  tempStart: goalForm.value.startDate,
+  tempEnd: goalForm.value.endDate,
+});
+
+const goalPickerMonthItems = computed(() => {
+  const year = goalDatePicker.value.year;
+  const month = goalDatePicker.value.month;
+  const next = new Date(year, month + 1, 1);
+
+  return [
+    { year, month },
+    { year: next.getFullYear(), month: next.getMonth() },
+  ];
+});
+
+const createCalendarDays = (year, month) => {
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  return Array.from({ length: firstDay + daysInMonth }, (_, idx) => {
+    if (idx < firstDay) return null;
+    const day = idx - firstDay + 1;
+    return {
+      day,
+      date: `${year}-${pad2(month + 1)}-${pad2(day)}`,
+    };
+  });
+};
+
+const openGoalDatePicker = (field) => {
+  const startDate = goalForm.value.startDate || createTodayDate();
+  const date = new Date(startDate);
+  goalDatePicker.value.visible = true;
+  goalDatePicker.value.activeField = field;
+  goalDatePicker.value.year = date.getFullYear();
+  goalDatePicker.value.month = date.getMonth();
+  goalDatePicker.value.tempStart = goalForm.value.startDate;
+  goalDatePicker.value.tempEnd = goalForm.value.endDate;
+};
+
+const closeGoalDatePicker = () => {
+  goalDatePicker.value.visible = false;
+};
+
+const isGoalPickerSelected = (date) => {
+  return (
+    date === goalDatePicker.value.tempStart ||
+    date === goalDatePicker.value.tempEnd
+  );
+};
+
+const isGoalPickerInRange = (date) => {
+  const { tempStart, tempEnd } = goalDatePicker.value;
+  if (!tempStart || !tempEnd) return false;
+  return date > tempStart && date < tempEnd;
+};
+
+const selectGoalDate = (date) => {
+  if (!goalDatePicker.value.tempStart || goalDatePicker.value.tempEnd) {
+    goalDatePicker.value.tempStart = date;
+    goalDatePicker.value.tempEnd = null;
+    goalDatePicker.value.activeField = 'end';
+    return;
+  }
+
+  if (date < goalDatePicker.value.tempStart) {
+    goalDatePicker.value.tempEnd = goalDatePicker.value.tempStart;
+    goalDatePicker.value.tempStart = date;
+    return;
+  }
+
+  goalDatePicker.value.tempEnd = date;
+};
+
+const prevGoalPickerMonth = () => {
+  const year = goalDatePicker.value.year;
+  const month = goalDatePicker.value.month;
+  if (month === 0) {
+    goalDatePicker.value.year = year - 1;
+    goalDatePicker.value.month = 11;
+  } else {
+    goalDatePicker.value.month = month - 1;
+  }
+};
+
+const nextGoalPickerMonth = () => {
+  const year = goalDatePicker.value.year;
+  const month = goalDatePicker.value.month;
+  if (month === 11) {
+    goalDatePicker.value.year = year + 1;
+    goalDatePicker.value.month = 0;
+  } else {
+    goalDatePicker.value.month = month + 1;
+  }
+};
+
+const applyGoalDateRange = () => {
+  if (!goalDatePicker.value.tempStart) return;
+  if (!goalDatePicker.value.tempEnd) {
+    goalDatePicker.value.tempEnd = goalDatePicker.value.tempStart;
+  }
+  goalForm.value.startDate = goalDatePicker.value.tempStart;
+  goalForm.value.endDate = goalDatePicker.value.tempEnd;
+  closeGoalDatePicker();
+};
+
+const cancelGoalDateRange = () => {
+  goalDatePicker.value.tempStart = goalForm.value.startDate;
+  goalDatePicker.value.tempEnd = goalForm.value.endDate;
+  closeGoalDatePicker();
+};
 
 const formatCurrency = (value) => `${Number(value || 0).toLocaleString()}원`;
 
 const expenseCategoryOptions = computed(() => {
   const categories = allTransactions.value
-    .filter((item) => item.type === "EXPENSE" && item.category)
+    .filter((item) => item.type === 'EXPENSE' && item.category)
     .map((item) => item.category);
 
   return [...new Set(categories)];
@@ -1159,20 +1399,20 @@ const goalCards = computed(() => {
   return [...coupleGoals.value]
     .sort((a, b) => {
       if (a.type === b.type) {
-        return String(a.createdAt || "").localeCompare(
-          String(b.createdAt || ""),
+        return String(a.createdAt || '').localeCompare(
+          String(b.createdAt || ''),
         );
       }
-      return a.type === "INCOME" ? -1 : 1;
+      return a.type === 'INCOME' ? -1 : 1;
     })
     .map((goal) => {
       const matchedTransactions = allTransactions.value
         .filter((item) => {
-          if (goal.type === "INCOME") {
-            if (item.type !== "INCOME") return false;
+          if (goal.type === 'INCOME') {
+            if (item.type !== 'INCOME') return false;
             return Number(item.goalId) === Number(goal.id);
           }
-          if (goal.type === "EXPENSE" && item.type !== "EXPENSE") return false;
+          if (goal.type === 'EXPENSE' && item.type !== 'EXPENSE') return false;
           if (
             goal.categories?.length &&
             !goal.categories.includes(item.category)
@@ -1198,31 +1438,31 @@ const goalCards = computed(() => {
         linkedTransactions,
         currentAmount,
         progressPercent,
-        typeLabel: goal.type === "INCOME" ? "수입 목표" : "지출 목표",
-        amountLabel: goal.type === "INCOME" ? "현재 모은 금액" : "현재 지출",
-        progressLabel: goal.type === "INCOME" ? "진행률" : "사용률",
+        typeLabel: goal.type === 'INCOME' ? '수입 목표' : '지출 목표',
+        amountLabel: goal.type === 'INCOME' ? '현재 모은 금액' : '현재 지출',
+        progressLabel: goal.type === 'INCOME' ? '진행률' : '사용률',
         linkedTitle:
-          goal.type === "INCOME"
-            ? "연결된 수입 내역"
-            : "기간 내 대상 지출 내역",
-        kindClass: goal.type === "INCOME" ? "is-income" : "is-expense",
-        progressClass: goal.type === "INCOME" ? "is-income" : "is-expense",
+          goal.type === 'INCOME'
+            ? '연결된 수입 내역'
+            : '기간 내 대상 지출 내역',
+        kindClass: goal.type === 'INCOME' ? 'is-income' : 'is-expense',
+        progressClass: goal.type === 'INCOME' ? 'is-income' : 'is-expense',
         targetText: formatCurrency(targetAmount),
         currentText: formatCurrency(currentAmount),
         dateText: `${goal.startDate} ~ ${goal.endDate}`,
         categoryText:
-          goal.type === "EXPENSE"
+          goal.type === 'EXPENSE'
             ? goal.categories?.length
-              ? goal.categories.join(", ")
-              : "전체 지출"
-            : "",
-        defaultMemo: goal.type === "INCOME" ? "수입 내역" : "지출 내역",
+              ? goal.categories.join(', ')
+              : '전체 지출'
+            : '',
+        defaultMemo: goal.type === 'INCOME' ? '수입 내역' : '지출 내역',
         defaultCategory:
-          goal.type === "INCOME"
-            ? "수입"
+          goal.type === 'INCOME'
+            ? '수입'
             : goal.categories?.length
-              ? goal.categories.join(", ")
-              : "전체 지출",
+              ? goal.categories.join(', ')
+              : '전체 지출',
       };
     });
 });
@@ -1248,7 +1488,7 @@ const selectedGoalDetail = computed(() => {
 const monthKey = computed(() => {
   const today = new Date();
   const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const month = String(today.getMonth() + 1).padStart(2, '0');
   return `${year}-${month}`;
 });
 
@@ -1312,14 +1552,14 @@ const openGoalModal = (goal = null) => {
     resetGoalForm();
 
     const hasIncomeGoal = coupleGoals.value.some(
-      (item) => item.type === "INCOME",
+      (item) => item.type === 'INCOME',
     );
     const hasExpenseGoal = coupleGoals.value.some(
-      (item) => item.type === "EXPENSE",
+      (item) => item.type === 'EXPENSE',
     );
 
     if (hasIncomeGoal && !hasExpenseGoal) {
-      goalForm.value.type = "EXPENSE";
+      goalForm.value.type = 'EXPENSE';
     }
   }
 
@@ -1339,6 +1579,39 @@ const showNextGoal = () => {
     (currentGoalIndex.value + 1) % goalCards.value.length;
 };
 
+const isFirstGoal = computed(() => {
+  return goalCards.value.length > 0 && currentGoalIndex.value === 0;
+});
+
+const isLastGoal = computed(() => {
+  return (
+    goalCards.value.length > 0 &&
+    currentGoalIndex.value === goalCards.value.length - 1
+  );
+});
+
+const handleGoalNavigationLeft = () => {
+  if (isFirstGoal.value) {
+    openGoalModal();
+    return;
+  }
+  showPrevGoal();
+};
+
+const handleGoalNavigation = () => {
+  if (isLastGoal.value) {
+    openGoalModal();
+    return;
+  }
+  showNextGoal();
+};
+
+const openIncomeTransactionForActiveGoal = () => {
+  if (!activeGoalCard.value || activeGoalCard.value.type !== 'INCOME') return;
+  selectedGoalDetailId.value = activeGoalCard.value.id;
+  openGoalIncomeTransactionModal();
+};
+
 const openGoalDetailModal = (goal) => {
   selectedGoalDetailId.value = goal.id;
   isGoalDetailModalOpen.value = true;
@@ -1352,9 +1625,9 @@ const closeGoalDetailModal = () => {
 const resetGoalIncomeForm = () => {
   editingGoalTransactionId.value = null;
   goalIncomeForm.value = {
-    amount: "",
+    amount: '',
     date: createTodayDate(),
-    memo: "",
+    memo: '',
   };
 };
 
@@ -1364,7 +1637,7 @@ const openGoalIncomeTransactionModal = (transaction = null) => {
     goalIncomeForm.value = {
       amount: transaction.amount,
       date: transaction.date,
-      memo: transaction.memo || "",
+      memo: transaction.memo || '',
     };
   } else {
     resetGoalIncomeForm();
@@ -1454,39 +1727,39 @@ const submitGoal = async () => {
     startDate: goalForm.value.startDate || createTodayDate(),
     endDate: goalForm.value.endDate || createTodayDate(),
     categories:
-      goalForm.value.type === "EXPENSE" ? goalForm.value.categories || [] : [],
+      goalForm.value.type === 'EXPENSE' ? goalForm.value.categories || [] : [],
     category:
-      goalForm.value.type === "EXPENSE"
-        ? (goalForm.value.categories || [])[0] || ""
-        : "",
+      goalForm.value.type === 'EXPENSE'
+        ? (goalForm.value.categories || [])[0] || ''
+        : '',
   };
 
   if (!payload.title || !payload.targetAmount) {
-    window.alert("목표 이름과 금액을 입력해주세요.");
+    window.alert('목표 이름과 금액을 입력해주세요.');
     return;
   }
 
   if (payload.startDate > payload.endDate) {
-    window.alert("목표 종료일은 시작일보다 빠를 수 없습니다.");
+    window.alert('목표 종료일은 시작일보다 빠를 수 없습니다.');
     return;
   }
 
   try {
     if (editingGoalId.value) {
       await api.patch(`/coupleGoals/${editingGoalId.value}`, payload);
-      uiStore.showToast("공동 목표를 수정했어요.");
+      uiStore.showToast('공동 목표를 수정했어요.');
     } else {
-      await api.post("/coupleGoals", {
+      await api.post('/coupleGoals', {
         ...payload,
         createdAt: new Date().toISOString(),
       });
-      uiStore.showToast("공동 목표를 추가했어요.");
+      uiStore.showToast('공동 목표를 추가했어요.');
     }
 
     await loadCoupleGoals();
     closeGoalModal();
   } catch (error) {
-    uiStore.showToast("공동 목표 저장에 실패했어요.", "error");
+    uiStore.showToast('공동 목표 저장에 실패했어요.', 'error');
   }
 };
 
@@ -1495,16 +1768,16 @@ const submitGoalIncomeTransaction = async () => {
 
   const payload = {
     userId: userId.value,
-    type: "INCOME",
-    category: "커플",
+    type: 'INCOME',
+    category: '커플',
     amount: Number(goalIncomeForm.value.amount),
     date: goalIncomeForm.value.date,
-    memo: goalIncomeForm.value.memo.trim() || "공동 목표 수입",
+    memo: goalIncomeForm.value.memo.trim() || '공동 목표 수입',
     goalId: selectedGoalDetail.value.id,
   };
 
   if (!payload.amount || !payload.date) {
-    window.alert("금액과 날짜를 입력해주세요.");
+    window.alert('금액과 날짜를 입력해주세요.');
     return;
   }
 
@@ -1514,29 +1787,29 @@ const submitGoalIncomeTransaction = async () => {
         `/transactions/${editingGoalTransactionId.value}`,
         payload,
       );
-      uiStore.showToast("수입 거래를 수정했어요.");
+      uiStore.showToast('수입 거래를 수정했어요.');
     } else {
-      await api.post("/transactions", payload);
-      uiStore.showToast("수입 거래를 추가했어요.");
+      await api.post('/transactions', payload);
+      uiStore.showToast('수입 거래를 추가했어요.');
     }
 
     await refreshCoupleDetailData();
     closeGoalIncomeTransactionModal();
   } catch (error) {
-    uiStore.showToast("수입 거래 저장에 실패했어요.", "error");
+    uiStore.showToast('수입 거래 저장에 실패했어요.', 'error');
   }
 };
 
 const removeGoal = async (goalId) => {
-  const confirmed = window.confirm("이 공동 목표를 삭제할까요?");
+  const confirmed = window.confirm('이 공동 목표를 삭제할까요?');
   if (!confirmed) return;
 
   try {
     await api.delete(`/coupleGoals/${goalId}`);
     await loadCoupleGoals();
-    uiStore.showToast("공동 목표를 삭제했어요.");
+    uiStore.showToast('공동 목표를 삭제했어요.');
   } catch (error) {
-    uiStore.showToast("공동 목표 삭제에 실패했어요.", "error");
+    uiStore.showToast('공동 목표 삭제에 실패했어요.', 'error');
   }
 };
 
@@ -1552,9 +1825,9 @@ const categories = computed(() => {
   const map = {};
 
   summary.value.transactions.forEach((item) => {
-    if (item.type !== "EXPENSE") return;
+    if (item.type !== 'EXPENSE') return;
 
-    const categoryName = item.category || "기타";
+    const categoryName = item.category || '기타';
     const meta = categoryMeta[categoryName] || categoryMeta.기타;
 
     if (!map[categoryName]) {
@@ -1618,17 +1891,17 @@ const partnerLatestTransaction = computed(() => {
 });
 
 const startEditingMessage = (target) => {
-  if (target !== "user") return;
+  if (target !== 'user') return;
 
-  if (editingMessage.value === "user") {
-    // 같은 버튼을 다시 누르면 편집을 취소합니다.
+  if (editingMessage.value === 'user') {
+    // 두 번째 클릭 시 편집 취소
     editableMessages.value.user = statusMessages.value.user;
     editingMessage.value = null;
     return;
   }
 
   editableMessages.value.user = statusMessages.value.user;
-  editingMessage.value = "user";
+  editingMessage.value = 'user';
 };
 
 const persistStatusMessage = async (message) => {
@@ -1650,7 +1923,7 @@ const persistStatusMessage = async (message) => {
 };
 
 const saveMessage = async (target) => {
-  if (target !== "user") return;
+  if (target !== 'user') return;
 
   const message = editableMessages.value.user.trim();
   if (!message) {
@@ -1664,30 +1937,30 @@ const saveMessage = async (target) => {
   try {
     await persistStatusMessage(message);
   } catch (error) {
-    window.alert("상태 메시지 저장에 실패했습니다. 다시 시도해주세요.");
+    window.alert('상태 메시지 저장에 실패했습니다. 다시 시도해주세요.');
   }
 };
 
 const confirmDisconnectCouple = async () => {
   if (!myCouple.value?.id) {
-    window.alert("연동된 배우자 정보가 없습니다.");
+    window.alert('연동된 배우자 정보가 없습니다.');
     return;
   }
 
-  const confirmed = window.confirm("배우자와의 연동을 정말 해제하시겠습니까?");
+  const confirmed = window.confirm('배우자와의 연동을 정말 해제하시겠습니까?');
   if (!confirmed) return;
 
   const result = await couplesStore.removecouple(myCouple.value.id);
 
   if (!result?.success) {
-    window.alert(result?.message || "연동 해제에 실패했습니다.");
+    window.alert(result?.message || '연동 해제에 실패했습니다.');
     return;
   }
 
   partner.value = null;
-  uiStore.showToast("배우자 연동이 해지되었습니다.");
+  uiStore.showToast('배우자 연동이 해지되었습니다.');
   setTimeout(() => {
-    router.push("/couples");
+    router.push('/couples');
   }, 900);
 };
 
@@ -1708,8 +1981,9 @@ onMounted(async () => {
 <style scoped>
 .couple-detail-page {
   min-height: 100vh;
-  width: calc(100% + 3rem);
-  margin: -2rem -1.5rem -1.5rem;
+  width: 100%;
+  margin: 0;
+  overflow-x: hidden;
   background: var(--page-bg);
   color: var(--text-color);
 }
@@ -1855,8 +2129,8 @@ onMounted(async () => {
   box-shadow: var(--shadow-sm) !important;
 }
 
-.goal-empty-card > :not(.goal-empty-content) {
-  display: none !important;
+.goal-empty-card .text-primary {
+  color: #facc15 !important;
 }
 
 .goal-empty-button {
@@ -1867,8 +2141,8 @@ onMounted(async () => {
   color: #1f2937;
 }
 
-:global(html.dark) .goal-empty-button {
-  color: #111827;
+.goal-empty-card > :not(.goal-empty-content) {
+  display: none !important;
 }
 
 .goal-empty-button .material-symbols-outlined {
@@ -2066,10 +2340,15 @@ onMounted(async () => {
 }
 
 .goal-modal-card {
-  width: min(100%, 32rem) !important;
-  max-width: 32rem !important;
+  width: min(100%, 44rem) !important;
+  max-width: 44rem !important;
   max-height: 90vh;
   overflow-y: auto;
+  overflow-x: hidden;
+  background: #fff;
+  border: 0;
+  box-shadow: 0 18px 40px rgba(30, 30, 30, 0.08);
+  margin-inline: auto;
 }
 
 .goal-detail-modal-card {
@@ -2087,8 +2366,8 @@ onMounted(async () => {
 }
 
 .goal-modal-card.is-create-mode {
-  width: min(100%, 26rem) !important;
-  max-width: 26rem !important;
+  width: min(100%, 44rem) !important;
+  max-width: 44rem !important;
 }
 
 .goal-modal-card.is-create-mode .goal-form-grid-create {
@@ -2138,6 +2417,69 @@ onMounted(async () => {
   color: var(--text-color);
   border-color: var(--kb-yellow);
   box-shadow: 0 0 0 0.2rem rgba(255, 188, 0, 0.18);
+}
+
+.goal-date-picker-modal {
+  z-index: 20;
+  width: min(44rem, calc(100vw - 2rem));
+  max-width: 42rem;
+}
+
+.goal-date-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.goal-date-calendar {
+  background: #f8fafc;
+}
+
+.goal-date-picker-day {
+  min-height: 2.5rem;
+  padding: 0.4rem;
+  color: #334155;
+  background: transparent;
+}
+
+.goal-date-picker-day:hover {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.selected-day {
+  background: #2563eb;
+  color: #fff;
+}
+
+.in-range-day {
+  background: rgba(59, 130, 246, 0.16);
+}
+
+.goal-date-range-picker {
+  position: relative;
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 196, 0, 0.35);
+}
+
+.goal-date-range-picker .goal-date-field {
+  width: 100%;
+}
+
+.goal-date-caption {
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+.date-range-separator {
+  width: 100%;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #9ca3af;
+}
+
+.goal-date-range-picker .goal-date-field .material-symbols-outlined {
+  font-size: 1.1rem;
 }
 
 .goal-category-chips {
@@ -2265,6 +2607,6 @@ onMounted(async () => {
 }
 
 .filled-icon {
-  font-variation-settings: "FILL" 1;
+  font-variation-settings: 'FILL' 1;
 }
 </style>
