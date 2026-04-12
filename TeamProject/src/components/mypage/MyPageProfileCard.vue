@@ -101,11 +101,11 @@ const userInitial = computed(() => displayName.value.charAt(0).toUpperCase());
 
 .profile-image-edit-btn {
   position: absolute;
-  right: 3rem;
-  bottom: -0.1rem;
-  width: clamp(1.95rem, 4.4vw, 10rem);
-  height: clamp(1.95rem, 4.4vw, 10rem);
-  border: 4px solid #fff;
+  right: 8%;
+  bottom: 6%;
+  width: clamp(2.8rem, 6.5vw, 3.6rem);
+  height: clamp(2.8rem, 6.5vw, 3.6rem);
+  border: 3px solid #fff;
   border-radius: 50%;
   background: #ffcc50;
   color: #4f473d;
@@ -121,7 +121,9 @@ const userInitial = computed(() => displayName.value.charAt(0).toUpperCase());
 }
 
 .profile-image-edit-btn i {
-  font-size: 2rem;
+  font-size: clamp(1.15rem, 2.7vw, 1.5rem);
+  line-height: 1;
+  display: block;
 }
 
 .profile-image-edit-btn:hover {
@@ -179,6 +181,18 @@ const userInitial = computed(() => displayName.value.charAt(0).toUpperCase());
   background: rgba(245, 158, 11, 0.14);
   color: #b45309;
   border-color: rgba(245, 158, 11, 0.24);
+}
+
+@media (max-width: 768px) {
+  .profile-image-edit-btn {
+    right: 7%;
+    bottom: 5%;
+    border-width: 2px;
+  }
+
+  .profile-image-edit-btn:hover {
+    transform: translateY(-1px);
+  }
 }
 
 </style>
