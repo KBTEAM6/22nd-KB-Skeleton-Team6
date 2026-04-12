@@ -16,6 +16,7 @@
 
   --border-color: #dddddd;
   --border-light: #e5e9f0;
+  --bg-color-gradient: linear-gradient(135deg, #e0f2f7 0%, #f7e0e7 100%);
 
   --shadow-sm: 0 10px 24px rgba(15, 23, 42, 0.05);
 }
@@ -31,6 +32,6 @@ html.dark {
 
   --border-color: #333333;
   --border-light: #334155;
-
+  --bg-color-gradient: #121212;
   --shadow-sm: 0 10px 24px rgba(0, 0, 0, 0.45);
 }
