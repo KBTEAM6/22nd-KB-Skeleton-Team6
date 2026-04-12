@@ -1,8 +1,8 @@
 <template>
   <div class="couple-detail-page">
     <div
-      class="container-fluid px-0 mx-auto d-flex flex-column gap-4 couple-detail-inner"
-      style="max-width: 80rem"
+      class="mx-auto d-flex flex-column gap-4 couple-detail-inner"
+      style="max-width: 86rem"
     >
       <div class="d-flex align-items-center justify-content-between mb-4">
         <div>
@@ -306,9 +306,32 @@
 
         <div class="col-12 col-lg-4 d-flex flex-column gap-4">
           <div
-            class="goal-card p-4 rounded-4 border shadow-sm"
+            v-if="!goalCards.length"
+            class="goal-empty-card rounded-4 border shadow-sm text-center p-4 p-md-5"
             style="border-left: 4px solid var(--bs-primary) !important"
           >
+            <div class="goal-empty-content">
+              <button
+                type="button"
+                class="goal-empty-button mx-auto mb-3 d-flex align-items-center justify-content-center border-0 shadow-sm"
+                @click="openGoalModal()"
+                aria-label="공동 목표 추가"
+              >
+                <span class="material-symbols-outlined">add</span>
+              </button>
+              <p class="small fw-bold text-primary mb-2">공동 목표</p>
+              <h4 class="fs-5 fw-bold mb-2">목표 추가하기</h4>
+              <p class="goal-subtext small mb-4">
+                수입 목표와 지출 목표를 만들고 커플 가계부와 연결해 관리해보세요.
+              </p>
+              <button
+                type="button"
+                class="goal-create-btn btn w-100 py-3 fw-bold rounded-4"
+                @click="openGoalModal()"
+              >
+                목표 만들기
+              </button>
+            </div>
             <p class="small fw-bold text-primary mb-1">공동 목표</p>
             <h4 class="fs-5 fw-bold mb-3">내 집 마련 적금</h4>
             <div class="d-flex align-items-end gap-2 mb-2">
@@ -326,6 +349,117 @@
             >
               상세 보기
             </button>
+          </div>
+
+          <div v-else class="d-flex flex-column gap-3">
+            <div
+              v-if="goalCards.length > 1"
+              class="d-flex align-items-center justify-content-between px-1"
+            >
+              <div class="small goal-subtext fw-semibold">
+                {{ currentGoalIndex + 1 }} / {{ goalCards.length }}
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <button
+                  type="button"
+                  class="goal-nav-btn d-flex align-items-center justify-content-center border-0"
+                  @click="showPrevGoal"
+                  aria-label="이전 목표"
+                >
+                  <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button
+                  type="button"
+                  class="goal-nav-btn d-flex align-items-center justify-content-center border-0"
+                  @click="showNextGoal"
+                  aria-label="다음 목표"
+                >
+                  <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+              </div>
+            </div>
+
+            <div
+              v-if="activeGoalCard"
+              :key="activeGoalCard.id"
+              class="goal-overview-card rounded-4 border shadow-sm p-4"
+              :class="activeGoalCard.kindClass"
+            >
+              <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                <div>
+                  <span class="goal-type-badge rounded-pill px-3 py-2 small fw-bold">
+                    {{ activeGoalCard.typeLabel }}
+                  </span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-warning goal-action-btn fw-bold"
+                    @click="openGoalModal()"
+                  >
+                    추가
+                  </button>
+                  <button
+                    type="button"
+                    class="btn border goal-action-btn fw-bold"
+                    @click="openGoalModal(activeGoalCard)"
+                  >
+                    수정
+                  </button>
+                  <button
+                    type="button"
+                    class="btn border border-danger text-danger goal-action-btn fw-bold"
+                    @click="removeGoal(activeGoalCard.id)"
+                  >
+                    삭제
+                  </button>
+                </div>
+              </div>
+
+              <h4 class="goal-title-display fw-bold mb-2">{{ activeGoalCard.title }}</h4>
+              <div class="goal-period-text mb-4">
+                <div>{{ activeGoalCard.dateText }}</div>
+                <div v-if="activeGoalCard.categoryText">
+                  {{ activeGoalCard.categoryText }}
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small fw-medium">{{ activeGoalCard.progressLabel }}</span>
+                <span class="fs-5 fw-bold">{{ activeGoalCard.progressPercent }}%</span>
+              </div>
+
+              <div class="goal-progress-track rounded-pill overflow-hidden mb-4">
+                <div
+                  class="goal-progress-fill h-100"
+                  :class="activeGoalCard.progressClass"
+                  :style="{ width: `${activeGoalCard.progressPercent}%` }"
+                ></div>
+              </div>
+
+              <div class="row g-3 mb-4">
+                <div class="col-6">
+                  <div class="goal-stat-box rounded-4 p-3 h-100">
+                    <div class="small goal-subtext mb-2">목표 금액</div>
+                    <div class="fs-4 fw-bold">{{ activeGoalCard.targetText }}</div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="goal-stat-box rounded-4 p-3 h-100">
+                    <div class="small goal-subtext mb-2">{{ activeGoalCard.amountLabel }}</div>
+                    <div class="fs-4 fw-bold">{{ activeGoalCard.currentText }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="btn goal-detail-open-btn w-100 py-3 fw-bold rounded-4"
+                @click="openGoalDetailModal(activeGoalCard)"
+              >
+                상세 내역 보기
+              </button>
+            </div>
           </div>
 
           <div class="detail-card p-4 rounded-4">
@@ -445,6 +579,338 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div
+      v-if="isGoalModalOpen"
+      class="goal-modal-backdrop position-fixed top-0 start-0 end-0 bottom-0 d-flex align-items-center justify-content-center p-3 p-md-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="goal-modal-title"
+      @click="closeGoalModal"
+    >
+      <div
+        class="goal-modal-card rounded-4 p-4"
+        :class="{ 'is-create-mode': !editingGoalId }"
+        @click.stop
+      >
+        <div class="d-flex align-items-start justify-content-between gap-3 mb-4">
+          <div>
+            <h3 id="goal-modal-title" class="goal-modal-title fw-bold mb-2">공동 목표 만들기</h3>
+            <p class="goal-modal-subtext mb-0">
+              수입 목표와 지출 목표를 만들고, 기간 내 거래 데이터와 연결해 진행 현황을 관리합니다.
+            </p>
+          </div>
+          <button
+            type="button"
+            class="goal-modal-close d-flex align-items-center justify-content-center border-0"
+            @click="closeGoalModal"
+            aria-label="닫기"
+          >
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <div class="d-flex justify-content-end mb-4">
+          <div class="goal-type-toggle d-inline-flex rounded-pill p-1">
+            <button
+              type="button"
+              class="goal-type-option px-4 py-3 rounded-pill fw-bold border-0"
+              :class="{ active: goalForm.type === 'INCOME' }"
+              @click="goalForm.type = 'INCOME'"
+            >
+              수입 목표
+            </button>
+            <button
+              type="button"
+              class="goal-type-option px-4 py-3 rounded-pill fw-bold border-0"
+              :class="{ active: goalForm.type === 'EXPENSE' }"
+              @click="goalForm.type = 'EXPENSE'"
+            >
+              지출 목표
+            </button>
+          </div>
+        </div>
+
+        <form class="d-flex flex-column gap-4" @submit.prevent="submitGoal">
+          <div>
+            <label for="goal-title" class="form-label fw-bold">목표 이름</label>
+            <input
+              id="goal-title"
+              v-model="goalForm.title"
+              type="text"
+              class="form-control goal-form-control"
+              placeholder="예: 여행 자금 모으기"
+              maxlength="30"
+              required
+            />
+          </div>
+
+          <div class="row g-4" :class="{ 'goal-form-grid-create': !editingGoalId }">
+            <div class="col-12 col-lg-6" :class="{ 'col-lg-12': !editingGoalId }">
+              <label for="goal-amount" class="form-label fw-bold">목표 금액</label>
+              <input
+                id="goal-amount"
+                v-model.number="goalForm.targetAmount"
+                type="number"
+                min="1"
+                class="form-control goal-form-control"
+                placeholder="예: 1000000"
+                required
+              />
+            </div>
+
+            <div class="col-12 col-lg-6" :class="{ 'col-lg-12': !editingGoalId }">
+              <label class="form-label fw-bold">목표 기간</label>
+              <div class="row g-2">
+                <div class="col-6">
+                  <input
+                    v-model="goalForm.startDate"
+                    type="date"
+                    class="form-control goal-form-control"
+                    required
+                  />
+                </div>
+                <div class="col-6">
+                  <input
+                    v-model="goalForm.endDate"
+                    type="date"
+                    class="form-control goal-form-control"
+                    required
+                  />
+                </div>
+              </div>
+              <p class="goal-subtext small mt-2 mb-0">
+                시작일은 직접 선택 가능하며 기본값은 오늘입니다.
+              </p>
+            </div>
+          </div>
+
+          <div v-if="goalForm.type === 'EXPENSE'">
+            <label class="form-label fw-bold">연결 카테고리</label>
+            <div class="goal-category-chips d-flex flex-wrap gap-2">
+              <button
+                v-for="option in expenseCategoryOptions"
+                :key="option"
+                type="button"
+                class="goal-category-chip border rounded-pill px-3 py-2 fw-medium"
+                :class="{ active: goalForm.categories.includes(option) }"
+                @click="toggleExpenseCategory(option)"
+              >
+                {{ option }}
+              </button>
+            </div>
+            <p class="goal-subtext small mt-2 mb-0">
+              선택하지 않으면 전체 지출을 기준으로 계산합니다.
+            </p>
+          </div>
+
+          <div class="d-flex gap-2 flex-wrap">
+            <button type="submit" class="btn goal-preview-btn py-3 px-4 fw-bold rounded-4">
+              {{ editingGoalId ? "목표 수정" : "추가" }}
+            </button>
+            <button
+              type="button"
+              class="btn goal-reset-btn py-3 px-4 fw-bold rounded-4"
+              @click="resetGoalForm"
+            >
+              초기화
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div
+      v-if="isGoalDetailModalOpen && selectedGoalDetail"
+      class="goal-modal-backdrop position-fixed top-0 start-0 end-0 bottom-0 d-flex align-items-center justify-content-center p-3 p-md-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="goal-detail-modal-title"
+      @click="closeGoalDetailModal"
+    >
+      <div
+        class="goal-detail-modal-card rounded-4 p-4"
+        @click.stop
+      >
+        <div class="d-flex align-items-start justify-content-between gap-3 mb-4">
+          <div>
+            <span class="goal-type-badge rounded-pill px-3 py-2 small fw-bold">
+              {{ selectedGoalDetail.typeLabel }}
+            </span>
+            <h3 id="goal-detail-modal-title" class="goal-modal-title fw-bold mb-2 mt-3">
+              {{ selectedGoalDetail.title }}
+            </h3>
+            <div class="goal-modal-subtext mb-0">
+              <div>{{ selectedGoalDetail.dateText }}</div>
+              <div v-if="selectedGoalDetail.categoryText">
+                {{ selectedGoalDetail.categoryText }}
+              </div>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button
+              v-if="selectedGoalDetail.type === 'INCOME'"
+              type="button"
+              class="goal-modal-close d-flex align-items-center justify-content-center border-0"
+              @click="openGoalIncomeTransactionModal()"
+              aria-label="수입 거래 추가"
+            >
+              <span class="material-symbols-outlined">add</span>
+            </button>
+            <button
+              type="button"
+              class="goal-modal-close d-flex align-items-center justify-content-center border-0"
+              @click="closeGoalDetailModal"
+              aria-label="닫기"
+            >
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-6">
+            <div class="goal-stat-box rounded-4 p-3 h-100">
+              <div class="small goal-subtext mb-2">목표 금액</div>
+              <div class="fs-4 fw-bold">{{ selectedGoalDetail.targetText }}</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="goal-stat-box rounded-4 p-3 h-100">
+              <div class="small goal-subtext mb-2">{{ selectedGoalDetail.amountLabel }}</div>
+              <div class="fs-4 fw-bold">{{ selectedGoalDetail.currentText }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="goal-linked-box rounded-4 p-4">
+          <h5 class="fw-bold mb-3">{{ selectedGoalDetail.linkedTitle }}</h5>
+          <div
+            v-if="selectedGoalDetail.linkedTransactions.length"
+            class="goal-linked-scroll d-flex flex-column gap-3 pe-1"
+          >
+            <div
+              v-for="item in selectedGoalDetail.linkedTransactions"
+              :key="item.id"
+              class="goal-linked-item rounded-4 p-3 d-flex align-items-center justify-content-between gap-3"
+            >
+              <div class="flex-grow-1">
+                <div class="fw-bold mb-1">{{ item.memo || selectedGoalDetail.defaultMemo }}</div>
+                <div class="goal-subtext">
+                  {{ item.date }} / {{ item.category || selectedGoalDetail.defaultCategory }}
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <button
+                  v-if="selectedGoalDetail.type === 'INCOME'"
+                  type="button"
+                  class="goal-row-edit-btn d-flex align-items-center justify-content-center border-0"
+                  @click="openGoalIncomeTransactionModal(item)"
+                  aria-label="거래 수정"
+                >
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+                <div class="fs-5 fw-bold">{{ formatCurrency(item.amount) }}</div>
+              </div>
+            </div>
+          </div>
+          <div v-else class="goal-subtext">
+            아직 연결된 거래가 없습니다.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      v-if="isGoalIncomeTransactionModalOpen"
+      class="goal-modal-backdrop position-fixed top-0 start-0 end-0 bottom-0 d-flex align-items-center justify-content-center p-3 p-md-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="goal-income-transaction-title"
+      @click="closeGoalIncomeTransactionModal"
+    >
+      <div
+        class="goal-income-transaction-card rounded-4 p-4"
+        @click.stop
+      >
+        <div class="d-flex align-items-center justify-content-between gap-3 mb-4">
+          <div>
+            <h3 id="goal-income-transaction-title" class="fs-5 fw-bold mb-1">
+              {{ editingGoalTransactionId ? "커플 수입 수정" : "커플 수입 추가" }}
+            </h3>
+            <p class="goal-modal-subtext mb-0">
+              카테고리는 자동으로 `커플`로 저장되고 현재 목표와 함께 연결됩니다.
+            </p>
+          </div>
+          <button
+            type="button"
+            class="goal-modal-close d-flex align-items-center justify-content-center border-0"
+            @click="closeGoalIncomeTransactionModal"
+            aria-label="닫기"
+          >
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <form class="d-flex flex-column gap-3" @submit.prevent="submitGoalIncomeTransaction">
+          <div>
+            <label for="goal-income-amount" class="form-label fw-bold">금액</label>
+            <input
+              id="goal-income-amount"
+              v-model.number="goalIncomeForm.amount"
+              type="number"
+              min="1"
+              class="form-control goal-form-control"
+              placeholder="예: 50000"
+              required
+            />
+          </div>
+
+          <div>
+            <label for="goal-income-date" class="form-label fw-bold">날짜</label>
+            <input
+              id="goal-income-date"
+              v-model="goalIncomeForm.date"
+              type="date"
+              class="form-control goal-form-control"
+              required
+            />
+          </div>
+
+          <div>
+            <label for="goal-income-memo" class="form-label fw-bold">메모</label>
+            <input
+              id="goal-income-memo"
+              v-model="goalIncomeForm.memo"
+              type="text"
+              class="form-control goal-form-control"
+              placeholder="예: 부모님 지원금"
+            />
+          </div>
+
+          <div class="goal-income-fixed rounded-4 p-3">
+            <div class="small goal-subtext mb-1">저장 정보</div>
+            <div class="fw-semibold">카테고리: 커플</div>
+            <div class="small goal-subtext">
+              목표: {{ selectedGoalDetail?.title || "-" }}
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-2">
+            <button type="submit" class="btn goal-preview-btn py-3 px-4 fw-bold rounded-4 flex-grow-1">
+              {{ editingGoalTransactionId ? "수정" : "추가" }}
+            </button>
+            <button
+              type="button"
+              class="btn goal-reset-btn py-3 px-4 fw-bold rounded-4"
+              @click="closeGoalIncomeTransactionModal"
+            >
+              취소
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -570,6 +1036,130 @@ const summary = ref({
   transactions: [],
 });
 
+const allTransactions = ref([]);
+const coupleGoals = ref([]);
+const isGoalModalOpen = ref(false);
+const editingGoalId = ref(null);
+const currentGoalIndex = ref(0);
+const isGoalDetailModalOpen = ref(false);
+const selectedGoalDetailId = ref(null);
+const isGoalIncomeTransactionModalOpen = ref(false);
+const editingGoalTransactionId = ref(null);
+
+const createTodayDate = () => new Date().toISOString().slice(0, 10);
+
+const createDefaultGoalForm = () => {
+  const today = new Date();
+  const end = new Date(today);
+  end.setMonth(end.getMonth() + 1);
+
+  return {
+    type: "INCOME",
+    title: "",
+    targetAmount: "",
+    startDate: today.toISOString().slice(0, 10),
+    endDate: end.toISOString().slice(0, 10),
+    categories: [],
+  };
+};
+
+const goalForm = ref(createDefaultGoalForm());
+const goalIncomeForm = ref({
+  amount: "",
+  date: createTodayDate(),
+  memo: "",
+});
+
+const formatCurrency = (value) => `${Number(value || 0).toLocaleString()}원`;
+
+const expenseCategoryOptions = computed(() => {
+  const categories = allTransactions.value
+    .filter((item) => item.type === "EXPENSE" && item.category)
+    .map((item) => item.category);
+
+  return [...new Set(categories)];
+});
+
+const goalCards = computed(() => {
+  return [...coupleGoals.value]
+    .sort((a, b) => {
+      if (a.type === b.type) {
+        return String(a.createdAt || "").localeCompare(String(b.createdAt || ""));
+      }
+      return a.type === "INCOME" ? -1 : 1;
+    })
+    .map((goal) => {
+      const matchedTransactions = allTransactions.value
+        .filter((item) => {
+          if (goal.type === "INCOME") {
+            if (item.type !== "INCOME") return false;
+            return Number(item.goalId) === Number(goal.id);
+          }
+          if (goal.type === "EXPENSE" && item.type !== "EXPENSE") return false;
+          if (goal.categories?.length && !goal.categories.includes(item.category)) {
+            return false;
+          }
+          return item.date >= goal.startDate && item.date <= goal.endDate;
+        })
+        .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+
+      const linkedTransactions = matchedTransactions;
+      const currentAmount = matchedTransactions.reduce(
+        (sum, item) => sum + Number(item.amount || 0),
+        0,
+      );
+      const targetAmount = Number(goal.targetAmount || 0);
+      const rawPercent =
+        targetAmount > 0 ? Math.round((currentAmount / targetAmount) * 100) : 0;
+      const progressPercent = Math.max(0, Math.min(100, rawPercent));
+
+      return {
+        ...goal,
+        linkedTransactions,
+        currentAmount,
+        progressPercent,
+        typeLabel: goal.type === "INCOME" ? "수입 목표" : "지출 목표",
+        amountLabel: goal.type === "INCOME" ? "현재 모은 금액" : "현재 지출",
+        progressLabel: goal.type === "INCOME" ? "진행률" : "사용률",
+        linkedTitle:
+          goal.type === "INCOME" ? "연결된 수입 내역" : "기간 내 대상 지출 내역",
+        kindClass: goal.type === "INCOME" ? "is-income" : "is-expense",
+        progressClass: goal.type === "INCOME" ? "is-income" : "is-expense",
+        targetText: formatCurrency(targetAmount),
+        currentText: formatCurrency(currentAmount),
+        dateText: `${goal.startDate} ~ ${goal.endDate}`,
+        categoryText:
+          goal.type === "EXPENSE"
+            ? goal.categories?.length
+              ? goal.categories.join(", ")
+              : "전체 지출"
+            : "",
+        defaultMemo: goal.type === "INCOME" ? "수입 내역" : "지출 내역",
+        defaultCategory:
+          goal.type === "INCOME"
+            ? "수입"
+            : goal.categories?.length
+              ? goal.categories.join(", ")
+              : "전체 지출",
+      };
+    });
+});
+
+const activeGoalCard = computed(() => {
+  if (!goalCards.value.length) return null;
+  const safeIndex = Math.min(currentGoalIndex.value, goalCards.value.length - 1);
+  return goalCards.value[safeIndex];
+});
+
+const selectedGoalDetail = computed(() => {
+  if (!selectedGoalDetailId.value) return null;
+  return (
+    goalCards.value.find(
+      (item) => Number(item.id) === Number(selectedGoalDetailId.value),
+    ) || null
+  );
+});
+
 const monthKey = computed(() => {
   const today = new Date();
   const year = today.getFullYear();
@@ -616,6 +1206,244 @@ const expenseBar = computed(() => ({
   myWidth: comparisonScale.value.expenseAWidth,
   partnerWidth: comparisonScale.value.expenseBWidth,
 }));
+
+const resetGoalForm = () => {
+  editingGoalId.value = null;
+  goalForm.value = createDefaultGoalForm();
+};
+
+const openGoalModal = (goal = null) => {
+  if (goal) {
+    editingGoalId.value = goal.id;
+    goalForm.value = {
+      type: goal.type,
+      title: goal.title,
+      targetAmount: goal.targetAmount,
+      startDate: goal.startDate,
+      endDate: goal.endDate,
+      categories: goal.categories || (goal.category ? [goal.category] : []),
+    };
+  } else {
+    resetGoalForm();
+
+    const hasIncomeGoal = coupleGoals.value.some((item) => item.type === "INCOME");
+    const hasExpenseGoal = coupleGoals.value.some((item) => item.type === "EXPENSE");
+
+    if (hasIncomeGoal && !hasExpenseGoal) {
+      goalForm.value.type = "EXPENSE";
+    }
+  }
+
+  isGoalModalOpen.value = true;
+};
+
+const showPrevGoal = () => {
+  if (!goalCards.value.length) return;
+  currentGoalIndex.value =
+    (currentGoalIndex.value - 1 + goalCards.value.length) % goalCards.value.length;
+};
+
+const showNextGoal = () => {
+  if (!goalCards.value.length) return;
+  currentGoalIndex.value =
+    (currentGoalIndex.value + 1) % goalCards.value.length;
+};
+
+const openGoalDetailModal = (goal) => {
+  selectedGoalDetailId.value = goal.id;
+  isGoalDetailModalOpen.value = true;
+};
+
+const closeGoalDetailModal = () => {
+  isGoalDetailModalOpen.value = false;
+  selectedGoalDetailId.value = null;
+};
+
+const resetGoalIncomeForm = () => {
+  editingGoalTransactionId.value = null;
+  goalIncomeForm.value = {
+    amount: "",
+    date: createTodayDate(),
+    memo: "",
+  };
+};
+
+const openGoalIncomeTransactionModal = (transaction = null) => {
+  if (transaction) {
+    editingGoalTransactionId.value = transaction.id;
+    goalIncomeForm.value = {
+      amount: transaction.amount,
+      date: transaction.date,
+      memo: transaction.memo || "",
+    };
+  } else {
+    resetGoalIncomeForm();
+    if (selectedGoalDetail.value?.startDate) {
+      goalIncomeForm.value.date = selectedGoalDetail.value.startDate;
+    }
+  }
+
+  isGoalIncomeTransactionModalOpen.value = true;
+};
+
+const closeGoalIncomeTransactionModal = () => {
+  isGoalIncomeTransactionModalOpen.value = false;
+  resetGoalIncomeForm();
+};
+
+const toggleExpenseCategory = (category) => {
+  const selected = goalForm.value.categories || [];
+
+  if (selected.includes(category)) {
+    goalForm.value.categories = selected.filter((item) => item !== category);
+    return;
+  }
+
+  goalForm.value.categories = [...selected, category];
+};
+
+const closeGoalModal = () => {
+  isGoalModalOpen.value = false;
+  resetGoalForm();
+};
+
+const loadCoupleGoals = async () => {
+  if (!myCouple.value?.id) {
+    coupleGoals.value = [];
+    return;
+  }
+
+  try {
+    const { data } = await api.get(`/coupleGoals?coupleId=${myCouple.value.id}`);
+    coupleGoals.value = Array.isArray(data) ? data : [];
+    if (!coupleGoals.value.length) {
+      currentGoalIndex.value = 0;
+    } else if (currentGoalIndex.value > coupleGoals.value.length - 1) {
+      currentGoalIndex.value = coupleGoals.value.length - 1;
+    }
+    if (
+      selectedGoalDetailId.value &&
+      !coupleGoals.value.some(
+        (item) => Number(item.id) === Number(selectedGoalDetailId.value),
+      )
+    ) {
+      selectedGoalDetailId.value = null;
+      isGoalDetailModalOpen.value = false;
+    }
+  } catch (error) {
+    coupleGoals.value = [];
+    currentGoalIndex.value = 0;
+  }
+};
+
+const refreshCoupleDetailData = async () => {
+  if (!userId.value || !partnerId.value) return;
+
+  allTransactions.value = await getCoupleTransactions(
+    userId.value,
+    partnerId.value,
+  );
+
+  summary.value = await getCoupleMonthlySummary(
+    userId.value,
+    partnerId.value,
+    monthKey.value,
+  );
+};
+
+const submitGoal = async () => {
+  if (!myCouple.value?.id) return;
+
+  const payload = {
+    coupleId: myCouple.value.id,
+    type: goalForm.value.type,
+    title: goalForm.value.title.trim(),
+    targetAmount: Number(goalForm.value.targetAmount),
+    startDate: goalForm.value.startDate || createTodayDate(),
+    endDate: goalForm.value.endDate || createTodayDate(),
+      categories:
+        goalForm.value.type === "EXPENSE" ? goalForm.value.categories || [] : [],
+      category:
+        goalForm.value.type === "EXPENSE"
+          ? (goalForm.value.categories || [])[0] || ""
+          : "",
+  };
+
+  if (!payload.title || !payload.targetAmount) {
+    window.alert("목표 이름과 금액을 입력해주세요.");
+    return;
+  }
+
+  if (payload.startDate > payload.endDate) {
+    window.alert("목표 종료일은 시작일보다 빠를 수 없습니다.");
+    return;
+  }
+
+  try {
+    if (editingGoalId.value) {
+      await api.patch(`/coupleGoals/${editingGoalId.value}`, payload);
+      uiStore.showToast("공동 목표를 수정했어요.");
+    } else {
+      await api.post("/coupleGoals", {
+        ...payload,
+        createdAt: new Date().toISOString(),
+      });
+      uiStore.showToast("공동 목표를 추가했어요.");
+    }
+
+    await loadCoupleGoals();
+    closeGoalModal();
+  } catch (error) {
+    uiStore.showToast("공동 목표 저장에 실패했어요.", "error");
+  }
+};
+
+const submitGoalIncomeTransaction = async () => {
+  if (!selectedGoalDetail.value?.id || !userId.value) return;
+
+  const payload = {
+    userId: userId.value,
+    type: "INCOME",
+    category: "커플",
+    amount: Number(goalIncomeForm.value.amount),
+    date: goalIncomeForm.value.date,
+    memo: goalIncomeForm.value.memo.trim() || "공동 목표 수입",
+    goalId: selectedGoalDetail.value.id,
+  };
+
+  if (!payload.amount || !payload.date) {
+    window.alert("금액과 날짜를 입력해주세요.");
+    return;
+  }
+
+  try {
+    if (editingGoalTransactionId.value) {
+      await api.patch(`/transactions/${editingGoalTransactionId.value}`, payload);
+      uiStore.showToast("수입 거래를 수정했어요.");
+    } else {
+      await api.post("/transactions", payload);
+      uiStore.showToast("수입 거래를 추가했어요.");
+    }
+
+    await refreshCoupleDetailData();
+    closeGoalIncomeTransactionModal();
+  } catch (error) {
+    uiStore.showToast("수입 거래 저장에 실패했어요.", "error");
+  }
+};
+
+const removeGoal = async (goalId) => {
+  const confirmed = window.confirm("이 공동 목표를 삭제할까요?");
+  if (!confirmed) return;
+
+  try {
+    await api.delete(`/coupleGoals/${goalId}`);
+    await loadCoupleGoals();
+    uiStore.showToast("공동 목표를 삭제했어요.");
+  } catch (error) {
+    uiStore.showToast("공동 목표 삭제에 실패했어요.", "error");
+  }
+};
 
 const formatSignedCurrency = (value) => {
   const amount = Number(value || 0);
@@ -774,12 +1602,9 @@ onMounted(async () => {
 
   if (myCouple.value && partnerId.value) {
     partner.value = await getUserById(partnerId.value);
+    await refreshCoupleDetailData();
 
-    summary.value = await getCoupleMonthlySummary(
-      userId.value,
-      partnerId.value,
-      monthKey.value,
-    );
+    await loadCoupleGoals();
   }
 
   //  const coupleTransactions = getCoupleTransactions(userId, partnerId);
@@ -790,13 +1615,13 @@ onMounted(async () => {
 .couple-detail-page {
   min-height: 100vh;
   width: calc(100% + 3rem);
-  margin: -1.5rem;
+  margin: -2rem -1.5rem -1.5rem;
   background: var(--page-bg);
   color: var(--text-color);
 }
 
 .couple-detail-inner {
-  padding: 5.5rem 1.5rem 1.5rem;
+  padding: 3.5rem 1.5rem 1.5rem;
 }
 
 .section-desc {
@@ -895,6 +1720,303 @@ onMounted(async () => {
   border-color: var(--border-color) !important;
 }
 
+.goal-empty-card,
+.goal-overview-card {
+  background: #fff;
+  border: 0 !important;
+  box-shadow: 0 18px 40px rgba(30, 30, 30, 0.08) !important;
+}
+
+.goal-empty-card > :not(.goal-empty-content) {
+  display: none !important;
+}
+
+.goal-empty-button {
+  width: 5.25rem;
+  height: 5.25rem;
+  border-radius: 1.5rem;
+  background: linear-gradient(135deg, #ffd96a 0%, #ffbf23 100%);
+  color: #1f2937;
+}
+
+.goal-empty-button .material-symbols-outlined {
+  font-size: 2.7rem;
+  font-weight: 700;
+}
+
+.goal-create-btn,
+.goal-preview-btn {
+  background: linear-gradient(135deg, #ffd96a 0%, #ffbf23 100%);
+  border: none;
+  color: #4f3e10;
+  box-shadow: 0 8px 18px rgba(255, 188, 0, 0.16);
+}
+
+.goal-reset-btn,
+.goal-action-btn,
+.goal-modal-close {
+  background: #fff;
+  color: #666055;
+  border-color: #ddd;
+}
+
+.goal-create-btn,
+.goal-preview-btn,
+.goal-reset-btn,
+.goal-action-btn {
+  font-size: 0.92rem;
+  padding-inline: 0.95rem;
+  padding-block: 0.5rem;
+}
+
+.goal-title-display {
+  font-size: clamp(1.05rem, 2vw, 1.45rem);
+  line-height: 1.3;
+  color: #3d3324;
+}
+
+.goal-period-text {
+  color: #7a7469;
+  font-size: 0.88rem;
+}
+
+.goal-progress-track {
+  height: 0.875rem;
+  background: #ececef;
+  border: 0;
+}
+
+.goal-progress-fill.is-income {
+  background: linear-gradient(90deg, #ffd96a 0%, #ffbf23 100%);
+}
+
+.goal-progress-fill.is-expense {
+  background: #8f96a3;
+}
+
+.goal-type-badge {
+  display: inline-flex;
+  padding: 0.38rem 0.8rem !important;
+  background: #fff0b8;
+  color: #735700;
+  font-size: 0.72rem;
+  font-weight: 800 !important;
+}
+
+.goal-overview-card.is-expense .goal-type-badge {
+  background: #ececef;
+  color: #5d6573;
+}
+
+.goal-stat-box,
+.goal-linked-box {
+  background: #faf8f3;
+  border: 1px solid #eee6d6;
+}
+
+.goal-linked-item {
+  background: #fcfcfd;
+  border: 1px solid #ededf0;
+}
+
+.goal-linked-scroll {
+  max-height: 15.5rem;
+  overflow-y: auto;
+}
+
+.goal-linked-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.goal-linked-scroll::-webkit-scrollbar-thumb {
+  background: rgba(143, 152, 163, 0.45);
+  border-radius: 999px;
+}
+
+.goal-linked-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.goal-stat-box .goal-subtext,
+.goal-linked-item .goal-subtext,
+.goal-linked-box .goal-subtext,
+.goal-modal-subtext,
+.goal-empty-card .goal-subtext {
+  color: #7a7469;
+  font-size: 0.82rem;
+}
+
+.goal-stat-box .fs-4,
+.goal-linked-item .fs-5,
+.goal-progress-track + .row .fs-4 {
+  font-size: 1.1rem !important;
+  color: #222;
+}
+
+.goal-linked-box h5 {
+  font-size: 1rem;
+  color: #3d3324;
+}
+
+.goal-detail-open-btn {
+  background: #fff;
+  color: #4f3e10;
+  border: 1px solid #ddd;
+}
+
+.goal-income-fixed {
+  background: #faf8f3;
+  border: 1px solid #eee6d6;
+}
+
+.goal-nav-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: #fff;
+  color: #666055;
+  box-shadow: 0 4px 12px rgba(30, 30, 30, 0.08);
+}
+
+.goal-linked-item .fw-bold.mb-1 {
+  font-size: 0.95rem;
+}
+
+.goal-row-edit-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: #fff7df;
+  color: #8a6a12;
+  opacity: 0;
+  transform: translateY(2px);
+  transition: opacity 0.18s ease, transform 0.18s ease, background 0.18s ease;
+}
+
+.goal-linked-item:hover .goal-row-edit-btn,
+.goal-row-edit-btn:focus-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.goal-row-edit-btn:hover {
+  background: #ffe9a6;
+}
+
+.goal-modal-title {
+  font-size: 1.7rem;
+  font-weight: 800 !important;
+  color: #3d3324;
+}
+
+.goal-modal-subtext {
+  color: #7a7469;
+  font-size: 0.95rem;
+}
+
+.goal-modal-backdrop {
+  background: rgba(15, 23, 42, 0.52);
+  z-index: 1100;
+}
+
+.goal-modal-card {
+  width: min(100%, 32rem) !important;
+  max-width: 32rem !important;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #fff;
+  border: 0;
+  box-shadow: 0 18px 40px rgba(30, 30, 30, 0.08);
+  margin-inline: auto;
+}
+
+.goal-detail-modal-card {
+  width: min(100%, 34rem);
+  max-width: 34rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #fff;
+  border: 0;
+  box-shadow: 0 18px 40px rgba(30, 30, 30, 0.08);
+  margin-inline: auto;
+}
+
+.goal-income-transaction-card {
+  width: min(100%, 30rem);
+  max-width: 30rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #fff;
+  border: 0;
+  box-shadow: 0 18px 40px rgba(30, 30, 30, 0.08);
+  margin-inline: auto;
+}
+
+.goal-modal-card.is-create-mode {
+  width: min(100%, 26rem) !important;
+  max-width: 26rem !important;
+}
+
+.goal-modal-card.is-create-mode .goal-form-grid-create {
+  --bs-gutter-x: 0;
+}
+
+.goal-modal-close {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.85rem;
+}
+
+.goal-type-toggle {
+  background: transparent;
+}
+
+.goal-type-option {
+  color: #555;
+  background: #fff;
+  font-size: 0.95rem;
+  border: 1px solid #ddd !important;
+}
+
+.goal-type-option.active {
+  background: #ffcc50;
+  color: #4f3e10;
+  border-color: #ffcc50 !important;
+  box-shadow: 0 8px 18px rgba(255, 188, 0, 0.22);
+}
+
+.goal-form-control {
+  min-height: 3.35rem;
+  border-radius: 1.1rem;
+  font-size: 0.95rem;
+  border: 1px solid #ddd;
+  padding-inline: 1rem;
+}
+
+.goal-form-control:focus {
+  border-color: #ffbc00;
+  box-shadow: 0 0 0 0.2rem rgba(255, 188, 0, 0.18);
+}
+
+.goal-category-chips {
+  min-height: 2.75rem;
+}
+
+.goal-category-chip {
+  background: #fff;
+  border-color: #ddd !important;
+  color: #555;
+  transition: all 0.18s ease;
+  font-size: 0.9rem;
+}
+
+.goal-category-chip.active {
+  background: #fff3cc;
+  border-color: #ffcc50 !important;
+  color: #6f5700;
+  box-shadow: 0 8px 16px rgba(255, 204, 80, 0.18);
+}
+
 .goal-detail-btn {
   background: var(--card-bg);
   color: var(--text-color);
@@ -949,7 +2071,41 @@ onMounted(async () => {
   }
 
   .couple-detail-inner {
-    padding: 5.5rem 1.5rem 1.5rem;
+    padding: 3.5rem 1.5rem 1.5rem;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .goal-empty-button {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+
+  .goal-empty-button .material-symbols-outlined {
+    font-size: 2.2rem;
+  }
+
+  .goal-modal-card {
+    width: min(100%, 100%);
+    max-width: 100% !important;
+    max-height: 94vh;
+  }
+
+  .goal-detail-modal-card {
+    width: min(100%, 100%);
+    max-width: 100%;
+    max-height: 94vh;
+  }
+
+  .goal-income-transaction-card {
+    width: min(100%, 100%);
+    max-width: 100%;
+    max-height: 94vh;
+  }
+
+  .goal-modal-card.is-create-mode {
+    width: min(100%, 100%) !important;
+    max-width: 100% !important;
   }
 }
 
