@@ -7,18 +7,29 @@
             <div :class="bodyClass">
               <div class="auth-content">
                 <div v-if="$slots.header" class="auth-topbar">
-                  <h2 class="fw-bold auth-title auth-title-inline">{{ title }}</h2>
+                  <h2 class="fw-bold auth-title auth-title-inline">
+                    {{ title }}
+                  </h2>
                   <div class="auth-header-slot">
                     <slot name="header"></slot>
                   </div>
                 </div>
-                <h2 v-else :class="titleClass" class="fw-bold auth-title">{{ title }}</h2>
+                <h2 v-else :class="titleClass" class="fw-bold auth-title">
+                  {{ title }}
+                </h2>
                 <slot></slot>
               </div>
+
               <div v-if="asideImage" class="auth-aside">
                 <div class="auth-aside-inner">
-                  <img :src="asideImage" :alt="asideAlt" class="auth-aside-image" />
-                  <p v-if="asideText" class="auth-aside-text">{{ asideText }}</p>
+                  <img
+                    :src="asideImage"
+                    :alt="asideAlt"
+                    class="auth-aside-image"
+                  />
+                  <p v-if="asideText" class="auth-aside-text">
+                    {{ asideText }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -30,44 +41,50 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed } from "vue";
 
 const props = defineProps({
   title: String,
   asideImage: {
     type: String,
-    default: '',
+    default: "",
   },
   asideAlt: {
     type: String,
-    default: 'Authentication illustration',
+    default: "Authentication illustration",
   },
   asideText: {
     type: String,
-    default: '',
+    default: "",
   },
 });
 
 const hasAside = computed(() => Boolean(props.asideImage));
 const containerClass = computed(() =>
-  hasAside.value ? 'col-12 col-lg-11 col-xl-10' : 'col-12 col-md-9 col-lg-7 col-xl-6',
+  hasAside.value
+    ? "col-12 col-lg-11 col-xl-10"
+    : "col-12 col-md-9 col-lg-7 col-xl-6",
 );
 const bodyClass = computed(() =>
   hasAside.value
-    ? 'card-body p-4 p-md-5 p-lg-5 auth-card-body with-aside'
-    : 'card-body p-4 p-md-5 p-lg-5 auth-card-body',
+    ? "card-body p-4 p-md-5 p-lg-5 auth-card-body with-aside"
+    : "card-body p-4 p-md-5 p-lg-5 auth-card-body",
 );
-const titleClass = computed(() => (hasAside.value ? 'mb-4 text-start' : 'text-center mb-5'));
+const titleClass = computed(() =>
+  hasAside.value ? "mb-4 text-start" : "text-center mb-5",
+);
 </script>
 
 <style scoped>
 .auth-page {
-  background: linear-gradient(135deg, #e0f2f7 0%, #f7e0e7 100%);
+  background: var(--page-bg);
 }
 
 .auth-card {
   border-radius: 1.25rem;
-  background-color: #ffffff;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  box-shadow: var(--shadow-sm);
 }
 
 .auth-card-body {
@@ -98,7 +115,7 @@ const titleClass = computed(() => (hasAside.value ? 'mb-4 text-start' : 'text-ce
 }
 
 .auth-title {
-  color: var(--kb-gray);
+  color: var(--text-color);
 }
 
 .auth-title-inline {
@@ -111,7 +128,8 @@ const titleClass = computed(() => (hasAside.value ? 'mb-4 text-start' : 'text-ce
 
 .auth-aside {
   border-radius: 1.5rem;
-  background: #60584c;
+  background: var(--sub-bg);
+  border: 1px solid var(--border-color);
 }
 
 .auth-aside-inner {
@@ -128,24 +146,14 @@ const titleClass = computed(() => (hasAside.value ? 'mb-4 text-start' : 'text-ce
 
 .auth-aside-text {
   order: -1;
-}
-
-.auth-aside-image {
-  width: min(100%, 20rem);
-  height: auto;
-  object-fit: contain;
-  animation: authFloaty 2.2s ease-in-out infinite;
-}
-
-.auth-aside-text {
   position: relative;
   margin: 0;
   max-width: 20rem;
   padding: 0.85rem 1rem;
-  border: 1px solid #f2d675;
+  border: 1px solid var(--border-color);
   border-radius: 1rem;
-  background: #fff8db;
-  color: #5b5138;
+  background: var(--card-bg);
+  color: var(--text-color);
   font-size: 0.95rem;
   font-weight: 700;
   line-height: 1.4;
@@ -154,61 +162,23 @@ const titleClass = computed(() => (hasAside.value ? 'mb-4 text-start' : 'text-ce
 }
 
 .auth-aside-text::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -10px;
   left: 50%;
   width: 18px;
   height: 18px;
-  background: #fff8db;
-  border-right: 1px solid #f2d675;
-  border-bottom: 1px solid #f2d675;
+  background: var(--card-bg);
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
   transform: translateX(-50%) rotate(45deg);
 }
 
-.auth-input {
-  border-radius: 0.9rem;
-  border: 1px solid #dee2e6;
-  padding-top: 0.9rem;
-  padding-bottom: 0.9rem;
-}
-
-.auth-input:focus {
-  border-color: var(--kb-yellow);
-  box-shadow: 0 0 0 0.2rem rgba(255, 188, 0, 0.2);
-}
-
-.auth-btn {
-  background-color: var(--kb-yellow);
-  color: var(--kb-gray);
-  font-weight: 700;
-  border: none;
-  border-radius: 0.9rem;
-  padding-top: 0.9rem;
-  padding-bottom: 0.9rem;
-}
-
-.auth-btn:hover {
-  background-color: var(--kb-yellow-hover);
-  color: var(--kb-gray);
-}
-
-.auth-btn:disabled {
-  background-color: #e9d9a0;
-  color: #6c757d;
-}
-
-.auth-link-btn {
-  border-radius: 0.9rem;
-  font-weight: 600;
-  padding-top: 0.9rem;
-  padding-bottom: 0.9rem;
-}
-
-.auth-link-btn:hover {
-  background-color: var(--kb-gray);
-  border-color: var(--kb-gray);
-  color: #fff;
+.auth-aside-image {
+  width: min(100%, 20rem);
+  height: auto;
+  object-fit: contain;
+  animation: authFloaty 2.2s ease-in-out infinite;
 }
 
 @keyframes authFloaty {
