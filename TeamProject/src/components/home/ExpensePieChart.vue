@@ -5,7 +5,7 @@
     <div class="position-relative" style="height: 16rem">
       <div
         v-if="total === 0"
-        class="position-absolute top-50 start-50 translate-middle pie-empty-text small"
+        class="position-absolute top-50 start-50 translate-middle pie-empty-text small z-1"
       >
         지출 내역이 없습니다
       </div>
@@ -14,7 +14,7 @@
 
     <div class="d-flex flex-column gap-2 mt-4">
       <div
-        v-for="item in chartSource"
+        v-for="item in sortedSource"
         :key="item.category"
         class="d-flex align-items-center justify-content-between"
       >
@@ -55,7 +55,16 @@ const props = defineProps({
   },
 });
 
+// 원본 데이터
 const chartSource = computed(() => props.data || []);
+
+/**
+ * [추가] 내림차순 정렬된 데이터
+ * 비중(item.value)이 큰 순서대로 리스트를 정렬합니다.
+ */
+const sortedSource = computed(() => {
+  return [...chartSource.value].sort((a, b) => b.value - a.value);
+});
 
 const total = computed(() =>
   chartSource.value.reduce((sum, item) => sum + item.value, 0),
@@ -63,16 +72,28 @@ const total = computed(() =>
 
 const chartData = computed(() => {
   const values = chartSource.value.map((item) => item.value);
-  const isAllZero = values.every((v) => v === 0);
+  const isAllZero = total.value === 0;
+
+  if (isAllZero) {
+    return {
+      labels: ["내역 없음"],
+      datasets: [
+        {
+          backgroundColor: ["#f0f0f0"],
+          data: [1],
+          borderWidth: 0,
+          hoverBackgroundColor: ["#f0f0f0"],
+        },
+      ],
+    };
+  }
 
   return {
     labels: chartSource.value.map((item) => item.category),
     datasets: [
       {
-        backgroundColor: isAllZero
-          ? chartSource.value.map(() => "#f0f0f0")
-          : chartSource.value.map((item) => item.color),
-        data: isAllZero ? [1] : values,
+        backgroundColor: chartSource.value.map((item) => item.color),
+        data: values,
         borderWidth: 0,
       },
     ],
@@ -84,15 +105,17 @@ const getPercentage = (value) => {
   return ((value / total.value) * 100).toFixed(1);
 };
 
-const chartOptions = {
+const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
     legend: { display: false },
+    tooltip: { enabled: total.value !== 0 },
   },
   cutout: "60%",
-};
+}));
 </script>
+
 <style scoped>
 .pie-card {
   background: var(--card-bg);
@@ -103,5 +126,9 @@ const chartOptions = {
 .pie-empty-text,
 .pie-meta {
   color: var(--text-muted);
+}
+
+.z-1 {
+  z-index: 1;
 }
 </style>
