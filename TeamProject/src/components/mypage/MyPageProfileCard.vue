@@ -28,7 +28,20 @@
     </div>
 
     <div class="mt-4 d-flex flex-wrap justify-content-center gap-2">
-      <span class="member-badge px-3 py-1 small fw-bold rounded-pill">일반 회원</span>
+      <span
+        class="member-badge px-3 py-1 small fw-bold rounded-pill"
+        :class="`member-badge-${profileBadgeTone}`"
+      >
+        {{ profileBadgeLabel }}
+      </span>
+      <span
+        v-for="badge in specialBadges"
+        :key="badge.label"
+        class="special-badge px-3 py-1 small fw-bold rounded-pill"
+        :class="`special-badge-${badge.tone}`"
+      >
+        {{ badge.label }}
+      </span>
     </div>
   </div>
 </template>
@@ -48,6 +61,18 @@ const props = defineProps({
   isEditing: {
     type: Boolean,
     default: false,
+  },
+  profileBadgeLabel: {
+    type: String,
+    default: '개인 회원',
+  },
+  profileBadgeTone: {
+    type: String,
+    default: 'default',
+  },
+  specialBadges: {
+    type: Array,
+    default: () => [],
   },
 });
 
@@ -121,4 +146,39 @@ const userInitial = computed(() => displayName.value.charAt(0).toUpperCase());
   color: var(--text-color);
   border: 1px solid var(--border-light);
 }
+
+.member-badge-pending {
+  background: rgba(255, 188, 0, 0.14);
+  color: #8a6500;
+  border-color: rgba(255, 188, 0, 0.35);
+}
+
+.member-badge-couple {
+  background: rgba(236, 72, 153, 0.14);
+  color: #be185d;
+  border-color: rgba(236, 72, 153, 0.28);
+}
+
+.special-badge {
+  border: 1px solid transparent;
+}
+
+.special-badge-profile-complete {
+  background: rgba(16, 185, 129, 0.14);
+  color: #047857;
+  border-color: rgba(16, 185, 129, 0.24);
+}
+
+.special-badge-newcomer {
+  background: rgba(59, 130, 246, 0.14);
+  color: #1d4ed8;
+  border-color: rgba(59, 130, 246, 0.24);
+}
+
+.special-badge-popular {
+  background: rgba(245, 158, 11, 0.14);
+  color: #b45309;
+  border-color: rgba(245, 158, 11, 0.24);
+}
+
 </style>

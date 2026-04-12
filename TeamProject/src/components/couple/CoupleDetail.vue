@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="couple-detail-page">
     <div
       class="mx-auto d-flex flex-column gap-4 couple-detail-inner"
@@ -6,9 +6,9 @@
     >
       <div class="d-flex align-items-center justify-content-between mb-4">
         <div>
-          <h2 class="fs-4 fw-bold m-0">연동가계부</h2>
+          <h2 class="fs-4 fw-bold m-0">연동 가계부</h2>
           <p class="section-desc m-0 mt-1">
-            배우자와 함께 투명하고 스마트하게 자산을 관리하세요.
+            배우자와 함께 투명하고 꼼꼼하게 예산을 관리해보세요.
           </p>
         </div>
       </div>
@@ -121,7 +121,7 @@
 
         <div class="mt-4 text-center">
           <p class="fs-5 fw-bold couple-summary-text m-0">
-            연동된 지 {{ coupleDays }}일째, 오늘도 똑똑한 가계부 생활!
+            연동한 지 {{ coupleDays }}일째, 오늘도 함께 가계부를 관리해요!
           </p>
         </div>
       </div>
@@ -130,14 +130,14 @@
         <div class="col-12 col-lg-8">
           <div class="detail-card p-4 p-md-5 rounded-4 h-100">
             <div class="d-flex align-items-center justify-content-between mb-3">
-              <h3 class="fs-5 fw-bold m-0">이번 달 금융 현황 비교</h3>
+              <h3 class="fs-5 fw-bold m-0">이번 달 가계 현황 비교</h3>
               <span class="small fw-medium meta-pill px-3 py-1 rounded-pill">
                 2026년 4월 기준
               </span>
             </div>
 
             <p class="small section-desc mb-5">
-              막대 길이는 전체 금액 기준으로 표시됩니다.
+              항목별 금액을 전체 금액 기준으로 비교해 보여줍니다.
             </p>
 
             <div class="d-flex flex-column gap-5">
@@ -286,7 +286,7 @@
                     <span
                       class="small fw-bold stat-pill px-3 py-1 rounded-pill"
                     >
-                      순 수익
+                      순이익
                     </span>
                     <p class="mt-2 small fw-bold stat-subtext m-0">
                       합산: {{ formatSignedCurrency(summary.totalProfit) }}
@@ -333,7 +333,7 @@
               </button>
             </div>
             <p class="small fw-bold text-primary mb-1">공동 목표</p>
-            <h4 class="fs-5 fw-bold mb-3">내 집 마련 적금</h4>
+            <h4 class="fs-5 fw-bold mb-3">신혼 마련 적금</h4>
             <div class="d-flex align-items-end gap-2 mb-2">
               <span class="fs-3 fw-bold">78%</span>
               <span class="small goal-subtext pb-1">3,400,000 / 5,000,000</span>
@@ -607,7 +607,7 @@
           <div>
             <h3 id="goal-modal-title" class="goal-modal-title fw-bold mb-2">공동 목표 만들기</h3>
             <p class="goal-modal-subtext mb-0">
-              수입 목표와 지출 목표를 만들고, 기간 내 거래 데이터와 연결해 진행 현황을 관리합니다.
+              수입 목표와 지출 목표를 만들고 기간 내 거래 데이터와 연결해 진행 현황을 관리합니다.
             </p>
           </div>
           <button
@@ -644,15 +644,15 @@
         <form class="d-flex flex-column gap-4" @submit.prevent="submitGoal">
           <div>
             <label for="goal-title" class="form-label fw-bold">목표 이름</label>
-            <input
-              id="goal-title"
-              v-model="goalForm.title"
-              type="text"
-              class="form-control goal-form-control"
-              placeholder="예: 여행 자금 모으기"
-              maxlength="30"
-              required
-            />
+              <input
+                id="goal-title"
+                v-model="goalForm.title"
+                type="text"
+                class="form-control goal-form-control"
+                placeholder="예: 여행 자금 모으기"
+                maxlength="30"
+                required
+              />
           </div>
 
           <div class="row g-4" :class="{ 'goal-form-grid-create': !editingGoalId }">
@@ -763,7 +763,7 @@
               type="button"
               class="goal-modal-close d-flex align-items-center justify-content-center border-0"
               @click="openGoalIncomeTransactionModal()"
-              aria-label="수입 거래 추가"
+               aria-label="수입 거래 추가"
             >
               <span class="material-symbols-outlined">add</span>
             </button>
@@ -816,7 +816,7 @@
                   type="button"
                   class="goal-row-edit-btn d-flex align-items-center justify-content-center border-0"
                   @click="openGoalIncomeTransactionModal(item)"
-                  aria-label="거래 수정"
+                   aria-label="거래 수정"
                 >
                   <span class="material-symbols-outlined">edit</span>
                 </button>
@@ -899,7 +899,7 @@
           </div>
 
           <div class="goal-income-fixed rounded-4 p-3">
-            <div class="small goal-subtext mb-1">저장 정보</div>
+            <div class="small goal-subtext mb-1">추가 정보</div>
             <div class="fw-semibold">카테고리: 커플</div>
             <div class="small goal-subtext">
               목표: {{ selectedGoalDetail?.title || "-" }}
@@ -1537,7 +1537,7 @@ const startEditingMessage = (target) => {
   if (target !== "user") return;
 
   if (editingMessage.value === "user") {
-    // 두 번째 클릭 시 편집 취소
+    // 같은 버튼을 다시 누르면 편집을 취소합니다.
     editableMessages.value.user = statusMessages.value.user;
     editingMessage.value = null;
     return;
@@ -1590,13 +1590,13 @@ const confirmDisconnectCouple = async () => {
     return;
   }
 
-  const confirmed = window.confirm("배우자와 연동을 정말로 해지하겠습니까?");
+  const confirmed = window.confirm("배우자와의 연동을 정말 해제하시겠습니까?");
   if (!confirmed) return;
 
   const result = await couplesStore.removecouple(myCouple.value.id);
 
   if (!result?.success) {
-    window.alert(result?.message || "연동 해지에 실패했습니다.");
+    window.alert(result?.message || "연동 해제에 실패했습니다.");
     return;
   }
 
@@ -1618,7 +1618,7 @@ onMounted(async () => {
     await loadCoupleGoals();
   }
 
-  //  const coupleTransactions = getCoupleTransactions(userId, partnerId);
+  // const coupleTransactions = getCoupleTransactions(userId, partnerId);
 });
 </script>
 
@@ -2132,3 +2132,4 @@ onMounted(async () => {
   font-variation-settings: "FILL" 1;
 }
 </style>
+

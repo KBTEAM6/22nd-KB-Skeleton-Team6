@@ -1,15 +1,14 @@
 <script setup>
-import { usecouplesStore } from "@/stores/couples.js";
-import { useAuthStore } from "@/stores/auth.js";
-import { ref, onMounted } from "vue";
-import CoupleCard from "@/components/common/CoupleCard.vue";
-import { useUiStore } from "@/stores/ui";
+import { ref } from 'vue';
+import { usecouplesStore } from '@/stores/couples.js';
+import { useAuthStore } from '@/stores/auth.js';
+import CoupleCard from '@/components/common/CoupleCard.vue';
+import { useUiStore } from '@/stores/ui';
 
 const uiStore = useUiStore();
-
 const coupleStore = usecouplesStore();
 const authStore = useAuthStore();
-const keyword = ref("");
+const keyword = ref('');
 
 const handleSearch = () => {
   if (!keyword.value.trim()) {
@@ -20,43 +19,46 @@ const handleSearch = () => {
 };
 
 const resetSearch = () => {
-  keyword.value = "";
+  keyword.value = '';
   coupleStore.searchResults = [];
 };
+
 const getUserCardType = (user) => {
   const receivedReq = coupleStore.pendingReceivedRequests.find(
     (req) => req.user?.id === user.id,
   );
-  if (receivedReq) return "received";
+  if (receivedReq) return 'received';
 
   const sentReq = coupleStore.pendingSentRequests.find(
     (req) => req.user?.id === user.id,
   );
-  if (sentReq) return "sent";
+  if (sentReq) return 'sent';
+
   if (coupleStore.isTargetAlreadyCoupled(user.id)) {
-    return "matched";
+    return 'matched';
   }
-  return "search";
+
+  return 'search';
 };
+
 const getRequestIdByUser = (user) => {
   const sentReq = coupleStore.pendingSentRequests.find(
     (req) => req.user?.id === user.id,
   );
-
   return sentReq?.id ?? null;
 };
+
 const getReceivedRequestUser = (user) => {
   const receivedReq = coupleStore.pendingReceivedRequests.find(
     (req) => req.user?.id === user.id,
   );
-
   return receivedReq ?? user;
 };
 
 const handleAction = async ({ type, user, requestId }) => {
   const myId = authStore.user.id;
 
-  if (type === "request") {
+  if (type === 'request') {
     const result = await coupleStore.sendcoupleRequest({
       requesterId: myId,
       targetUserId: user.id,
@@ -64,44 +66,42 @@ const handleAction = async ({ type, user, requestId }) => {
 
     if (result.success) {
       await coupleStore.fetchSentRequests(myId);
-      uiStore.showToast("파트너 요청을 보냈습니다.");
+      uiStore.showToast('파트너 요청을 보냈습니다.');
     } else {
-      uiStore.showToast(result.message || "요청 전송에 실패했습니다.");
+      uiStore.showToast(result.message || '요청 전송에 실패했습니다.');
     }
   }
 
-  if (type === "accept") {
-    const request = user;
-    const result = await coupleStore.acceptcoupleRequest(request);
+  if (type === 'accept') {
+    const result = await coupleStore.acceptcoupleRequest(user);
 
     if (result.success) {
-      uiStore.showToast("커플 연결이 완료되었습니다.");
+      uiStore.showToast('커플 연결이 완료되었습니다.');
       return;
     }
 
-    uiStore.showToast(result.message || "요청 수락에 실패했습니다.");
+    uiStore.showToast(result.message || '요청 수락에 실패했습니다.');
   }
 
-  if (type === "reject") {
-    const request = user;
-    const result = await coupleStore.rejectcoupleRequest(request.id);
+  if (type === 'reject') {
+    const result = await coupleStore.rejectcoupleRequest(user.id);
 
     if (result.success) {
       await coupleStore.fetchReceivedRequests(myId);
-      uiStore.showToast("요청을 거절했습니다.", "error");
+      uiStore.showToast('요청을 거절했습니다.', 'error');
     } else {
-      uiStore.showToast(result.message || "거절 실패", "error");
+      uiStore.showToast(result.message || '거절에 실패했습니다.', 'error');
     }
   }
 
-  if (type === "cancel") {
+  if (type === 'cancel') {
     const result = await coupleStore.cancelcoupleRequest(requestId);
 
     if (result.success) {
       await coupleStore.fetchSentRequests(myId);
-      uiStore.showToast("요청을 취소했습니다.", "error");
+      uiStore.showToast('요청을 취소했습니다.', 'error');
     } else {
-      uiStore.showToast(result.message || "취소 실패", "error");
+      uiStore.showToast(result.message || '취소에 실패했습니다.', 'error');
     }
   }
 };
@@ -113,7 +113,7 @@ const handleAction = async ({ type, user, requestId }) => {
       <header class="mb-4">
         <h1 class="fs-4 fw-bold mb-2">배우자 관리</h1>
         <p class="small section-desc mb-0">
-          함께 자산을 관리할 배우자를 찾고 연결하세요.
+          함께 자산을 관리할 배우자를 찾고 연결해보세요.
         </p>
       </header>
 
@@ -151,19 +151,19 @@ const handleAction = async ({ type, user, requestId }) => {
 
               <input
                 v-model="keyword"
-                @input="handleSearch"
                 class="input"
-                placeholder="배우자 검색 (이름 또는 이메일)"
                 type="text"
+                placeholder="배우자 검색(이름 또는 이메일)"
+                @input="handleSearch"
               />
 
               <button
                 type="reset"
                 class="reset"
-                @click="resetSearch"
                 aria-label="검색어 초기화"
+                @click="resetSearch"
               >
-                ✕
+                ×
               </button>
             </form>
 
@@ -192,13 +192,11 @@ const handleAction = async ({ type, user, requestId }) => {
             </div>
           </div>
         </section>
+
         <section class="col-12 col-xl-7">
           <div class="d-flex flex-column gap-4">
-            <!-- 받은 요청 -->
             <div class="content-panel">
-              <div
-                class="d-flex align-items-center justify-content-between mb-3"
-              >
+              <div class="d-flex align-items-center justify-content-between mb-3">
                 <div>
                   <h2 class="fs-5 fw-bold mb-1">받은 요청</h2>
                   <p class="small section-desc mb-0">
@@ -217,9 +215,7 @@ const handleAction = async ({ type, user, requestId }) => {
                     :key="req.id"
                     :user="req.user"
                     type="received"
-                    @action="
-                      (payload) => handleAction({ ...payload, user: req })
-                    "
+                    @action="(payload) => handleAction({ ...payload, user: req })"
                   />
                 </template>
 
@@ -228,9 +224,7 @@ const handleAction = async ({ type, user, requestId }) => {
             </div>
 
             <div class="content-panel">
-              <div
-                class="d-flex align-items-center justify-content-between mb-3"
-              >
+              <div class="d-flex align-items-center justify-content-between mb-3">
                 <div>
                   <h2 class="fs-5 fw-bold mb-1">보낸 요청</h2>
                   <p class="small section-desc mb-0">
@@ -263,6 +257,7 @@ const handleAction = async ({ type, user, requestId }) => {
     </div>
   </div>
 </template>
+
 <style scoped>
 .couples-page {
   min-height: 100vh;
@@ -334,56 +329,25 @@ const handleAction = async ({ type, user, requestId }) => {
 
 .form button {
   border: none;
-  background: none;
+  background: transparent;
   color: var(--text-muted);
 }
 
 .input {
-  font-size: 0.95rem;
-  background-color: transparent;
-  width: 100%;
-  height: 100%;
+  flex: 1;
   border: none;
-  padding-inline: 0.6rem;
+  background: transparent;
   color: var(--text-color);
+  outline: none;
+  padding-inline: 0.85rem;
 }
 
 .input::placeholder {
   color: var(--text-muted);
 }
 
-.input:focus {
-  outline: none;
-}
-
-.form button:focus {
-  outline: none;
-}
-
-.form:focus-within {
-  box-shadow: 0 0 0 3px rgba(255, 204, 80, 0.28);
-  border-color: rgb(255, 204, 80);
-}
-
 .reset {
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.2s ease;
-}
-
-input:not(:placeholder-shown) ~ .reset {
-  opacity: 1;
-  visibility: visible;
-}
-
-.form svg {
-  width: 17px;
-  color: var(--text-muted);
-}
-
-@media (max-width: 1199.98px) {
-  .content-panel {
-    padding: 1.25rem;
-  }
+  font-size: 1rem;
+  line-height: 1;
 }
 </style>

@@ -19,6 +19,9 @@
             :user="user"
             :profile-image-src="profileImageMap[selectedProfileImageKey]"
             :is-editing="isEditing"
+            :profile-badge-label="profileBadgeLabel"
+            :profile-badge-tone="profileBadgeTone"
+            :special-badges="specialBadges"
             @open-profile-image-picker="$emit('open-profile-image-picker')"
           />
           <button class="btn btn-danger w-100 mt-3" @click="$emit('logout')">로그아웃</button>
@@ -513,6 +516,18 @@ const props = defineProps({
   profileImageMap: {
     type: Object,
     default: () => ({}),
+  },
+  profileBadgeLabel: {
+    type: String,
+    default: '개인 회원',
+  },
+  profileBadgeTone: {
+    type: String,
+    default: 'default',
+  },
+  specialBadges: {
+    type: Array,
+    default: () => [],
   },
 });
 

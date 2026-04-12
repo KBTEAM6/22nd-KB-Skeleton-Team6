@@ -33,6 +33,9 @@
     :selected-profile-image-key="selectedProfileImageKey"
     :profile-image-options="profileImageOptions"
     :profile-image-map="profileImage"
+    :profile-badge-label="profileBadge.label"
+    :profile-badge-tone="profileBadge.tone"
+    :special-badges="specialBadges"
     @open-profile-image-picker="openProfileImagePicker"
     @close-profile-image-picker="closeProfileImagePicker"
     @update:selected-profile-image-key="selectedProfileImageKey = $event"
@@ -58,6 +61,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { usecouplesStore } from '@/stores/couples';
 import { useUiStore } from '@/stores/ui';
 import MyPageContent from '@/components/mypage/MyPageContent.vue';
 import DelayModal from '@/components/common/DelayModal.vue';
@@ -72,6 +76,7 @@ import {
 } from '@/components/common/profileImages.js';
 
 const authStore = useAuthStore();
+const couplesStore = usecouplesStore();
 const uiStore = useUiStore();
 const router = useRouter();
 
@@ -116,6 +121,67 @@ const isDeletingAccount = ref(false);
 const isLoggingOut = ref(false);
 const isProfileImagePickerOpen = ref(false);
 
+const profileBadge = computed(() => {
+  if (couplesStore.coupleCount > 0) {
+    return {
+      label: '커플 회원',
+      tone: 'couple',
+    };
+  }
+
+  if (couplesStore.pendingReceivedRequests.length > 0 || couplesStore.pendingSentRequests.length > 0) {
+    return {
+      label: '연결 대기',
+      tone: 'pending',
+    };
+  }
+
+  return {
+    label: '개인 회원',
+    tone: 'default',
+  };
+});
+
+const specialBadges = computed(() => {
+  const badges = [];
+  const hasCustomProfileImage =
+    !!authStore.user?.profileImageKey &&
+    authStore.user.profileImageKey !== DEFAULT_PROFILE_IMAGE_KEY;
+  const createdAt = authStore.user?.createdAt ? new Date(authStore.user.createdAt) : null;
+  const isNewMember =
+    createdAt instanceof Date &&
+    !Number.isNaN(createdAt.getTime()) &&
+    Date.now() - createdAt.getTime() <= 7 * 24 * 60 * 60 * 1000;
+
+  if (isNewMember) {
+    badges.push({
+      label: '새내기 회원',
+      tone: 'newcomer',
+    });
+  }
+
+  if (
+    authStore.user?.name?.trim() &&
+    authStore.user?.email?.trim() &&
+    authStore.user?.phone?.trim() &&
+    hasCustomProfileImage
+  ) {
+    badges.push({
+      label: '프로필 완성',
+      tone: 'profile-complete',
+    });
+  }
+
+  if (couplesStore.pendingReceivedRequests.length >= 2) {
+    badges.push({
+      label: '인기 회원',
+      tone: 'popular',
+    });
+  }
+
+  return badges;
+});
+
 /**
  * 현재 로그인 사용자의 정보를 form으로 복사합니다.
  *
@@ -144,7 +210,21 @@ const syncForm = () => {
  * 로그인 정보가 없으면 마이페이지를 볼 수 없으므로
  * 로그인 페이지로 이동시킵니다.
  */
-onMounted(() => {
+const loadCoupleStatus = async () => {
+  if (!authStore.user?.id) return;
+
+  try {
+    await Promise.all([
+      couplesStore.fetchcouples(authStore.user.id),
+      couplesStore.fetchReceivedRequests(authStore.user.id),
+      couplesStore.fetchSentRequests(authStore.user.id),
+    ]);
+  } catch (error) {
+    console.error('커플 상태 불러오기 실패:', error);
+  }
+};
+
+onMounted(async () => {
   authStore.loadUserFromStorage();
   authStore.clearError();
   if (!authStore.user) {
@@ -153,6 +233,7 @@ onMounted(() => {
   }
 
   syncForm();
+  await loadCoupleStatus();
 });
 
 /**
