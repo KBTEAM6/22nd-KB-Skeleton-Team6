@@ -77,7 +77,7 @@ const titleClass = computed(() =>
 
 <style scoped>
 .auth-page {
-  background: var(--page-bg);
+  background: var(--bg-color-gradient);
 }
 
 .auth-card {
