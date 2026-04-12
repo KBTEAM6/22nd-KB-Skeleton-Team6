@@ -1066,6 +1066,8 @@
               v-model="goalIncomeForm.date"
               type="date"
               class="form-control goal-form-control"
+              :min="goalIncomeDateMin"
+              :max="goalIncomeDateMax"
               required
             />
           </div>
@@ -1433,7 +1435,8 @@ const goalCards = computed(() => {
         .filter((item) => {
           if (goal.type === "INCOME") {
             if (item.type !== "INCOME") return false;
-            return Number(item.goalId) === Number(goal.id);
+            if (Number(item.goalId) !== Number(goal.id)) return false;
+            return item.date >= goal.startDate && item.date <= goal.endDate;
           }
           if (goal.type === "EXPENSE" && item.type !== "EXPENSE") return false;
           if (
@@ -1525,6 +1528,14 @@ const selectedGoalDetail = computed(() => {
     ) || null
   );
 });
+
+const goalIncomeDateMin = computed(
+  () => selectedGoalDetail.value?.startDate || "",
+);
+
+const goalIncomeDateMax = computed(
+  () => selectedGoalDetail.value?.endDate || "",
+);
 
 const monthKey = computed(() => {
   const today = new Date();
@@ -1672,7 +1683,12 @@ const openGoalIncomeTransactionModal = (transaction = null) => {
     editingGoalTransactionId.value = transaction.id;
     goalIncomeForm.value = {
       amount: transaction.amount,
-      date: transaction.date,
+      date:
+        transaction.date < goalIncomeDateMin.value
+          ? goalIncomeDateMin.value
+          : transaction.date > goalIncomeDateMax.value
+            ? goalIncomeDateMax.value
+            : transaction.date,
       memo: transaction.memo || "",
     };
   } else {
@@ -1814,6 +1830,14 @@ const submitGoalIncomeTransaction = async () => {
 
   if (!payload.amount || !payload.date) {
     window.alert("금액과 날짜를 입력해주세요.");
+    return;
+  }
+
+  if (
+    payload.date < goalIncomeDateMin.value ||
+    payload.date > goalIncomeDateMax.value
+  ) {
+    window.alert("수입 날짜는 목표 기간 안에서만 선택할 수 있습니다.");
     return;
   }
 
