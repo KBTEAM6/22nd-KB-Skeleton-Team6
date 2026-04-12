@@ -1,18 +1,18 @@
 ﻿<template>
   <!--
-    MyPageContent???붾㈃ ?쒖떆留??대떦?쒕떎.
-    ?ㅼ젣 ?곹깭(form, isEditing, ????⑥닔)?????섏씠吏媛 ?뚯쑀?쒕떎.
+    MyPageContent 화면을 표시합니다.
+    실제 상태(form, isEditing, 각종 모달 상태)는 이 페이지가 소유합니다.
   -->
   <DelayModal
     :is-open="isProfileSaving"
     type="loading"
-    message="?꾨줈?꾩쓣 ??ν븯怨??덉뼱??.."
+    message="프로필을 저장하고 있어요.."
     :size="1000"
   />
   <DelayModal
     :is-open="isDeletingAccount"
     type="withdraw"
-    message="?뚯썝?덊눜瑜?泥섎━?섍퀬 ?덉뼱??.."
+    message="회원 탈퇴를 진행하고 있어요.."
     :size="1000"
   />
   <DelayModal
@@ -68,18 +68,18 @@ const uiStore = useUiStore();
 const router = useRouter();
 
 /**
- * 留덉씠?섏씠吏媛 ?꾩옱 ?섏젙 紐⑤뱶?몄? ?щ?
+ * 마이페이지가 현재 수정 모드인지 여부
  *
- * false硫?蹂닿린 紐⑤뱶, true硫?input??蹂댁씠???몄쭛 紐⑤뱶??
+ * false면 보기 모드, true면 input이 보이는 편집 모드입니다.
  */
 const isEditing = ref(false);
 
 /**
- * 留덉씠?섏씠吏 ?섏젙??濡쒖뺄 ???곹깭
+ * 마이페이지 편집용 로컬 폼 상태
  *
- * authStore.user瑜?吏곸젒 ?섏젙?섏? ?딄퀬,
- * ?몄쭛 以묒뿉??蹂꾨룄??form 媛앹껜??蹂듭궗?댁꽌 ?ㅻ，??
- * 洹몃옒???ъ슜?먭? 痍⑥냼瑜??뚮??????먮낯???덉쟾?섍쾶 ?좎??????덈떎.
+ * authStore.user를 직접 수정하지 않고,
+ * 편집 중에는 별도의 form 객체로 복사해서 다룹니다.
+ * 그래서 사용자가 취소를 눌러도 원본을 안전하게 유지할 수 있습니다.
  */
 const form = ref({
   name: '',
@@ -87,7 +87,7 @@ const form = ref({
   phone: '',
 });
 
-// PASSWORD 愿??STATE
+// 비밀번호 변경 관련 상태
 const isPasswordModalOpen = ref(false);
 
 const passwordForm = ref({
@@ -106,13 +106,13 @@ const isDeletingAccount = ref(false);
 const isLoggingOut = ref(false);
 
 /**
- * ?꾩옱 濡쒓렇???ъ슜???뺣낫瑜?form?쇰줈 蹂듭궗?쒕떎.
+ * 현재 로그인 사용자의 정보를 form으로 복사합니다.
  *
- * ?ъ슜 ?쒖젏:
- * - ?섏씠吏 泥?吏꾩엯
- * - ?섏젙 ?쒖옉 吏곸쟾
- * - ?섏젙 痍⑥냼 吏곹썑
- * - ????깃났 吏곹썑
+ * 사용 시점:
+ * - 페이지 첫 진입
+ * - 편집 시작 직전
+ * - 편집 취소 직후
+ * - 저장 성공 직후
  */
 const syncForm = () => {
   form.value = {
@@ -123,9 +123,10 @@ const syncForm = () => {
 };
 
 /**
- * ?섏씠吏 吏꾩엯 ???꾩옱 ?몄뀡 濡쒓렇???뺣낫瑜?蹂듭썝?쒕떎.
+ * 페이지 진입 시 현재 로그인 사용자 정보를 복원합니다.
  *
- * 濡쒓렇???뺣낫媛 ?놁쑝硫?留덉씠?섏씠吏??癒몃Ъ ???놁쑝誘濡?login?쇰줈 ?대룞?쒗궓??
+ * 로그인 정보가 없으면 마이페이지를 볼 수 없으므로
+ * 로그인 페이지로 이동시킵니다.
  */
 onMounted(() => {
   authStore.loadUserFromStorage();
@@ -139,10 +140,10 @@ onMounted(() => {
 });
 
 /**
- * 濡쒓렇?꾩썐 踰꾪듉 泥섎━
+ * 로그아웃 버튼 처리
  *
- * ?ㅼ젣 ?몄뀡 ??젣??authStore.logout???대떦?섍퀬,
- * ?붾㈃ ?대룞? ?섏씠吏媛 ?대떦?쒕떎.
+ * 확인 모달을 닫고 로딩을 보여준 뒤 authStore.logout을 실행하고
+ * 로그인 페이지로 이동합니다.
  */
 const handleLogout = async () => {
   closeLogoutModal();
@@ -163,10 +164,10 @@ const closeLogoutModal = () => {
 };
 
 /**
- * ?몄쭛 ?쒖옉 泥섎━
+ * 편집 시작 처리
  *
- * 理쒖떊 ?ъ슜???뺣낫瑜?form???ㅼ떆 梨꾩슦怨?
- * ?댁쟾 ?먮윭 硫붿떆吏瑜?吏?????섏젙 紐⑤뱶濡??꾪솚?쒕떎.
+ * 최신 사용자 정보를 form에 다시 채우고
+ * 이전 에러 메시지를 지운 뒤 편집 모드로 전환합니다.
  */
 const handleEditStart = () => {
   syncForm();
@@ -175,10 +176,10 @@ const handleEditStart = () => {
 };
 
 /**
- * ?몄쭛 痍⑥냼 泥섎━
+ * 편집 취소 처리
  *
- * ?쒕쾭 ????놁씠 濡쒖뺄 form留??먮옒 媛믪쑝濡??섎룎由ш퀬,
- * ?섏젙 紐⑤뱶瑜?醫낅즺?쒕떎.
+ * 서버 요청 없이 로컬 form만 원래 값으로 되돌리고
+ * 편집 모드를 종료합니다.
  */
 const handleEditCancel = () => {
   syncForm();
@@ -187,13 +188,13 @@ const handleEditCancel = () => {
 };
 
 /**
- * ???踰꾪듉 泥섎━
+ * 저장 버튼 처리
  *
- * ?먮쫫:
- * 1. ?낅젰媛?trim
- * 2. ?대쫫/?대찓???꾪솕踰덊샇 湲곕낯 寃利?
- * 3. authStore.updateProfile ?몄텧
- * 4. ?깃났?섎㈃ ?몄쭛 紐⑤뱶 醫낅즺 + ?좎뒪???쒖떆
+ * 흐름:
+ * 1. 입력값 trim
+ * 2. 이름/이메일/전화번호 기본 검증
+ * 3. authStore.updateProfile 호출
+ * 4. 성공 시 편집 모드 종료 + 토스트 표시
  */
 const handleSave = async () => {
   const trimmedName = form.value.name.trim();
@@ -203,23 +204,23 @@ const handleSave = async () => {
   authStore.clearError();
 
   if (!trimmedName) {
-    authStore.errorMessage = '?대쫫???낅젰?댁＜?몄슂.';
+    authStore.errorMessage = '이름을 입력해주세요.';
     return;
   }
 
   if (!trimmedEmail) {
-    authStore.errorMessage = '?대찓?쇱쓣 ?낅젰?댁＜?몄슂.';
+    authStore.errorMessage = '이메일을 입력해주세요.';
     return;
   }
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailPattern.test(trimmedEmail)) {
-    authStore.errorMessage = '?щ컮瑜??대찓???뺤떇???낅젰?댁＜?몄슂.';
+    authStore.errorMessage = '올바른 이메일 형식을 입력해주세요.';
     return;
   }
 
   if (!trimmedPhone) {
-    authStore.errorMessage = '?꾪솕踰덊샇瑜??낅젰?댁＜?몄슂.';
+    authStore.errorMessage = '전화번호를 입력해주세요.';
     return;
   }
 
@@ -234,19 +235,19 @@ const handleSave = async () => {
   if (result.success) {
     isEditing.value = false;
     syncForm();
-    uiStore.showToast('?꾨줈???뺣낫媛 ??λ릺?덉뒿?덈떎.');
+    uiStore.showToast('프로필 정보가 저장되었습니다.');
   }
 };
 
 /**
- * ???以??щ?瑜??대젮二쇰뒗 怨꾩궛媛?
+ * 저장 중 여부를 보여주는 계산값
  *
- * ?ㅼ젣 媛믪? authStore.isLoading??洹몃?濡??ъ슜?섏?留?
- * ?쒗뵆由우뿉?쒕뒗 留덉씠?섏씠吏 愿?먯쓽 ?대쫫(isSaving)?쇰줈 ?쎈뒗 ?몄씠 ?댄빐?섍린 ?쎈떎.
+ * 실제 값은 authStore.isLoading이지만,
+ * 템플릿에서는 isSaving이라는 이름이 더 읽기 쉽습니다.
  */
 const isSaving = computed(() => authStore.isLoading);
 
-// 紐⑤떖 ???リ린 ?⑥닔
+// 모달 열기/닫기 함수
 const openPasswordModal = () => {
   passwordForm.value = {
     currentPassword: '',
@@ -275,7 +276,7 @@ const closeDeleteModal = () => {
   isDeleteModalOpen.value = false;
 };
 
-// ?ㅼ젣 寃利??⑥닔
+// 비밀번호 변경 처리
 const handlePasswordChange = async () => {
   passwordErrorMessage.value = '';
   isPasswordSaving.value = true;
@@ -293,11 +294,11 @@ const handlePasswordChange = async () => {
     return;
   }
 
-  uiStore.showToast('鍮꾨?踰덊샇媛 蹂寃쎈릺?덉뒿?덈떎.');
+  uiStore.showToast('비밀번호가 변경되었습니다.');
   closePasswordModal();
 };
 
-// 怨꾩젙 ??젣 泥섎━
+// 계정 삭제 처리
 const handleDeleteAccount = async () => {
   if (isDeletingAccount.value) return;
 
@@ -307,11 +308,11 @@ const handleDeleteAccount = async () => {
   try {
     await withdrawUser(authStore.user.id);
     authStore.logout();
-    uiStore.showToast('怨꾩젙????젣?섏뿀?듬땲??');
+    uiStore.showToast('계정을 삭제했습니다.');
     router.push({ name: 'login' });
   } catch (error) {
-    console.error('?뚯썝?덊눜 ?ㅽ뙣:', error);
-    uiStore.showToast('怨꾩젙 ??젣???ㅽ뙣?덉뒿?덈떎.', 'error');
+    console.error('회원탈퇴 실패:', error);
+    uiStore.showToast('계정 삭제에 실패했습니다.', 'error');
   } finally {
     isDeletingAccount.value = false;
   }

@@ -536,6 +536,14 @@ const handleMenuClick = () => {
   color: var(--text-muted) !important;
 }
 
+.sidebar-btn {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-btn:hover {
+  background-color: var(--sub-bg);
+}
+
 .sidebar-link-active {
   color: var(--text-color) !important;
 }

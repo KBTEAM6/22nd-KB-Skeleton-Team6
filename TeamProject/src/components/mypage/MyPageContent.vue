@@ -20,9 +20,7 @@
         <!-- 왼쪽은 사용자 요약 카드 -->
         <div class="col-12 col-lg-5 col-xl-4">
           <MyPageProfileCard :user="user" />
-          <button class="btn btn-danger w-100 mt-3" @click="$emit('logout')">
-            로그아웃
-          </button>
+          <button class="btn btn-danger w-100 mt-3" @click="$emit('logout')">로그아웃</button>
         </div>
 
         <!-- 오른쪽은 상세 정보 + 편집 영역 -->
@@ -64,18 +62,14 @@
                     :disabled="isSaving"
                     @click="$emit('save')"
                   >
-                    {{ isSaving ? "저장 중..." : "저장" }}
+                    {{ isSaving ? '저장 중...' : '저장' }}
                   </button>
                 </template>
               </div>
             </div>
 
             <!-- 부모 페이지에서 만든 에러 메시지를 그대로 표시 -->
-            <div
-              v-if="errorMessage"
-              class="alert alert-danger py-2 mb-4"
-              role="alert"
-            >
+            <div v-if="errorMessage" class="alert alert-danger py-2 mb-4" role="alert">
               {{ errorMessage }}
             </div>
 
@@ -119,7 +113,7 @@
                     placeholder="이메일을 입력하세요"
                   />
                   <p v-else class="fw-bold m-0">
-                    {{ user?.email || "등록된 이메일이 없습니다." }}
+                    {{ user?.email || '등록된 이메일이 없습니다.' }}
                   </p>
                 </template>
               </MyPageFieldRow>
@@ -140,7 +134,7 @@
                     placeholder="010-1234-5678"
                   />
                   <p v-else class="fw-bold m-0">
-                    {{ user?.phone || "등록된 전화번호가 없습니다." }}
+                    {{ user?.phone || '등록된 전화번호가 없습니다.' }}
                   </p>
                 </template>
 
@@ -152,11 +146,7 @@
                 </template>
               </MyPageFieldRow>
 
-              <MyPageFieldRow
-                icon="calendar_month"
-                label="가입일"
-                :bordered="false"
-              >
+              <MyPageFieldRow icon="calendar_month" label="가입일" :bordered="false">
                 <template #value>
                   <p class="fw-bold m-0">{{ formattedJoinDate }}</p>
                 </template>
@@ -169,19 +159,17 @@
                 class="info-summary-box w-100 d-flex align-items-center justify-content-between px-4 py-3 rounded-4 text-start"
               >
                 <div class="d-flex align-items-center gap-3 info-summary-left">
-                  <span class="material-symbols-outlined info-summary-icon"
-                    >account_circle</span
-                  >
+                  <span class="material-symbols-outlined info-summary-icon">account_circle</span>
                   <span class="small fw-bold m-0">
                     {{
                       isEditing
-                        ? "수정 후 저장 버튼을 누르면 프로필이 반영됩니다."
-                        : "현재 로그인한 계정 정보를 보고 있어요."
+                        ? '수정 후 저장 버튼을 누르면 프로필이 반영됩니다.'
+                        : '현재 로그인한 계정 정보를 보고 있어요.'
                     }}
                   </span>
                 </div>
                 <span class="material-symbols-outlined info-summary-icon">
-                  {{ isEditing ? "edit" : "check_circle" }}
+                  {{ isEditing ? 'edit' : 'check_circle' }}
                 </span>
               </div>
             </div>
@@ -221,9 +209,7 @@
       <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
         <div>
           <h5 id="password-modal-title" class="fw-bold mb-1">비밀번호 변경</h5>
-          <p class="modal-desc small mb-0">
-            현재 비밀번호를 확인한 뒤 새 비밀번호를 입력하세요.
-          </p>
+          <p class="modal-desc small mb-0">현재 비밀번호를 확인한 뒤 새 비밀번호를 입력하세요.</p>
         </div>
         <button
           type="button"
@@ -283,11 +269,7 @@
         </div>
       </div>
 
-      <div
-        v-if="passwordErrorMessage"
-        class="alert alert-danger py-2 mt-3 mb-0"
-        role="alert"
-      >
+      <div v-if="passwordErrorMessage" class="alert alert-danger py-2 mt-3 mb-0" role="alert">
         {{ passwordErrorMessage }}
       </div>
       <div class="d-flex justify-content-end gap-2 mt-4">
@@ -304,7 +286,7 @@
           :disabled="isPasswordSaving"
           @click="$emit('password-change')"
         >
-          {{ isPasswordSaving ? "변경 중..." : "확인" }}
+          {{ isPasswordSaving ? '변경 중...' : '확인' }}
         </button>
       </div>
     </div>
@@ -331,9 +313,7 @@
         ></button>
       </div>
 
-      <div class="logout-modal-copy">
-        현재 세션이 종료되고 로그인 페이지로 이동합니다.
-      </div>
+      <div class="logout-modal-copy">현재 세션이 종료되고 로그인 페이지로 이동합니다.</div>
 
       <div class="d-flex justify-content-end gap-2 mt-4">
         <button
@@ -343,11 +323,7 @@
         >
           취소
         </button>
-        <button
-          type="button"
-          class="btn btn-dark"
-          @click="$emit('confirm-logout')"
-        >
+        <button type="button" class="btn btn-dark" @click="$emit('confirm-logout')">
           로그아웃
         </button>
       </div>
@@ -364,12 +340,8 @@
     >
       <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
         <div>
-          <h5 id="delete-modal-title" class="fw-bold mb-1 text-danger">
-            회원탈퇴
-          </h5>
-          <p class="modal-desc small mb-0">
-            탈퇴 전 아래 내용을 꼭 확인해주세요.
-          </p>
+          <h5 id="delete-modal-title" class="fw-bold mb-1 text-danger">회원탈퇴</h5>
+          <p class="modal-desc small mb-0">탈퇴 전 아래 내용을 꼭 확인해주세요.</p>
         </div>
         <button
           type="button"
@@ -378,11 +350,7 @@
           @click="$emit('close-delete-modal')"
         ></button>
       </div>
-      <ViewCharacter
-        type="withdraw"
-        message="정말 회원탈퇴를 진행하시겠어요?"
-        :size="320"
-      />
+      <ViewCharacter type="withdraw" message="정말 회원탈퇴를 진행하시겠어요?" :size="320" />
       <div class="delete-warning-box">
         <div class="d-flex align-items-center gap-2 mb-2 text-danger fw-bold">
           <i class="fa-solid fa-triangle-exclamation"></i>
@@ -391,8 +359,8 @@
 
         <p class="mb-2">회원탈퇴를 진행하면 현재 계정 정보가 삭제됩니다.</p>
         <p class="mb-2">
-          Mock 서버 환경에서는 시연용 정합성을 위해 거래내역, 커플 정보, 커플
-          요청 데이터도 함께 정리됩니다.
+          Mock 서버 환경에서는 시연용 정합성을 위해 거래내역, 커플 정보, 커플 요청 데이터도 함께
+          정리됩니다.
         </p>
         <p class="mb-0 fw-semibold">이 작업은 되돌릴 수 없습니다.</p>
       </div>
@@ -417,7 +385,7 @@
           :disabled="isDeletingAccount"
           @click="$emit('confirm-delete-account')"
         >
-          {{ isDeletingAccount ? "회원탈퇴 처리 중..." : "회원탈퇴" }}
+          {{ isDeletingAccount ? '회원탈퇴 처리 중...' : '회원탈퇴' }}
         </button>
       </div>
     </div>
@@ -425,10 +393,10 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
-import MyPageFieldRow from "@/components/mypage/MyPageFieldRow.vue";
-import MyPageProfileCard from "@/components/mypage/MyPageProfileCard.vue";
-import WithdrawCharacter from "@/components/common/WithdrawCharacter.vue";
+import { computed, ref } from 'vue';
+import MyPageFieldRow from '@/components/mypage/MyPageFieldRow.vue';
+import MyPageProfileCard from '@/components/mypage/MyPageProfileCard.vue';
+import WithdrawCharacter from '@/components/common/WithdrawCharacter.vue';
 
 const props = defineProps({
   // 현재 로그인 사용자 정보
@@ -440,9 +408,9 @@ const props = defineProps({
   form: {
     type: Object,
     default: () => ({
-      name: "",
-      email: "",
-      phone: "",
+      name: '',
+      email: '',
+      phone: '',
     }),
   },
   // 현재 편집 모드 여부
@@ -458,7 +426,7 @@ const props = defineProps({
   // 부모 페이지 또는 store에서 만든 에러 메시지
   errorMessage: {
     type: String,
-    default: "",
+    default: '',
   },
 
   // 비밀번호 변경 모달 열림 여부
@@ -471,16 +439,16 @@ const props = defineProps({
   passwordForm: {
     type: Object,
     default: () => ({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
     }),
   },
 
   // 비밀번호 변경 에러 메시지
   passwordErrorMessage: {
     type: String,
-    default: "",
+    default: '',
   },
   // 비밀번호 변경 저장 중 여부
   isPasswordSaving: {
@@ -503,44 +471,42 @@ const props = defineProps({
 
 // 이 컴포넌트는 화면 표시 위주라, 실제 동작은 이벤트로 부모에게 위임한다.
 defineEmits([
-  "logout",
-  "confirm-logout",
-  "edit-start",
-  "edit-cancel",
-  "save",
-  "update:form",
-  "open-password-modal",
-  "close-password-modal",
-  "password-change",
-  "update:password-form",
-  "delete-account",
-  "close-logout-modal",
-  "open-delete-modal",
-  "close-delete-modal",
-  "confirm-delete-account",
+  'logout',
+  'confirm-logout',
+  'edit-start',
+  'edit-cancel',
+  'save',
+  'update:form',
+  'open-password-modal',
+  'close-password-modal',
+  'password-change',
+  'update:password-form',
+  'delete-account',
+  'close-logout-modal',
+  'open-delete-modal',
+  'close-delete-modal',
+  'confirm-delete-account',
 ]);
 
 // 이름이 비어 있거나 nickname만 있는 경우를 대비한 표시용 계산값
-const displayName = computed(
-  () => props.user?.name || props.user?.nickname || "사용자",
-);
+const displayName = computed(() => props.user?.name || props.user?.nickname || '사용자');
 
 // 서버 데이터가 비어 있거나 잘못된 경우에도 UI가 깨지지 않도록 방어적으로 처리
 const formattedJoinDate = computed(() => {
   if (!props.user?.createdAt) {
-    return "가입일 정보가 없습니다.";
+    return '가입일 정보가 없습니다.';
   }
 
   const date = new Date(props.user.createdAt);
 
   if (Number.isNaN(date.getTime())) {
-    return "가입일 정보가 없습니다.";
+    return '가입일 정보가 없습니다.';
   }
 
-  return new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+  return new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   }).format(date);
 });
 </script>
@@ -548,10 +514,10 @@ const formattedJoinDate = computed(() => {
 <style scoped>
 .material-symbols-outlined {
   font-variation-settings:
-    "FILL" 0,
-    "wght" 400,
-    "GRAD" 0,
-    "opsz" 24;
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
 }
 .mypage-inner {
   max-width: 86rem;
