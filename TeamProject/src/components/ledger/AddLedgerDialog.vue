@@ -12,7 +12,7 @@
         <h2 class="fs-5 fw-bold m-0">가계부 생성</h2>
         <button
           @click="handleClose"
-          class="modal-close-btn d-flex align-items-center justify-content-center p-0"
+          class="modal-close-btn d-flex align-items-center justify-content-center p-0 border-0"
           type="button"
         >
           <X style="width: 20px; height: 20px" />
@@ -25,7 +25,7 @@
           <div class="d-flex gap-2">
             <button
               @click="changeType('INCOME')"
-              class="type-btn btn flex-grow-1 py-2 rounded-3 border-0"
+              class="type-btn btn flex-grow-1 py-2 rounded-3 border-0 fw-bold"
               :class="
                 type === 'INCOME'
                   ? 'btn-primary text-white'
@@ -38,7 +38,7 @@
 
             <button
               @click="changeType('EXPENSE')"
-              class="type-btn btn flex-grow-1 py-2 rounded-3 border-0"
+              class="type-btn btn flex-grow-1 py-2 rounded-3 border-0 fw-bold"
               :class="type === 'EXPENSE' ? 'text-white' : 'type-btn-inactive'"
               :style="
                 type === 'EXPENSE' ? 'background-color: rgb(240,68,82);' : ''
@@ -57,7 +57,7 @@
             placeholder="숫자만 입력해주세요"
             :value="amount"
             @input="handleAmountInput"
-            class="form-control form-control-custom py-2 rounded-3 border-0"
+            class="form-control form-control-custom py-2 rounded-3 border-0 fw-bold"
           />
         </div>
 
@@ -73,7 +73,7 @@
             >
               <button
                 @click="category = cat"
-                class="category-btn btn w-100 py-2 rounded-3 small border-0 text-truncate"
+                class="category-btn btn w-100 py-2 rounded-3 small border-0 text-truncate fw-bold"
                 :class="
                   category === cat
                     ? type === 'INCOME'
@@ -100,7 +100,7 @@
             type="date"
             v-model="date"
             :max="todayStr"
-            class="form-control form-control-custom py-2 rounded-3 border-0"
+            class="form-control form-control-custom py-2 rounded-3 border-0 fw-bold"
           />
         </div>
 
@@ -109,8 +109,8 @@
           <textarea
             v-model="memo"
             placeholder="메모를 입력해주세요"
-            rows="3"
-            class="form-control form-control-custom py-2 rounded-3 border-0"
+            rows="2"
+            class="form-control form-control-custom py-2 rounded-3 border-0 fw-medium"
             style="resize: none"
           />
         </div>
@@ -119,14 +119,14 @@
       <div class="d-flex gap-2 mt-4">
         <button
           @click="handleClose"
-          class="cancel-btn btn flex-grow-1 py-2 rounded-3 border-0"
+          class="cancel-btn btn flex-grow-1 py-2 rounded-3 border-0 fw-bold"
           type="button"
         >
           취소
         </button>
         <button
           @click="handleSubmit"
-          class="create-btn btn flex-grow-1 py-2 rounded-3 fw-bold border-0"
+          class="create-btn btn flex-grow-1 py-2 rounded-3 border-0 fw-bold"
           type="button"
         >
           생성
@@ -158,7 +158,6 @@ const date = ref(todayStr);
 const memo = ref("");
 
 const incomeCategories = ["월급", "용돈", "보너스", "기타"];
-
 const expenseCategories = [
   "식비",
   "주거/통신",
@@ -169,9 +168,6 @@ const expenseCategories = [
   "기타",
 ];
 
-/**
- * 필드 초기화 함수
- */
 const resetForm = () => {
   amount.value = "";
   category.value = "";
@@ -180,19 +176,12 @@ const resetForm = () => {
   type.value = "INCOME";
 };
 
-/**
- * 닫기 및 취소 시 호출되는 함수
- */
 const handleClose = () => {
-  // 입력된 정보 초기화
   resetForm();
-  // 부모에게 닫기 신호 전송
   emit("close");
 };
 
-// 수입 또는 지출을 변경할 경우 입력된 정보 초기화
 const changeType = (newType) => {
-  // 같은 유형을 다시 선택하는 경우는 무시
   if (type.value === newType) return;
   type.value = newType;
   amount.value = "";
@@ -219,7 +208,6 @@ const handleSubmit = () => {
     return;
   }
 
-  // 메모가 비어있을 경우 기본값 설정
   const finalMemo =
     memo.value.trim() !== ""
       ? memo.value.trim()
@@ -235,9 +223,10 @@ const handleSubmit = () => {
     memo: finalMemo,
   });
 
-  handleClose(); // 저장 후에도 동일하게 초기화하며 닫기
+  handleClose();
 };
 </script>
+
 <style scoped>
 .ledger-create-backdrop {
   background: rgba(17, 24, 39, 0.55);
@@ -249,35 +238,23 @@ const handleSubmit = () => {
   color: var(--text-color);
 }
 
+/* 수정 모달의 닫기 버튼 스타일 이식 */
 .modal-close-btn {
   width: 32px;
   height: 32px;
-  border-radius: 0.75rem;
-  border: 1px solid var(--border-color);
-  background: var(--sub-bg);
-  color: var(--text-color);
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
 }
 
 .modal-close-btn:hover {
-  background: var(--card-bg);
+  background: var(--sub-bg);
+  color: var(--text-color);
 }
 
 .form-label-custom {
   color: var(--text-muted);
-}
-
-.type-btn-inactive,
-.category-btn-inactive,
-.cancel-btn {
-  background: var(--sub-bg);
-  color: var(--text-muted);
-}
-
-.type-btn-inactive:hover,
-.category-btn-inactive:hover,
-.cancel-btn:hover {
-  background: var(--card-bg);
-  color: var(--text-color);
 }
 
 .form-control-custom {
@@ -290,19 +267,47 @@ const handleSubmit = () => {
   color: var(--text-muted);
 }
 
-.form-control-custom:focus {
-  background: var(--sub-bg);
-  color: var(--text-color);
-  border-color: var(--kb-yellow) !important;
-  box-shadow: 0 0 0 0.2rem rgba(255, 188, 0, 0.16);
+/* 수정 모달과 동일한 버튼 공통 스타일 */
+.btn {
+  transition: all 0.25s ease;
+  font-weight: 700 !important;
 }
 
+/* 생성 버튼: 수정 모달의 update-btn 스타일 이식 */
 .create-btn {
-  background-color: rgb(255, 204, 80);
-  color: #1f2937;
+  background-color: rgba(255, 204, 80, 0.2);
+  color: #856404;
 }
 
 .create-btn:hover {
-  opacity: 0.95;
+  background-color: rgb(255, 204, 80);
+  color: #1f2937;
+  transform: translateY(-1px);
+}
+
+/* 취소 버튼: 수정 모달의 delete-btn 로직과 유사한 흐름 (중립적 연한 빨강 또는 그레이) */
+.cancel-btn {
+  background-color: var(--sub-bg);
+  color: var(--text-muted);
+}
+
+.cancel-btn:hover {
+  background-color: var(--border-light);
+  color: var(--text-color);
+  transform: translateY(-1px);
+}
+
+/* 타입 및 카테고리 비활성 버튼 */
+.type-btn-inactive,
+.category-btn-inactive {
+  background: var(--sub-bg);
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.type-btn-inactive:hover,
+.category-btn-inactive:hover {
+  opacity: 1;
+  background: var(--border-light);
 }
 </style>

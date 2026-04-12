@@ -39,7 +39,11 @@
       </div>
 
       <template v-for="(day, idx) in days" :key="`day-${idx}`">
-        <div v-if="!day"></div>
+        <div
+          v-if="!day"
+          class="calendar-day-placeholder"
+          style="aspect-ratio: 1; min-height: 60px"
+        ></div>
 
         <button
           v-else
@@ -50,13 +54,10 @@
               ? 'calendar-day-active'
               : 'calendar-day-empty',
           ]"
-          :style="{
-            pointerEvents: ledgerStore.calendarData[day] ? 'auto' : 'none',
-          }"
           style="aspect-ratio: 1; min-height: 60px"
         >
           <div
-            class="small mb-1 d-block"
+            class="small mb-1 d-block fw-bold"
             :class="idx % 7 === 0 ? '' : idx % 7 === 6 ? 'text-primary' : ''"
             :style="idx % 7 === 0 ? 'color: rgb(240,68,82);' : ''"
           >
@@ -69,7 +70,7 @@
           >
             <div
               v-if="ledgerStore.calendarData[day].income > 0"
-              class="text-primary text-truncate"
+              class="text-primary text-truncate fw-bold"
               style="font-size: 10px"
             >
               +{{ ledgerStore.calendarData[day].income.toLocaleString() }}
@@ -77,7 +78,7 @@
 
             <div
               v-if="ledgerStore.calendarData[day].expense > 0"
-              class="text-truncate"
+              class="text-truncate fw-bold"
               style="color: rgb(240, 68, 82); font-size: 10px"
             >
               -{{ ledgerStore.calendarData[day].expense.toLocaleString() }}
@@ -97,9 +98,8 @@ import { useLedgerStore } from "@/stores/ledger";
 const emit = defineEmits(["dateClick"]);
 const ledgerStore = useLedgerStore();
 
-// 스토어의 연/월 상태와 연동
 const year = computed(() => ledgerStore.currentYear);
-const month = computed(() => ledgerStore.currentMonth - 1); // JS Month는 0부터 시작
+const month = computed(() => ledgerStore.currentMonth - 1);
 
 const days = computed(() => {
   const y = year.value;
@@ -107,15 +107,15 @@ const days = computed(() => {
   const firstDay = new Date(y, m, 1).getDay();
   const daysInMonth = new Date(y, m + 1, 0).getDate();
 
-  return Array.from({ length: firstDay + daysInMonth }, (_, i) => {
-    if (i < firstDay) return null;
-    return i - firstDay + 1;
+  return Array.from({ length: 42 }, (_, i) => {
+    const dayNum = i - firstDay + 1;
+    if (dayNum <= 0 || dayNum > daysInMonth) return null;
+    return dayNum;
   });
 });
 
 const weekDays = ["일", "월", "화", "수", "목", "금", "토"];
 
-// 월 변경 시 스토어 상태 업데이트
 const prevMonth = () => {
   if (ledgerStore.currentMonth === 1) {
     ledgerStore.currentYear--;
@@ -137,7 +137,6 @@ const nextMonth = () => {
 const handleClick = (day) => {
   if (!day) return;
   const dayData = ledgerStore.calendarData[day];
-  // 해당 날짜의 전체 내역을 필터링하여 전달
   const dateString = `${year.value}-${String(month.value + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   const details = ledgerStore.activeUserTransactions.filter(
     (item) => item.date === dateString,
@@ -150,6 +149,7 @@ const handleClick = (day) => {
   });
 };
 </script>
+
 <style scoped>
 .calendar-card {
   background: var(--card-bg);
@@ -167,16 +167,35 @@ const handleClick = (day) => {
   border-radius: 0.75rem;
   background: var(--sub-bg);
   color: var(--text-color);
+  transition: all 0.2s ease;
 }
 
 .calendar-nav-btn:hover {
-  background: var(--card-bg);
+  background: var(--border-light);
+  transform: scale(1.1);
 }
 
+/* 날짜 버튼 스타일 */
 .calendar-day-btn {
-  transition:
-    background-color 0.2s ease,
-    opacity 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  z-index: 1;
+  border: 2px solid transparent !important; /* 기본 테두리를 투명하게 설정 */
+}
+
+/* 마우스를 올렸을 때 강조 효과 강화 */
+.calendar-day-btn:hover {
+  background: var(--card-bg) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); /* 그림자를 더 크고 진하게 */
+  transform: translateY(-4px); /* 더 높이 떠오르게 */
+  z-index: 10;
+  border: 2px solid var(--kb-yellow, #ffcc50) !important; /* 테두리 굵기 2px로 강조 */
+}
+
+/* 클릭했을 때 살짝 눌리는 효과 추가 */
+.calendar-day-btn:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .calendar-day-active {
@@ -186,7 +205,10 @@ const handleClick = (day) => {
 
 .calendar-day-empty {
   background: transparent;
-  opacity: 0.5;
   color: var(--text-muted);
+}
+
+.calendar-day-placeholder {
+  background: transparent;
 }
 </style>

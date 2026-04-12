@@ -1,14 +1,9 @@
-/**
- * @fileoverview 가계부 거래 상태 관리 스토어
- * @description 거래 내역 CRUD, 통계 계산, 실시간 동기화 기능 제공
- */
-
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import api from '../api/api.js';
 import { useAuthStore } from './auth';
 
-// 카테고리 팔레트 (차트 색상)
+// 1. 카테고리별 색상 팔레트 정의
 const categoryPalette = {
   '식비': '#f28b8b',
   '주거/통신': '#c89bff',
@@ -16,152 +11,78 @@ const categoryPalette = {
   '쇼핑/생활': '#8ec5ff',
   '의료/건강': '#92e9dc',
   '문화/여가': '#809dff',
-
-
   '월급': '#4caf50',
   '용돈': '#ff9800',
   '보너스': '#26c6da',
-
   '기타': '#d8b86a',
 };
 
-// 수입/지출 카테고리 정의
+// 2. 카테고리 목록 정의
 export const incomeCategories = ['월급', '용돈', '보너스', '기타'];
-
 export const expenseCategories = [
-  '식비',
-  '주거/통신',
-  '교통/차량',
-  '쇼핑/생활',
-  '의료/건강',
-  '문화/여가',
-  '기타',
+  '식비', '주거/통신', '교통/차량', '쇼핑/생활', '의료/건강', '문화/여가', '기타',
 ];
 
-// 타입별 카테고리 매핑
 const categoryByType = {
   INCOME: incomeCategories,
   EXPENSE: expenseCategories,
 };
 
-/**
- * 가계부 거래 상태 관리 스토어
- * 거래 내역 관리, 통계 계산, 캘린더 연동, 실시간 동기화 기능 제공
- */
 export const useLedgerStore = defineStore('ledger', () => {
-  // 현재 시점의 날짜 객체
   const today = new Date();
-  // 인증 스토어 가져오기
   const authStore = useAuthStore();
 
-  // ===== STATE (상태) =====
-  /** 현재 선택된 연도 */
   const currentYear = ref(today.getFullYear());
-
-  /** 현재 선택된 월 */
   const currentMonth = ref(today.getMonth() + 1);
-
-  /** 선택된 날짜 (YYYY-MM-DD 형식) */
   const selectedDate = ref(today.toISOString().slice(0, 10));
-
-  /** 모든 거래 내역 배열 */
   const transactions = ref([]);
-
-  /** 실시간 동기화 타이머 ID */
   const liveSyncTimer = ref(null);
 
-  // ===== GETTERS (계산된 값) =====
-
-  /**
-   * 현재 월 키 (YYYY-MM 형식)
-   * @example '2024-01'
-   */
-  const monthKey = computed(
-    () => `${currentYear.value}-${String(currentMonth.value).padStart(2, '0')}`,
+  const monthKey = computed(() =>
+    `${currentYear.value}-${String(currentMonth.value).padStart(2, '0')}`
   );
 
-  /**
-   * 현재 사용자의 모든 거래 내역
-   * @returns {Array} 필터링된 거래 내역
-   */
+  // 현재 로그인한 사용자의 전체 거래
   const activeUserTransactions = computed(() => {
     const currentUserId = authStore.user?.id;
     if (!currentUserId) return [];
-
     return transactions.value.filter(
       (item) => Number(item.userId) === Number(currentUserId)
     );
   });
 
-  /**
-   * 현재 월의 거래 내역
-   * @returns {Array} 해당 월의 거래들
-   */
+  // 현재 월의 거래 내역
   const monthlyTransactions = computed(() =>
-    activeUserTransactions.value.filter((item) => item.date.startsWith(monthKey.value)),
+    activeUserTransactions.value.filter((item) => item.date.startsWith(monthKey.value))
   );
 
-  /**
-   * 선택된 날짜의 거래 내역
-   * @returns {Array} 해당 날짜의 거래들
-   */
-  const selectedDateTransactions = computed(() =>
-    activeUserTransactions.value.filter((item) => item.date === selectedDate.value),
-  );
-
-  // 현재 선택된 연/월에 해당하는 거래 내역 중에서
-  // 수입 유형의 거래 내역만 필터링하여 금액 합산
-  /**
-   * 월 총 수입
-   * @returns {number} 수입 합계
-   */
+  // 월 총 수입/지출 합계
   const totalIncome = computed(() =>
     monthlyTransactions.value
       .filter((item) => item.type === 'INCOME')
-      .reduce((sum, item) => sum + item.amount, 0),
+      .reduce((sum, item) => sum + item.amount, 0)
   );
 
-  // 현재 선택된 연/월에 해당하는 거래 내역 중에서
-  // 지출 유형의 거래 내역만 필터링하여 금액 합산
-  /**
-   * 월 총 지출
-   * @returns {number} 지출 합계
-   */
   const totalExpense = computed(() =>
     monthlyTransactions.value
       .filter((item) => item.type === 'EXPENSE')
-      .reduce((sum, item) => sum + item.amount, 0),
+      .reduce((sum, item) => sum + item.amount, 0)
   );
 
-  /**
-   * 월 순수입 (수입 - 지출)
-   * @returns {number} 순수입
-   */
-  const totalSaving = computed(() => totalIncome.value - totalExpense.value);
-
-  // 카테고리별 지출 합산 계산
+  // 차트 데이터 계산
   const categoryExpenseChartData = computed(() => {
     const result = {};
-
-    // 모든 지출 카테고리를 초기화
-    expenseCategories.forEach(category => {
-      result[category] = 0;
-    });
+    expenseCategories.forEach(cat => result[cat] = 0);
 
     monthlyTransactions.value
       .filter((item) => item.type === 'EXPENSE')
       .forEach((item) => {
-        // 정의된 카테고리에 해당하는 경우 합산
-        if (result.hasOwnProperty(item.category)) {
-          result[item.category] += item.amount;
-        } else {
-          // 정의되지 않은 카테고리는 '기타'로 합산하거나 무시
-          result['기타'] = (result['기타'] || 0) + item.amount;
-        }
+        const cat = expenseCategories.includes(item.category) ? item.category : '기타';
+        result[cat] += item.amount;
       });
 
-    return Object
-      .entries(result)
+    return Object.entries(result)
+      .filter(([_, value]) => value > 0)
       .map(([category, value]) => ({
         category,
         value,
@@ -169,195 +90,80 @@ export const useLedgerStore = defineStore('ledger', () => {
       }));
   });
 
-  // 달력에 표시할 날짜별 수입/지출 합산 계산
+  // 캘린더 날짜별 요약 데이터
   const calendarData = computed(() => {
-    const calendarMap = {};
-
+    const map = {};
     monthlyTransactions.value.forEach((item) => {
       const day = parseInt(item.date.split('-')[2], 10);
-
-      if (!calendarMap[day]) {
-        calendarMap[day] = { income: 0, expense: 0 };
-      }
-
-      if (item.type === 'INCOME') {
-        calendarMap[day].income += item.amount;
-      } else if (item.type === 'EXPENSE') {
-        calendarMap[day].expense += item.amount;
-      }
+      if (!map[day]) map[day] = { income: 0, expense: 0 };
+      if (item.type === 'INCOME') map[day].income += item.amount;
+      else if (item.type === 'EXPENSE') map[day].expense += item.amount;
     });
-
-    return calendarMap;
+    return map;
   });
 
-  // 서버에서 가계부 전체 데이터를 가져와 상태에 저장하는 함수
-  // ===== ACTIONS (액션들) =====
-
-  /**
-   * 모든 거래 내역 조회
-   * API에서 거래 데이터를 가져와 상태에 저장
-   * @returns {Promise<void>}
-   */
+  // ===== ACTIONS =====
   async function fetchTransactions() {
     const currentUserId = authStore.user?.id;
     if (!currentUserId) return;
-
-    const res = await api.get('/transactions', {
-      params: {
-        userId: currentUserId,
-      },
-    });
-    transactions.value = res.data;
+    try {
+      const res = await api.get('/transactions', { params: { userId: currentUserId } });
+      transactions.value = res.data;
+    } catch (error) {
+      console.error("데이터 로딩 실패:", error);
+    }
   }
 
-  /**
-   * 거래 내역 새로고침
-   * @returns {Promise<void>}
-   */
   async function refreshTransactions() {
     await fetchTransactions();
   }
 
-  /**
-   * 새 거래 추가
-   * @param {Object} payload - 거래 데이터
-   * @param {string} payload.type - 거래 유형 ('INCOME' | 'EXPENSE')
-   * @param {string} payload.category - 카테고리
-   * @param {number} payload.amount - 금액
-   * @param {string} payload.date - 거래일
-   * @param {string} payload.memo - 메모
-   * @returns {Promise<void>}
-   * @throws {Error} 카테고리 검증 실패 시
-   */
   async function addTransaction(payload) {
-    console.log(`가계부 생성 데이터 : ${payload.type}`);
-
     const currentUserId = authStore.user?.id;
-
     if (!currentUserId) throw new Error('로그인이 필요합니다.');
-
-    const allowedCategories = categoryByType[payload.type] ?? [];
-    
-    if (!allowedCategories.includes(payload.category)) {
-      throw new Error(`${payload.type} 유형에 맞는 카테고리를 선택해주세요.`);
-    }
 
     const response = await api.post('/transactions', {
       ...payload,
       userId: currentUserId,
     });
-    
     transactions.value.push(response.data);
     await refreshTransactions();
   }
 
-  /**
-   * 거래 정보 수정
-   * @param {number} id - 거래 ID
-   * @param {Object} payload - 수정할 데이터
-   * @returns {Promise<void>}
-   * @throws {Error} 권한 없음 또는 카테고리 검증 실패 시
-   */
-  async function updateTransaction(id, payload) {
-    const currentUserId = authStore.user?.id;
-    const target = transactions.value.find((item) => item.id === id);
+  // 수정 액션 (URL에 ID 포함 필수)
+  async function updateTransaction(payload) {
+    const { id, ...data } = payload;
+    if (!id) throw new Error('수정할 항목의 ID가 없습니다.');
 
-    // 본인의 거래 내역인지 검증
-    if (target && Number(target.userId) !== Number(currentUserId)) {
-      throw new Error('현재 사용자 거래내역만 수정할 수 있습니다.');
-    }
-
-    const allowedCategories = categoryByType[payload.type] ?? [];
-    if (!allowedCategories.includes(payload.category)) {
-      throw new Error(`${payload.type} 유형에 맞는 카테고리를 선택해주세요.`);
-    }
-
-    await api.patch(`/transactions/${id}`, payload);
+    await api.patch(`/transactions/${id}`, data);
     await refreshTransactions();
   }
 
-  /**
-   * 거래 삭제
-   * @param {number} id - 삭제할 거래 ID
-   * @returns {Promise<void>}
-   * @throws {Error} 권한 없음 시
-   */
+  // 삭제 액션 (URL에 ID 포함 필수)
   async function deleteTransaction(id) {
-    const currentUserId = authStore.user?.id;
-    const target = transactions.value.find((item) => item.id === id);
-
-    if (target && Number(target.userId) !== Number(currentUserId)) {
-      throw new Error('현재 사용자 거래내역만 삭제할 수 있습니다.');
-    }
-
+    if (!id) throw new Error('삭제할 항목의 ID가 없습니다.');
     await api.delete(`/transactions/${id}`);
     await refreshTransactions();
   }
 
-  /**
-   * 실시간 동기화 시작
-   * 주기적으로 거래 데이터를 새로고침
-   * @param {number} intervalMs - 동기화 간격 (기본: 3000ms)
-   */
+  // 실시간 동기화 제어
   function startLiveSync(intervalMs = 3000) {
-    if (liveSyncTimer.value) {
-      return;
-    }
-
+    if (liveSyncTimer.value) return;
     refreshTransactions();
-
-    liveSyncTimer.value = window.setInterval(() => {
-      refreshTransactions();
-    }, intervalMs);
+    liveSyncTimer.value = window.setInterval(refreshTransactions, intervalMs);
   }
 
-  /**
-   * 실시간 동기화 중지
-   */
   function stopLiveSync() {
-    if (!liveSyncTimer.value) {
-      return;
-    }
-
+    if (!liveSyncTimer.value) return;
     window.clearInterval(liveSyncTimer.value);
     liveSyncTimer.value = null;
   }
 
-  /**
-   * 카테고리 색상 반환
-   * @param {string} category - 카테고리 이름
-   * @returns {string} 색상 코드 (HEX)
-   */
-  function getCategoryColor(category) {
-    return categoryPalette[category] ?? '#cdd5df';
-  }
-
-  // ===== STORE 반환 =====
   return {
-    // State
-    currentYear,
-    currentMonth,
-    selectedDate,
-    transactions,
-    liveSyncTimer,
-
-    // Getters
-    monthKey,
-    activeUserTransactions,
-    monthlyTransactions,
-    selectedDateTransactions,
-    totalIncome,
-    totalExpense,
-    totalSaving,
-    categoryExpenseChartData,
-    calendarData,
-    fetchTransactions,
-    refreshTransactions,
-    addTransaction,
-    updateTransaction,
-    deleteTransaction,
-    startLiveSync,
-    stopLiveSync,
-    getCategoryColor,
+    currentYear, currentMonth, selectedDate, transactions,
+    monthKey, activeUserTransactions, monthlyTransactions,
+    totalIncome, totalExpense, categoryExpenseChartData, calendarData,
+    fetchTransactions, refreshTransactions, addTransaction,
+    updateTransaction, deleteTransaction, startLiveSync, stopLiveSync
   };
 });
