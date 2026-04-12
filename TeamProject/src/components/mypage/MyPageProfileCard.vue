@@ -28,7 +28,20 @@
     </div>
 
     <div class="mt-4 d-flex flex-wrap justify-content-center gap-2">
-      <span class="member-badge px-3 py-1 small fw-bold rounded-pill">일반 회원</span>
+      <span
+        class="member-badge px-3 py-1 small fw-bold rounded-pill"
+        :class="`member-badge-${profileBadgeTone}`"
+      >
+        {{ profileBadgeLabel }}
+      </span>
+      <span
+        v-for="badge in specialBadges"
+        :key="badge.label"
+        class="special-badge px-3 py-1 small fw-bold rounded-pill"
+        :class="`special-badge-${badge.tone}`"
+      >
+        {{ badge.label }}
+      </span>
     </div>
   </div>
 </template>
@@ -48,6 +61,18 @@ const props = defineProps({
   isEditing: {
     type: Boolean,
     default: false,
+  },
+  profileBadgeLabel: {
+    type: String,
+    default: '개인 회원',
+  },
+  profileBadgeTone: {
+    type: String,
+    default: 'default',
+  },
+  specialBadges: {
+    type: Array,
+    default: () => [],
   },
 });
 
@@ -76,11 +101,11 @@ const userInitial = computed(() => displayName.value.charAt(0).toUpperCase());
 
 .profile-image-edit-btn {
   position: absolute;
-  right: 3rem;
-  bottom: -0.1rem;
-  width: clamp(1.95rem, 4.4vw, 10rem);
-  height: clamp(1.95rem, 4.4vw, 10rem);
-  border: 4px solid #fff;
+  right: 8%;
+  bottom: 6%;
+  width: clamp(2.8rem, 6.5vw, 3.6rem);
+  height: clamp(2.8rem, 6.5vw, 3.6rem);
+  border: 3px solid #fff;
   border-radius: 50%;
   background: #ffcc50;
   color: #4f473d;
@@ -96,7 +121,9 @@ const userInitial = computed(() => displayName.value.charAt(0).toUpperCase());
 }
 
 .profile-image-edit-btn i {
-  font-size: 2rem;
+  font-size: clamp(1.15rem, 2.7vw, 1.5rem);
+  line-height: 1;
+  display: block;
 }
 
 .profile-image-edit-btn:hover {
@@ -121,4 +148,51 @@ const userInitial = computed(() => displayName.value.charAt(0).toUpperCase());
   color: var(--text-color);
   border: 1px solid var(--border-light);
 }
+
+.member-badge-pending {
+  background: rgba(255, 188, 0, 0.14);
+  color: #8a6500;
+  border-color: rgba(255, 188, 0, 0.35);
+}
+
+.member-badge-couple {
+  background: rgba(236, 72, 153, 0.14);
+  color: #be185d;
+  border-color: rgba(236, 72, 153, 0.28);
+}
+
+.special-badge {
+  border: 1px solid transparent;
+}
+
+.special-badge-profile-complete {
+  background: rgba(16, 185, 129, 0.14);
+  color: #047857;
+  border-color: rgba(16, 185, 129, 0.24);
+}
+
+.special-badge-newcomer {
+  background: rgba(59, 130, 246, 0.14);
+  color: #1d4ed8;
+  border-color: rgba(59, 130, 246, 0.24);
+}
+
+.special-badge-popular {
+  background: rgba(245, 158, 11, 0.14);
+  color: #b45309;
+  border-color: rgba(245, 158, 11, 0.24);
+}
+
+@media (max-width: 768px) {
+  .profile-image-edit-btn {
+    right: 7%;
+    bottom: 5%;
+    border-width: 2px;
+  }
+
+  .profile-image-edit-btn:hover {
+    transform: translateY(-1px);
+  }
+}
+
 </style>

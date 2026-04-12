@@ -1,16 +1,53 @@
 <script setup>
 import { computed } from 'vue';
-import { getProfileImageSrc } from '@/components/common/profileImages.js';
+import {
+  getProfileImageSrc,
+  DEFAULT_PROFILE_IMAGE_KEY,
+} from '@/components/common/profileImages.js';
 
 const props = defineProps({
-  user: Object,
-  type: String,
+  user: {
+    type: Object,
+    default: () => ({}),
+  },
+  type: {
+    type: String,
+    default: 'search',
+  },
   requestId: Number,
 });
 
 defineEmits(['action']);
 
 const profileImageSrc = computed(() => getProfileImageSrc(props.user?.profileImageKey));
+const displayName = computed(() => props.user?.name || props.user?.nickname || '사용자');
+
+const specialBadges = computed(() => {
+  const badges = [];
+  const createdAt = props.user?.createdAt ? new Date(props.user.createdAt) : null;
+  const isNewMember =
+    createdAt instanceof Date &&
+    !Number.isNaN(createdAt.getTime()) &&
+    Date.now() - createdAt.getTime() <= 7 * 24 * 60 * 60 * 1000;
+  const hasCustomProfileImage =
+    !!props.user?.profileImageKey &&
+    props.user.profileImageKey !== DEFAULT_PROFILE_IMAGE_KEY;
+
+  if (isNewMember) {
+    badges.push({ label: '새내기 회원', tone: 'newcomer' });
+  }
+
+  if (
+    props.user?.name?.trim() &&
+    props.user?.email?.trim() &&
+    props.user?.phone?.trim() &&
+    hasCustomProfileImage
+  ) {
+    badges.push({ label: '프로필 완성', tone: 'profile-complete' });
+  }
+
+  return badges;
+});
 </script>
 
 <template>
@@ -18,32 +55,40 @@ const profileImageSrc = computed(() => getProfileImageSrc(props.user?.profileIma
     <div class="card-left">
       <img class="profile-img" :src="profileImageSrc" alt="프로필 이미지" />
       <div class="user-info">
-        <h3 class="user-name">
-          {{ user.name || user.nickname || '이름 없음' }}
-        </h3>
+        <h3 class="user-name">{{ displayName }}</h3>
         <p class="user-email">{{ user.email }}</p>
+        <div v-if="specialBadges.length" class="user-badges">
+          <span
+            v-for="badge in specialBadges"
+            :key="badge.label"
+            class="special-badge"
+            :class="`special-badge-${badge.tone}`"
+          >
+            {{ badge.label }}
+          </span>
+        </div>
       </div>
     </div>
 
     <div class="card-actions">
       <button
         v-if="type === 'search'"
-        @click="$emit('action', { type: 'request', user })"
         class="action-btn btn-blue"
+        @click="$emit('action', { type: 'request', user })"
       >
         파트너 요청
       </button>
 
       <template v-else-if="type === 'received'">
         <button
-          @click="$emit('action', { type: 'accept', user })"
           class="action-btn btn-blue"
+          @click="$emit('action', { type: 'accept', user })"
         >
           수락
         </button>
         <button
-          @click="$emit('action', { type: 'reject', user })"
           class="action-btn btn-red"
+          @click="$emit('action', { type: 'reject', user })"
         >
           거절
         </button>
@@ -51,15 +96,15 @@ const profileImageSrc = computed(() => getProfileImageSrc(props.user?.profileIma
 
       <template v-else-if="type === 'sent'">
         <button
-          @click="$emit('action', { type: 'cancel', requestId: props.requestId })"
           class="action-btn btn-red"
+          @click="$emit('action', { type: 'cancel', requestId: props.requestId })"
         >
           요청 취소
         </button>
       </template>
 
       <template v-else-if="type === 'matched'">
-        <button class="action-btn btn-disabled" disabled>매칭된 사용자</button>
+        <button class="action-btn btn-disabled" disabled>이미 연결됨</button>
       </template>
     </div>
   </div>
@@ -121,6 +166,38 @@ const profileImageSrc = computed(() => getProfileImageSrc(props.user?.profileIma
   font-size: 0.86rem;
   color: var(--text-muted);
   word-break: break-all;
+}
+
+.user-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.55rem;
+}
+
+.special-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.32rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.special-badge-newcomer {
+  background: rgba(59, 130, 246, 0.14);
+  color: #1d4ed8;
+  border-color: rgba(59, 130, 246, 0.24);
+}
+
+.special-badge-profile-complete {
+  background: rgba(16, 185, 129, 0.14);
+  color: #047857;
+  border-color: rgba(16, 185, 129, 0.24);
 }
 
 .card-actions {
