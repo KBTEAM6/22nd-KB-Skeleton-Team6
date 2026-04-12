@@ -28,7 +28,7 @@
           :title="editingMessage === 'user' ? '저장' : '상태 메시지 수정'"
         >
           <span class="material-symbols-outlined fs-5">
-            {{ editingMessage === 'user' ? 'check' : 'edit' }}
+            {{ editingMessage === "user" ? "check" : "edit" }}
           </span>
         </button>
 
@@ -88,7 +88,7 @@
               @mouseleave="isHeartHovered = false"
             >
               <span class="material-symbols-outlined filled-icon">
-                {{ isHeartHovered ? 'heart_broken' : 'favorite' }}
+                {{ isHeartHovered ? "heart_broken" : "favorite" }}
               </span>
             </button>
             <div class="d-flex gap-4 mt-1">
@@ -560,7 +560,7 @@
             @click="showAllCategories = !showAllCategories"
           >
             <span class="material-symbols-outlined fs-4">
-              {{ showAllCategories ? 'remove' : 'add' }}
+              {{ showAllCategories ? "remove" : "add" }}
             </span>
           </button>
         </div>
@@ -740,7 +740,7 @@
                 </div>
                 <div
                   v-if="goalDatePicker.visible"
-                  class="goal-date-picker-modal position-absolute top-100 start-50 translate-middle-x mt-3 p-3 rounded-4 border bg-white shadow"
+                  class="goal-date-picker-modal position-absolute top-100 start-50 translate-middle-x mt-3 p-3 rounded-4 border shadow"
                 >
                   <div
                     class="d-flex align-items-center justify-content-between mb-3"
@@ -871,7 +871,7 @@
               type="submit"
               class="btn goal-preview-btn py-3 px-4 fw-bold rounded-4"
             >
-              {{ editingGoalId ? '목표 수정' : '추가' }}
+              {{ editingGoalId ? "목표 수정" : "추가" }}
             </button>
             <button
               type="button"
@@ -1012,7 +1012,7 @@
           <div>
             <h3 id="goal-income-transaction-title" class="fs-5 fw-bold mb-1">
               {{
-                editingGoalTransactionId ? '커플 수입 수정' : '커플 수입 추가'
+                editingGoalTransactionId ? "커플 수입 수정" : "커플 수입 추가"
               }}
             </h3>
             <p class="goal-modal-subtext mb-0">
@@ -1078,7 +1078,7 @@
             <div class="small goal-subtext mb-1">추가 정보</div>
             <div class="fw-semibold">카테고리: 커플</div>
             <div class="small goal-subtext">
-              목표: {{ selectedGoalDetail?.title || '-' }}
+              목표: {{ selectedGoalDetail?.title || "-" }}
             </div>
           </div>
 
@@ -1087,7 +1087,7 @@
               type="submit"
               class="btn goal-preview-btn py-3 px-4 fw-bold rounded-4 flex-grow-1"
             >
-              {{ editingGoalTransactionId ? '수정' : '추가' }}
+              {{ editingGoalTransactionId ? "수정" : "추가" }}
             </button>
             <button
               type="button"
@@ -1102,19 +1102,20 @@
     </div>
   </div>
 </template>
+
 <script setup>
-import { computed, ref, onMounted } from 'vue';
-import { useAuthStore } from '../../stores/auth';
-import { usecouplesStore } from '../../stores/couples';
-import { getUserById } from '../../api/auth';
-import api from '@/api/api';
-import { useRouter } from 'vue-router';
-import { useUiStore } from '@/stores/ui';
+import { computed, ref, onMounted } from "vue";
+import { useAuthStore } from "../../stores/auth";
+import { usecouplesStore } from "../../stores/couples";
+import { getUserById } from "../../api/auth";
+import api from "@/api/api";
+import { useRouter } from "vue-router";
+import { useUiStore } from "@/stores/ui";
 import {
   getCoupleMonthlySummary,
   getCoupleTransactions,
-} from '@/api/coupleLedger';
-import { getProfileImageSrc } from '@/components/common/profileImages.js';
+} from "@/api/coupleLedger";
+import { getProfileImageSrc } from "@/components/common/profileImages.js";
 
 const router = useRouter();
 const uiStore = useUiStore();
@@ -1128,7 +1129,7 @@ const partnerProfileImageSrc = computed(() =>
   getProfileImageSrc(partner.value?.profileImageKey),
 );
 
-const userName = computed(() => authStore.user?.name || '사용자');
+const userName = computed(() => authStore.user?.name || "사용자");
 const userId = computed(() => authStore.user?.id);
 const myCouple = computed(() => couplesStore.couples[0] || null);
 
@@ -1139,11 +1140,11 @@ const partnerId = computed(() => {
     : myCouple.value.user1Id;
 });
 
-const partnerName = computed(() => partner.value?.name || '배우자');
+const partnerName = computed(() => partner.value?.name || "배우자");
 
 const statusMessages = ref({
-  user: '',
-  partner: '',
+  user: "",
+  partner: "",
 });
 
 const editableMessages = ref({
@@ -1155,15 +1156,15 @@ const isHeartHovered = ref(false);
 const userStatusField = computed(() => {
   if (!myCouple.value || !userId.value) return null;
   return myCouple.value.user1Id === userId.value
-    ? 'user1Message'
-    : 'user2Message';
+    ? "user1Message"
+    : "user2Message";
 });
 
 const partnerStatusField = computed(() => {
   if (!myCouple.value || !userId.value) return null;
   return myCouple.value.user1Id === userId.value
-    ? 'user2Message'
-    : 'user1Message';
+    ? "user2Message"
+    : "user1Message";
 });
 
 const loadStatusMessages = () => {
@@ -1190,32 +1191,32 @@ const coupleDays = computed(() => {
 
 const categoryMeta = {
   식비: {
-    icon: 'restaurant',
-    bgClass: 'bg-danger bg-opacity-10 text-danger',
+    icon: "restaurant",
+    bgClass: "bg-danger bg-opacity-10 text-danger",
   },
-  '주거/통신': {
-    icon: 'home',
-    bgClass: 'bg-primary bg-opacity-10 text-primary',
+  "주거/통신": {
+    icon: "home",
+    bgClass: "bg-primary bg-opacity-10 text-primary",
   },
-  '교통/차량': {
-    icon: 'directions_car',
-    bgClass: 'bg-warning bg-opacity-10 text-warning',
+  "교통/차량": {
+    icon: "directions_car",
+    bgClass: "bg-warning bg-opacity-10 text-warning",
   },
-  '쇼핑/생활': {
-    icon: 'shopping_bag',
-    bgClass: 'bg-success bg-opacity-10 text-success',
+  "쇼핑/생활": {
+    icon: "shopping_bag",
+    bgClass: "bg-success bg-opacity-10 text-success",
   },
-  '의료/건강': {
-    icon: 'medical_services',
-    bgClass: 'bg-info bg-opacity-10 text-info',
+  "의료/건강": {
+    icon: "medical_services",
+    bgClass: "bg-info bg-opacity-10 text-info",
   },
-  '문화/여가': {
-    icon: 'sports_esports',
-    bgClass: 'culture-badge',
+  "문화/여가": {
+    icon: "sports_esports",
+    bgClass: "culture-badge",
   },
   기타: {
-    icon: 'category',
-    bgClass: 'bg-dark bg-opacity-10 text-dark',
+    icon: "category",
+    bgClass: "bg-dark bg-opacity-10 text-dark",
   },
 };
 
@@ -1250,9 +1251,9 @@ const createDefaultGoalForm = () => {
   end.setMonth(end.getMonth() + 1);
 
   return {
-    type: 'INCOME',
-    title: '',
-    targetAmount: '',
+    type: "INCOME",
+    title: "",
+    targetAmount: "",
     startDate: today.toISOString().slice(0, 10),
     endDate: end.toISOString().slice(0, 10),
     categories: [],
@@ -1261,16 +1262,16 @@ const createDefaultGoalForm = () => {
 
 const goalForm = ref(createDefaultGoalForm());
 const goalIncomeForm = ref({
-  amount: '',
+  amount: "",
   date: createTodayDate(),
-  memo: '',
+  memo: "",
 });
 
-const pad2 = (value) => String(value).padStart(2, '0');
+const pad2 = (value) => String(value).padStart(2, "0");
 
 const goalDatePicker = ref({
   visible: false,
-  activeField: 'start',
+  activeField: "start",
   year: new Date().getFullYear(),
   month: new Date().getMonth(),
   tempStart: goalForm.value.startDate,
@@ -1334,7 +1335,7 @@ const selectGoalDate = (date) => {
   if (!goalDatePicker.value.tempStart || goalDatePicker.value.tempEnd) {
     goalDatePicker.value.tempStart = date;
     goalDatePicker.value.tempEnd = null;
-    goalDatePicker.value.activeField = 'end';
+    goalDatePicker.value.activeField = "end";
     return;
   }
 
@@ -1389,7 +1390,7 @@ const formatCurrency = (value) => `${Number(value || 0).toLocaleString()}원`;
 
 const expenseCategoryOptions = computed(() => {
   const categories = allTransactions.value
-    .filter((item) => item.type === 'EXPENSE' && item.category)
+    .filter((item) => item.type === "EXPENSE" && item.category)
     .map((item) => item.category);
 
   return [...new Set(categories)];
@@ -1399,20 +1400,20 @@ const goalCards = computed(() => {
   return [...coupleGoals.value]
     .sort((a, b) => {
       if (a.type === b.type) {
-        return String(a.createdAt || '').localeCompare(
-          String(b.createdAt || ''),
+        return String(a.createdAt || "").localeCompare(
+          String(b.createdAt || ""),
         );
       }
-      return a.type === 'INCOME' ? -1 : 1;
+      return a.type === "INCOME" ? -1 : 1;
     })
     .map((goal) => {
       const matchedTransactions = allTransactions.value
         .filter((item) => {
-          if (goal.type === 'INCOME') {
-            if (item.type !== 'INCOME') return false;
+          if (goal.type === "INCOME") {
+            if (item.type !== "INCOME") return false;
             return Number(item.goalId) === Number(goal.id);
           }
-          if (goal.type === 'EXPENSE' && item.type !== 'EXPENSE') return false;
+          if (goal.type === "EXPENSE" && item.type !== "EXPENSE") return false;
           if (
             goal.categories?.length &&
             !goal.categories.includes(item.category)
@@ -1438,31 +1439,31 @@ const goalCards = computed(() => {
         linkedTransactions,
         currentAmount,
         progressPercent,
-        typeLabel: goal.type === 'INCOME' ? '수입 목표' : '지출 목표',
-        amountLabel: goal.type === 'INCOME' ? '현재 모은 금액' : '현재 지출',
-        progressLabel: goal.type === 'INCOME' ? '진행률' : '사용률',
+        typeLabel: goal.type === "INCOME" ? "수입 목표" : "지출 목표",
+        amountLabel: goal.type === "INCOME" ? "현재 모은 금액" : "현재 지출",
+        progressLabel: goal.type === "INCOME" ? "진행률" : "사용률",
         linkedTitle:
-          goal.type === 'INCOME'
-            ? '연결된 수입 내역'
-            : '기간 내 대상 지출 내역',
-        kindClass: goal.type === 'INCOME' ? 'is-income' : 'is-expense',
-        progressClass: goal.type === 'INCOME' ? 'is-income' : 'is-expense',
+          goal.type === "INCOME"
+            ? "연결된 수입 내역"
+            : "기간 내 대상 지출 내역",
+        kindClass: goal.type === "INCOME" ? "is-income" : "is-expense",
+        progressClass: goal.type === "INCOME" ? "is-income" : "is-expense",
         targetText: formatCurrency(targetAmount),
         currentText: formatCurrency(currentAmount),
         dateText: `${goal.startDate} ~ ${goal.endDate}`,
         categoryText:
-          goal.type === 'EXPENSE'
+          goal.type === "EXPENSE"
             ? goal.categories?.length
-              ? goal.categories.join(', ')
-              : '전체 지출'
-            : '',
-        defaultMemo: goal.type === 'INCOME' ? '수입 내역' : '지출 내역',
+              ? goal.categories.join(", ")
+              : "전체 지출"
+            : "",
+        defaultMemo: goal.type === "INCOME" ? "수입 내역" : "지출 내역",
         defaultCategory:
-          goal.type === 'INCOME'
-            ? '수입'
+          goal.type === "INCOME"
+            ? "수입"
             : goal.categories?.length
-              ? goal.categories.join(', ')
-              : '전체 지출',
+              ? goal.categories.join(", ")
+              : "전체 지출",
       };
     });
 });
@@ -1488,7 +1489,7 @@ const selectedGoalDetail = computed(() => {
 const monthKey = computed(() => {
   const today = new Date();
   const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const month = String(today.getMonth() + 1).padStart(2, "0");
   return `${year}-${month}`;
 });
 
@@ -1552,14 +1553,14 @@ const openGoalModal = (goal = null) => {
     resetGoalForm();
 
     const hasIncomeGoal = coupleGoals.value.some(
-      (item) => item.type === 'INCOME',
+      (item) => item.type === "INCOME",
     );
     const hasExpenseGoal = coupleGoals.value.some(
-      (item) => item.type === 'EXPENSE',
+      (item) => item.type === "EXPENSE",
     );
 
     if (hasIncomeGoal && !hasExpenseGoal) {
-      goalForm.value.type = 'EXPENSE';
+      goalForm.value.type = "EXPENSE";
     }
   }
 
@@ -1607,7 +1608,7 @@ const handleGoalNavigation = () => {
 };
 
 const openIncomeTransactionForActiveGoal = () => {
-  if (!activeGoalCard.value || activeGoalCard.value.type !== 'INCOME') return;
+  if (!activeGoalCard.value || activeGoalCard.value.type !== "INCOME") return;
   selectedGoalDetailId.value = activeGoalCard.value.id;
   openGoalIncomeTransactionModal();
 };
@@ -1625,9 +1626,9 @@ const closeGoalDetailModal = () => {
 const resetGoalIncomeForm = () => {
   editingGoalTransactionId.value = null;
   goalIncomeForm.value = {
-    amount: '',
+    amount: "",
     date: createTodayDate(),
-    memo: '',
+    memo: "",
   };
 };
 
@@ -1637,7 +1638,7 @@ const openGoalIncomeTransactionModal = (transaction = null) => {
     goalIncomeForm.value = {
       amount: transaction.amount,
       date: transaction.date,
-      memo: transaction.memo || '',
+      memo: transaction.memo || "",
     };
   } else {
     resetGoalIncomeForm();
@@ -1727,39 +1728,39 @@ const submitGoal = async () => {
     startDate: goalForm.value.startDate || createTodayDate(),
     endDate: goalForm.value.endDate || createTodayDate(),
     categories:
-      goalForm.value.type === 'EXPENSE' ? goalForm.value.categories || [] : [],
+      goalForm.value.type === "EXPENSE" ? goalForm.value.categories || [] : [],
     category:
-      goalForm.value.type === 'EXPENSE'
-        ? (goalForm.value.categories || [])[0] || ''
-        : '',
+      goalForm.value.type === "EXPENSE"
+        ? (goalForm.value.categories || [])[0] || ""
+        : "",
   };
 
   if (!payload.title || !payload.targetAmount) {
-    window.alert('목표 이름과 금액을 입력해주세요.');
+    window.alert("목표 이름과 금액을 입력해주세요.");
     return;
   }
 
   if (payload.startDate > payload.endDate) {
-    window.alert('목표 종료일은 시작일보다 빠를 수 없습니다.');
+    window.alert("목표 종료일은 시작일보다 빠를 수 없습니다.");
     return;
   }
 
   try {
     if (editingGoalId.value) {
       await api.patch(`/coupleGoals/${editingGoalId.value}`, payload);
-      uiStore.showToast('공동 목표를 수정했어요.');
+      uiStore.showToast("공동 목표를 수정했어요.");
     } else {
-      await api.post('/coupleGoals', {
+      await api.post("/coupleGoals", {
         ...payload,
         createdAt: new Date().toISOString(),
       });
-      uiStore.showToast('공동 목표를 추가했어요.');
+      uiStore.showToast("공동 목표를 추가했어요.");
     }
 
     await loadCoupleGoals();
     closeGoalModal();
   } catch (error) {
-    uiStore.showToast('공동 목표 저장에 실패했어요.', 'error');
+    uiStore.showToast("공동 목표 저장에 실패했어요.", "error");
   }
 };
 
@@ -1768,16 +1769,16 @@ const submitGoalIncomeTransaction = async () => {
 
   const payload = {
     userId: userId.value,
-    type: 'INCOME',
-    category: '커플',
+    type: "INCOME",
+    category: "커플",
     amount: Number(goalIncomeForm.value.amount),
     date: goalIncomeForm.value.date,
-    memo: goalIncomeForm.value.memo.trim() || '공동 목표 수입',
+    memo: goalIncomeForm.value.memo.trim() || "공동 목표 수입",
     goalId: selectedGoalDetail.value.id,
   };
 
   if (!payload.amount || !payload.date) {
-    window.alert('금액과 날짜를 입력해주세요.');
+    window.alert("금액과 날짜를 입력해주세요.");
     return;
   }
 
@@ -1787,29 +1788,29 @@ const submitGoalIncomeTransaction = async () => {
         `/transactions/${editingGoalTransactionId.value}`,
         payload,
       );
-      uiStore.showToast('수입 거래를 수정했어요.');
+      uiStore.showToast("수입 거래를 수정했어요.");
     } else {
-      await api.post('/transactions', payload);
-      uiStore.showToast('수입 거래를 추가했어요.');
+      await api.post("/transactions", payload);
+      uiStore.showToast("수입 거래를 추가했어요.");
     }
 
     await refreshCoupleDetailData();
     closeGoalIncomeTransactionModal();
   } catch (error) {
-    uiStore.showToast('수입 거래 저장에 실패했어요.', 'error');
+    uiStore.showToast("수입 거래 저장에 실패했어요.", "error");
   }
 };
 
 const removeGoal = async (goalId) => {
-  const confirmed = window.confirm('이 공동 목표를 삭제할까요?');
+  const confirmed = window.confirm("이 공동 목표를 삭제할까요?");
   if (!confirmed) return;
 
   try {
     await api.delete(`/coupleGoals/${goalId}`);
     await loadCoupleGoals();
-    uiStore.showToast('공동 목표를 삭제했어요.');
+    uiStore.showToast("공동 목표를 삭제했어요.");
   } catch (error) {
-    uiStore.showToast('공동 목표 삭제에 실패했어요.', 'error');
+    uiStore.showToast("공동 목표 삭제에 실패했어요.", "error");
   }
 };
 
@@ -1825,9 +1826,9 @@ const categories = computed(() => {
   const map = {};
 
   summary.value.transactions.forEach((item) => {
-    if (item.type !== 'EXPENSE') return;
+    if (item.type !== "EXPENSE") return;
 
-    const categoryName = item.category || '기타';
+    const categoryName = item.category || "기타";
     const meta = categoryMeta[categoryName] || categoryMeta.기타;
 
     if (!map[categoryName]) {
@@ -1891,17 +1892,16 @@ const partnerLatestTransaction = computed(() => {
 });
 
 const startEditingMessage = (target) => {
-  if (target !== 'user') return;
+  if (target !== "user") return;
 
-  if (editingMessage.value === 'user') {
-    // 두 번째 클릭 시 편집 취소
+  if (editingMessage.value === "user") {
     editableMessages.value.user = statusMessages.value.user;
     editingMessage.value = null;
     return;
   }
 
   editableMessages.value.user = statusMessages.value.user;
-  editingMessage.value = 'user';
+  editingMessage.value = "user";
 };
 
 const persistStatusMessage = async (message) => {
@@ -1923,7 +1923,7 @@ const persistStatusMessage = async (message) => {
 };
 
 const saveMessage = async (target) => {
-  if (target !== 'user') return;
+  if (target !== "user") return;
 
   const message = editableMessages.value.user.trim();
   if (!message) {
@@ -1937,30 +1937,30 @@ const saveMessage = async (target) => {
   try {
     await persistStatusMessage(message);
   } catch (error) {
-    window.alert('상태 메시지 저장에 실패했습니다. 다시 시도해주세요.');
+    window.alert("상태 메시지 저장에 실패했습니다. 다시 시도해주세요.");
   }
 };
 
 const confirmDisconnectCouple = async () => {
   if (!myCouple.value?.id) {
-    window.alert('연동된 배우자 정보가 없습니다.');
+    window.alert("연동된 배우자 정보가 없습니다.");
     return;
   }
 
-  const confirmed = window.confirm('배우자와의 연동을 정말 해제하시겠습니까?');
+  const confirmed = window.confirm("배우자와의 연동을 정말 해제하시겠습니까?");
   if (!confirmed) return;
 
   const result = await couplesStore.removecouple(myCouple.value.id);
 
   if (!result?.success) {
-    window.alert(result?.message || '연동 해제에 실패했습니다.');
+    window.alert(result?.message || "연동 해제에 실패했습니다.");
     return;
   }
 
   partner.value = null;
-  uiStore.showToast('배우자 연동이 해지되었습니다.');
+  uiStore.showToast("배우자 연동이 해지되었습니다.");
   setTimeout(() => {
-    router.push('/couples');
+    router.push("/couples");
   }, 900);
 };
 
@@ -1971,13 +1971,11 @@ onMounted(async () => {
   if (myCouple.value && partnerId.value) {
     partner.value = await getUserById(partnerId.value);
     await refreshCoupleDetailData();
-
     await loadCoupleGoals();
   }
-
-  // const coupleTransactions = getCoupleTransactions(userId, partnerId);
 });
 </script>
+
 <style scoped>
 .couple-detail-page {
   min-height: 100vh;
@@ -2345,10 +2343,6 @@ onMounted(async () => {
   max-height: 90vh;
   overflow-y: auto;
   overflow-x: hidden;
-  background: #fff;
-  border: 0;
-  box-shadow: 0 18px 40px rgba(30, 30, 30, 0.08);
-  margin-inline: auto;
 }
 
 .goal-detail-modal-card {
@@ -2368,10 +2362,6 @@ onMounted(async () => {
 .goal-modal-card.is-create-mode {
   width: min(100%, 44rem) !important;
   max-width: 44rem !important;
-}
-
-.goal-modal-card.is-create-mode .goal-form-grid-create {
-  --bs-gutter-x: 0;
 }
 
 .goal-modal-close {
@@ -2423,6 +2413,9 @@ onMounted(async () => {
   z-index: 20;
   width: min(44rem, calc(100vw - 2rem));
   max-width: 42rem;
+  background: var(--card-bg);
+  border-color: var(--border-color) !important;
+  color: var(--text-color);
 }
 
 .goal-date-picker-grid {
@@ -2432,13 +2425,14 @@ onMounted(async () => {
 }
 
 .goal-date-calendar {
-  background: #f8fafc;
+  background: var(--sub-bg);
+  border-color: var(--border-color) !important;
 }
 
 .goal-date-picker-day {
   min-height: 2.5rem;
   padding: 0.4rem;
-  color: #334155;
+  color: var(--text-color);
   background: transparent;
 }
 
@@ -2457,8 +2451,8 @@ onMounted(async () => {
 
 .goal-date-range-picker {
   position: relative;
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(255, 196, 0, 0.35);
+  background: var(--card-bg);
+  border-color: var(--border-color) !important;
 }
 
 .goal-date-range-picker .goal-date-field {
@@ -2467,7 +2461,7 @@ onMounted(async () => {
 
 .goal-date-caption {
   font-size: 0.95rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .date-range-separator {
@@ -2475,7 +2469,7 @@ onMounted(async () => {
   text-align: center;
   font-size: 1.2rem;
   font-weight: 700;
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 .goal-date-range-picker .goal-date-field .material-symbols-outlined {
@@ -2561,6 +2555,19 @@ onMounted(async () => {
   color: #9b51e0;
 }
 
+:global(html.dark) .goal-row-edit-btn {
+  background: rgba(255, 204, 80, 0.14);
+  color: #facc15;
+}
+
+:global(html.dark) .goal-row-edit-btn:hover {
+  background: rgba(255, 204, 80, 0.24);
+}
+
+:global(html.dark) .goal-empty-button {
+  color: #111827;
+}
+
 @media (min-width: 768px) {
   .couple-detail-page {
     width: calc(100% + 6rem);
@@ -2604,9 +2611,13 @@ onMounted(async () => {
     width: min(100%, 100%) !important;
     max-width: 100% !important;
   }
+
+  .goal-date-picker-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .filled-icon {
-  font-variation-settings: 'FILL' 1;
+  font-variation-settings: "FILL" 1;
 }
 </style>
