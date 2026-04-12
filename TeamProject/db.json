@@ -236,5 +236,18 @@
       "createdAt": "2026-04-07"
     }
   ],
-  "coupleGoals": []
+  "coupleGoals": [
+    {
+      "coupleId": 1,
+      "type": "INCOME",
+      "title": "312321",
+      "targetAmount": 21321321,
+      "startDate": "2026-04-12",
+      "endDate": "2026-05-12",
+      "categories": [],
+      "category": "",
+      "createdAt": "2026-04-12T11:16:41.526Z",
+      "id": 1
+    }
+  ]
 }
