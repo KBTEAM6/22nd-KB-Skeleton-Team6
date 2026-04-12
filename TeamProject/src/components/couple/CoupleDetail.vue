@@ -483,7 +483,11 @@
                   class="feed-avatar rounded-circle d-flex align-items-center justify-content-center small fw-bold"
                   style="width: 32px; height: 32px"
                 >
-                  {{ userName[0] }}
+                  <img
+                    :src="userProfileImageSrc"
+                    alt="내 프로필 이미지"
+                    class="feed-avatar-image"
+                  />
                 </div>
                 <div class="flex-grow-1">
                   <p class="fw-medium m-0 feed-text" style="font-size: 11px">
@@ -503,7 +507,11 @@
                   class="feed-avatar rounded-circle d-flex align-items-center justify-content-center small fw-bold"
                   style="width: 32px; height: 32px"
                 >
-                  {{ partnerName[0] }}
+                  <img
+                    :src="partnerProfileImageSrc"
+                    alt="파트너 프로필 이미지"
+                    class="feed-avatar-image"
+                  />
                 </div>
                 <div class="flex-grow-1">
                   <p class="fw-medium m-0 feed-text" style="font-size: 11px">
@@ -927,12 +935,15 @@ import {
   getCoupleMonthlySummary,
   getCoupleTransactions,
 } from "@/api/coupleLedger";
+import { getProfileImageSrc } from "@/components/common/profileImages.js";
 
 const router = useRouter();
 const uiStore = useUiStore();
 const authStore = useAuthStore();
 const couplesStore = usecouplesStore();
 const partner = ref(null);
+const userProfileImageSrc = computed(() => getProfileImageSrc(authStore.user?.profileImageKey));
+const partnerProfileImageSrc = computed(() => getProfileImageSrc(partner.value?.profileImageKey));
 
 const userName = computed(() => authStore.user?.name || "사용자");
 const userId = computed(() => authStore.user?.id);
@@ -2036,6 +2047,14 @@ onMounted(async () => {
 .feed-avatar {
   background: rgba(107, 114, 128, 0.15);
   color: var(--text-color);
+  overflow: hidden;
+}
+
+.feed-avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .form-control {

@@ -1,91 +1,110 @@
-<template>
-  <!--
-    마이페이지 왼쪽 카드 영역
-    현재 로그인 사용자 요약 정보만 보여주는 순수 표시 컴포넌트다.
-  -->
+﻿<template>
   <div
     class="d-flex flex-column align-items-center p-4 h-100 profile-card"
     style="border-radius: 2rem"
   >
-    <div
-      class="rounded-circle bg-warning bg-opacity-25 d-flex align-items-center justify-content-center mb-4 profile-badge"
-    >
-      <span class="display-5 fw-bold text-secondary">{{ userInitial }}</span>
+    <div class="d-flex align-items-center justify-content-center mb-4 profile-badge">
+      <img
+        v-if="profileImageSrc"
+        :src="profileImageSrc"
+        alt="프로필 이미지"
+        class="profile-image"
+      />
+      <span v-else class="display-5 fw-bold text-secondary">{{ userInitial }}</span>
+      <button
+        v-if="isEditing"
+        type="button"
+        class="profile-image-edit-btn"
+        aria-label="프로필 사진 변경"
+        @click="$emit('open-profile-image-picker')"
+      >
+        <i class="fa-solid fa-camera"></i>
+      </button>
     </div>
 
     <div class="text-center">
       <h3 class="fs-3 fw-bold mb-1">{{ displayName }}</h3>
-      <p class="small profile-subtext m-0">회원 ID: {{ user?.id ?? "N/A" }}</p>
+      <p class="small profile-subtext m-0">회원 ID: {{ user?.id ?? 'N/A' }}</p>
     </div>
 
     <div class="mt-4 d-flex flex-wrap justify-content-center gap-2">
-      <span class="member-badge px-3 py-1 small fw-bold rounded-pill">
-        일반 회원
-      </span>
+      <span class="member-badge px-3 py-1 small fw-bold rounded-pill">일반 회원</span>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed } from 'vue';
 
 const props = defineProps({
-  // 부모(MyPageContent)에서 현재 로그인 사용자 정보를 그대로 내려준다.
   user: {
     type: Object,
     default: () => ({}),
   },
+  profileImageSrc: {
+    type: String,
+    default: '',
+  },
+  isEditing: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-// 이름이 없을 경우를 대비해 fallback을 둔다.
-const displayName = computed(
-  () => props.user?.name || props.user?.nickname || "사용자",
-);
+defineEmits(['open-profile-image-picker']);
 
-// 프로필 뱃지에 표시할 첫 글자
+const displayName = computed(() => props.user?.name || props.user?.nickname || '사용자');
 const userInitial = computed(() => displayName.value.charAt(0).toUpperCase());
 </script>
 
 <style scoped>
-.profile-card {
-  min-width: 220px;
-}
-.profile-badge {
-  width: clamp(5.5rem, 11vw, 8rem);
-  height: clamp(5.5rem, 11vw, 8rem);
-}
-
-.profile-action-links {
-  margin-top: 1rem;
+.profile-image {
   width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.profile-badge {
+  position: relative;
+  padding: 0.22rem;
+  border-radius: 50%;
+
+  flex-shrink: 0;
+}
+
+.profile-image-edit-btn {
+  position: absolute;
+  right: 3rem;
+  bottom: -0.1rem;
+  width: clamp(1.95rem, 4.4vw, 10rem);
+  height: clamp(1.95rem, 4.4vw, 10rem);
+  border: 4px solid #fff;
+  border-radius: 50%;
+  background: #ffcc50;
+  color: #4f473d;
   display: flex;
-  justify-content: flex-end;
-  gap: 0.9rem;
-}
-
-.profile-text-action {
-  padding: 0;
-  border: none;
-  background: transparent;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 18px rgba(79, 71, 61, 0.18);
   transition:
-    color 0.2s ease,
-    opacity 0.2s ease;
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+  z-index: 1;
 }
 
-.profile-text-action:hover {
-  opacity: 0.75;
+.profile-image-edit-btn i {
+  font-size: 2rem;
 }
 
-.profile-text-action-primary {
-  color: #0d6efd;
+.profile-image-edit-btn:hover {
+  background: #ffbc00;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(79, 71, 61, 0.24);
 }
 
-.profile-text-action-danger {
-  color: #dc3545;
-}
 .profile-card {
   min-width: 220px;
   background: var(--card-bg);

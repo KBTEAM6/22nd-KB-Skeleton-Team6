@@ -1,20 +1,12 @@
 <script setup>
-import { ref, computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import {
-  Home,
-  BookOpen,
-  Users,
-  User,
-  Menu,
-  X,
-  Moon,
-  Sun,
-} from "lucide-vue-next";
-import { useAuthStore } from "@/stores/auth";
-import { useUiStore } from "@/stores/ui";
-import DelayModal from "@/components/common/DelayModal.vue";
-import { mockDelay } from "@/service/mockDelay";
+import { getProfileImageSrc } from '@/components/common/profileImages.js';
+import { ref, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { Home, BookOpen, Users, User, Menu, X, Moon, Sun } from 'lucide-vue-next';
+import { useAuthStore } from '@/stores/auth';
+import { useUiStore } from '@/stores/ui';
+import DelayModal from '@/components/common/DelayModal.vue';
+import { mockDelay } from '@/service/mockDelay';
 
 const uiStore = useUiStore();
 const authstore = useAuthStore();
@@ -28,25 +20,25 @@ const isLoggingOut = ref(false);
 const props = defineProps({
   currentView: {
     type: String,
-    default: "",
+    default: '',
   },
 });
 
 const menuItems = [
-  { id: "home", label: "홈", icon: Home, to: "/home" },
-  { id: "ledger", label: "가계부", icon: BookOpen, to: "/ledger" },
-  { id: "couples", label: "부부 가계부", icon: Users, to: "/couples" },
-  { id: "mypage", label: "마이페이지", icon: User, to: "/mypage" },
+  { id: 'home', label: '홈', icon: Home, to: '/home' },
+  { id: 'ledger', label: '가계부', icon: BookOpen, to: '/ledger' },
+  { id: 'couples', label: '부부 가계부', icon: Users, to: '/couples' },
+  { id: 'mypage', label: '마이페이지', icon: User, to: '/mypage' },
 ];
 
 const activeView = computed(() => {
   if (props.currentView) return props.currentView;
   const path = route.path;
-  if (path === "/") return "home";
-  if (path.startsWith("/ledger")) return "ledger";
-  if (path.startsWith("/couples")) return "couples";
-  if (path.startsWith("/mypage")) return "mypage";
-  return "home";
+  if (path === '/') return 'home';
+  if (path.startsWith('/ledger')) return 'ledger';
+  if (path.startsWith('/couples')) return 'couples';
+  if (path.startsWith('/mypage')) return 'mypage';
+  return 'home';
 });
 
 const toggleProfileMenu = () => {
@@ -54,7 +46,7 @@ const toggleProfileMenu = () => {
 };
 
 const goToPartnerInfo = () => {
-  router.push("/couples");
+  router.push('/couples');
   isProfileMenuOpen.value = false;
   uiStore.isSidebarOpen = false;
 };
@@ -74,10 +66,8 @@ const toggleSidebar = () => {
 const handleThemeToggle = () => {
   uiStore.toggleTheme();
   uiStore.showToast(
-    uiStore.isDarkMode
-      ? "다크모드로 변경되었습니다."
-      : "라이트모드로 변경되었습니다.",
-    "info",
+    uiStore.isDarkMode ? '다크모드로 변경되었습니다.' : '라이트모드로 변경되었습니다.',
+    'info',
   );
 };
 
@@ -95,26 +85,25 @@ const handleLogout = async () => {
   isLoggingOut.value = true;
   await mockDelay();
   authstore.logout();
-  uiStore.showToast("로그아웃 했습니다.");
+  uiStore.showToast('로그아웃 했습니다.');
   isProfileMenuOpen.value = false;
   uiStore.isSidebarOpen = false;
   isLoggingOut.value = false;
-  router.push("/auth/login");
+  router.push('/auth/login');
 };
 
 const handleMenuClick = () => {
   isProfileMenuOpen.value = false;
   uiStore.isSidebarOpen = false;
 };
+
+const sidebarProfileImageSrc = computed(() => {
+  return getProfileImageSrc(authstore.user?.profileImageKey);
+});
 </script>
 
 <template>
-  <DelayModal
-    :is-open="isLoggingOut"
-    type="goodbye"
-    message="금방 돌아오실거죠?"
-    :size="1000"
-  />
+  <DelayModal :is-open="isLoggingOut" type="goodbye" message="금방 돌아오실거죠?" :size="1000" />
 
   <!-- 모바일 상단 바 -->
   <div v-if="!uiStore.isSidebarOpen" class="mobile-topbar d-lg-none">
@@ -124,31 +113,21 @@ const handleMenuClick = () => {
   </div>
 
   <!-- 모바일 오버레이 -->
-  <div
-    v-if="uiStore.isSidebarOpen"
-    class="sidebar-overlay d-lg-none"
-    @click="closeSidebar"
-  ></div>
+  <div v-if="uiStore.isSidebarOpen" class="sidebar-overlay d-lg-none" @click="closeSidebar"></div>
 
   <!-- 사이드바 -->
   <aside
     class="app-sidebar d-flex flex-column border-end"
     :class="{ 'sidebar-open': uiStore.isSidebarOpen }"
   >
-    <div
-      class="sidebar-header p-4 d-flex align-items-center justify-content-between"
-    >
+    <div class="sidebar-header p-4 d-flex align-items-center justify-content-between">
       <div class="d-flex align-items-center gap-3">
         <div
           class="d-flex align-items-center justify-content-center rounded-3"
           style="width: 40px; height: 40px; background-color: rgb(255, 204, 80)"
         >
           <div class="logo-box">
-            <img
-              src="@/assets/Logo.png"
-              alt="KB 가계부 로고"
-              class="sidebar-logo"
-            />
+            <img src="@/assets/Logo.png" alt="KB 가계부 로고" class="sidebar-logo" />
           </div>
         </div>
         <div>
@@ -158,11 +137,7 @@ const handleMenuClick = () => {
       </div>
 
       <!-- 모바일 닫기 버튼 -->
-      <button
-        type="button"
-        class="sidebar-close-btn d-lg-none"
-        @click="closeSidebar"
-      >
+      <button type="button" class="sidebar-close-btn d-lg-none" @click="closeSidebar">
         <X :size="20" />
       </button>
     </div>
@@ -173,14 +148,8 @@ const handleMenuClick = () => {
         :key="item.id"
         :to="item.to"
         class="w-100 d-flex align-items-center gap-3 px-4 py-3 rounded-4 mb-2 border-0 text-start btn sidebar-btn text-decoration-none"
-        :class="
-          activeView === item.id
-            ? 'sidebar-link-active fw-medium'
-            : 'sidebar-link'
-        "
-        :style="
-          activeView === item.id ? 'background-color: rgb(255,204,80);' : ''
-        "
+        :class="activeView === item.id ? 'sidebar-link-active fw-medium' : 'sidebar-link'"
+        :style="activeView === item.id ? 'background-color: rgb(255,204,80);' : ''"
         @click="handleMenuClick"
       >
         <component :is="item.icon" class="sidebar-icon" />
@@ -197,35 +166,33 @@ const handleMenuClick = () => {
           @click="toggleProfileMenu"
         >
           <div
-            class="d-flex align-items-center justify-content-center rounded-circle"
-            style="
-              width: 40px;
-              height: 40px;
-              background-color: rgb(255, 188, 80);
-            "
+            class="d-flex align-items-center justify-content-center rounded-circle overflow-hidden"
+            style="width: 40px; height: 40px"
           >
-            <span>{{ authstore.user?.name?.slice(0, 1) }}</span>
+            <img
+              v-if="sidebarProfileImageSrc"
+              :src="sidebarProfileImageSrc"
+              alt="프로필 이미지"
+              style="width: 100%; height: 100%; object-fit: cover"
+            />
+            <span v-else>{{ authstore.user?.name?.slice(0, 1) }}</span>
           </div>
 
           <div class="flex-grow-1">
             <p class="fw-medium mb-0 profile-name">
-              {{ authstore.user?.name ?? "" }}
+              {{ authstore.user?.name ?? '' }}
             </p>
             <p class="small mb-0 profile-email">
-              {{ authstore.user?.email ?? "" }}
+              {{ authstore.user?.email ?? '' }}
             </p>
           </div>
         </button>
 
         <div v-if="isProfileMenuOpen" class="profile-menu-card">
-          <button
-            type="button"
-            class="profile-menu-item"
-            @click="handleThemeToggle"
-          >
+          <button type="button" class="profile-menu-item" @click="handleThemeToggle">
             <span class="menu-item-inner">
               <component :is="uiStore.isDarkMode ? Sun : Moon" :size="16" />
-              <span>{{ uiStore.isDarkMode ? "라이트모드" : "다크모드" }}</span>
+              <span>{{ uiStore.isDarkMode ? '라이트모드' : '다크모드' }}</span>
             </span>
           </button>
 
@@ -237,11 +204,7 @@ const handleMenuClick = () => {
             설정
           </RouterLink>
 
-          <button
-            type="button"
-            class="profile-menu-item"
-            @click="goToPartnerInfo"
-          >
+          <button type="button" class="profile-menu-item" @click="goToPartnerInfo">
             파트너 정보
           </button>
 
@@ -257,11 +220,7 @@ const handleMenuClick = () => {
     </div>
   </aside>
 
-  <div
-    v-if="isLogoutModalOpen"
-    class="password-modal-backdrop"
-    @click="closeLogoutModal"
-  >
+  <div v-if="isLogoutModalOpen" class="password-modal-backdrop" @click="closeLogoutModal">
     <div
       class="password-modal-card logout-modal-card"
       role="dialog"
@@ -282,21 +241,13 @@ const handleMenuClick = () => {
         ></button>
       </div>
 
-      <div class="logout-modal-copy">
-        현재 세션을 종료하고 로그인 페이지로 이동합니다.
-      </div>
+      <div class="logout-modal-copy">현재 세션을 종료하고 로그인 페이지로 이동합니다.</div>
 
       <div class="d-flex justify-content-end gap-2 mt-4">
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          @click="closeLogoutModal"
-        >
+        <button type="button" class="btn btn-outline-secondary" @click="closeLogoutModal">
           취소
         </button>
-        <button type="button" class="btn btn-dark" @click="handleLogout">
-          로그아웃
-        </button>
+        <button type="button" class="btn btn-dark" @click="handleLogout">로그아웃</button>
       </div>
     </div>
   </div>
@@ -537,7 +488,9 @@ const handleMenuClick = () => {
 }
 
 .sidebar-btn {
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .sidebar-btn:hover {
