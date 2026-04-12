@@ -1,14 +1,18 @@
 <script setup>
-import { ref } from 'vue';
-import { usecouplesStore } from '@/stores/couples.js';
-import { useAuthStore } from '@/stores/auth.js';
-import CoupleCard from '@/components/common/CoupleCard.vue';
-import { useUiStore } from '@/stores/ui';
+import { ref, computed } from "vue";
+import { usecouplesStore } from "@/stores/couples.js";
+import { useAuthStore } from "@/stores/auth.js";
+import CoupleCard from "@/components/common/CoupleCard.vue";
+import { useUiStore } from "@/stores/ui";
 
 const uiStore = useUiStore();
 const coupleStore = usecouplesStore();
 const authStore = useAuthStore();
-const keyword = ref('');
+const keyword = ref("");
+
+const limitedSearchResults = computed(() =>
+  coupleStore.searchResults.slice(0, 5),
+);
 
 const handleSearch = () => {
   if (!keyword.value.trim()) {
@@ -19,7 +23,7 @@ const handleSearch = () => {
 };
 
 const resetSearch = () => {
-  keyword.value = '';
+  keyword.value = "";
   coupleStore.searchResults = [];
 };
 
@@ -27,18 +31,18 @@ const getUserCardType = (user) => {
   const receivedReq = coupleStore.pendingReceivedRequests.find(
     (req) => req.user?.id === user.id,
   );
-  if (receivedReq) return 'received';
+  if (receivedReq) return "received";
 
   const sentReq = coupleStore.pendingSentRequests.find(
     (req) => req.user?.id === user.id,
   );
-  if (sentReq) return 'sent';
+  if (sentReq) return "sent";
 
   if (coupleStore.isTargetAlreadyCoupled(user.id)) {
-    return 'matched';
+    return "matched";
   }
 
-  return 'search';
+  return "search";
 };
 
 const getRequestIdByUser = (user) => {
@@ -58,7 +62,7 @@ const getReceivedRequestUser = (user) => {
 const handleAction = async ({ type, user, requestId }) => {
   const myId = authStore.user.id;
 
-  if (type === 'request') {
+  if (type === "request") {
     const result = await coupleStore.sendcoupleRequest({
       requesterId: myId,
       targetUserId: user.id,
@@ -66,42 +70,42 @@ const handleAction = async ({ type, user, requestId }) => {
 
     if (result.success) {
       await coupleStore.fetchSentRequests(myId);
-      uiStore.showToast('파트너 요청을 보냈습니다.');
+      uiStore.showToast("파트너 요청을 보냈습니다.");
     } else {
-      uiStore.showToast(result.message || '요청 전송에 실패했습니다.');
+      uiStore.showToast(result.message || "요청 전송에 실패했습니다.");
     }
   }
 
-  if (type === 'accept') {
+  if (type === "accept") {
     const result = await coupleStore.acceptcoupleRequest(user);
 
     if (result.success) {
-      uiStore.showToast('커플 연결이 완료되었습니다.');
+      uiStore.showToast("커플 연결이 완료되었습니다.");
       return;
     }
 
-    uiStore.showToast(result.message || '요청 수락에 실패했습니다.');
+    uiStore.showToast(result.message || "요청 수락에 실패했습니다.");
   }
 
-  if (type === 'reject') {
+  if (type === "reject") {
     const result = await coupleStore.rejectcoupleRequest(user.id);
 
     if (result.success) {
       await coupleStore.fetchReceivedRequests(myId);
-      uiStore.showToast('요청을 거절했습니다.', 'error');
+      uiStore.showToast("요청을 거절했습니다.", "error");
     } else {
-      uiStore.showToast(result.message || '거절에 실패했습니다.', 'error');
+      uiStore.showToast(result.message || "거절에 실패했습니다.", "error");
     }
   }
 
-  if (type === 'cancel') {
+  if (type === "cancel") {
     const result = await coupleStore.cancelcoupleRequest(requestId);
 
     if (result.success) {
       await coupleStore.fetchSentRequests(myId);
-      uiStore.showToast('요청을 취소했습니다.', 'error');
+      uiStore.showToast("요청을 취소했습니다.", "error");
     } else {
-      uiStore.showToast(result.message || '취소에 실패했습니다.', 'error');
+      uiStore.showToast(result.message || "취소에 실패했습니다.", "error");
     }
   }
 };
@@ -117,9 +121,9 @@ const handleAction = async ({ type, user, requestId }) => {
         </p>
       </header>
 
-      <main class="row g-4">
+      <main class="row g-4 align-items-start">
         <section class="col-12 col-xl-5">
-          <div class="content-panel h-100">
+          <div class="content-panel">
             <div class="d-flex align-items-center justify-content-between mb-3">
               <div>
                 <h2 class="fs-5 fw-bold mb-1">배우자 검색</h2>
@@ -168,9 +172,9 @@ const handleAction = async ({ type, user, requestId }) => {
             </form>
 
             <div class="d-flex flex-column gap-3">
-              <template v-if="coupleStore.searchResults.length > 0">
+              <template v-if="limitedSearchResults.length > 0">
                 <CoupleCard
-                  v-for="user in coupleStore.searchResults"
+                  v-for="user in limitedSearchResults"
                   :key="user.id"
                   :user="user"
                   :type="getUserCardType(user)"
@@ -196,7 +200,9 @@ const handleAction = async ({ type, user, requestId }) => {
         <section class="col-12 col-xl-7">
           <div class="d-flex flex-column gap-4">
             <div class="content-panel">
-              <div class="d-flex align-items-center justify-content-between mb-3">
+              <div
+                class="d-flex align-items-center justify-content-between mb-3"
+              >
                 <div>
                   <h2 class="fs-5 fw-bold mb-1">받은 요청</h2>
                   <p class="small section-desc mb-0">
@@ -215,7 +221,9 @@ const handleAction = async ({ type, user, requestId }) => {
                     :key="req.id"
                     :user="req.user"
                     type="received"
-                    @action="(payload) => handleAction({ ...payload, user: req })"
+                    @action="
+                      (payload) => handleAction({ ...payload, user: req })
+                    "
                   />
                 </template>
 
@@ -224,7 +232,9 @@ const handleAction = async ({ type, user, requestId }) => {
             </div>
 
             <div class="content-panel">
-              <div class="d-flex align-items-center justify-content-between mb-3">
+              <div
+                class="d-flex align-items-center justify-content-between mb-3"
+              >
                 <div>
                   <h2 class="fs-5 fw-bold mb-1">보낸 요청</h2>
                   <p class="small section-desc mb-0">

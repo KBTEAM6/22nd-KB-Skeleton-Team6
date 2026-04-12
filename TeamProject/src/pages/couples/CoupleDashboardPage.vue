@@ -2,7 +2,6 @@
 import { computed, onMounted, ref } from "vue";
 import { usecouplesStore } from "@/stores/couples.js";
 import { useAuthStore } from "@/stores/auth.js";
-import CoupleLedger from "@/components/couple/CoupleLedger.vue";
 import CoupleDetail from "@/components/couple/CoupleDetail.vue";
 import CoupleLink from "@/components/couple/CoupleLink.vue";
 

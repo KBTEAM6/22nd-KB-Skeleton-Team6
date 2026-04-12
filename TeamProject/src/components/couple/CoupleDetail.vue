@@ -157,7 +157,7 @@
                     <p class="stat-label fw-bold mb-1 small text-uppercase">
                       {{ userName }}
                     </p>
-                    <p class="fs-5 fw-bold m-0" style="color: #e53935">
+                    <p class="fs-5 fw-bold m-0 stat-income-user">
                       {{ summary.myIncome.toLocaleString() }}원
                     </p>
                   </div>
@@ -177,7 +177,7 @@
                     <p class="stat-label fw-bold mb-1 small text-uppercase">
                       {{ partnerName }}
                     </p>
-                    <p class="fs-5 fw-bold m-0" style="color: #1e88e5">
+                    <p class="fs-5 fw-bold m-0 stat-income-partner">
                       {{ summary.partnerIncome.toLocaleString() }}원
                     </p>
                   </div>
@@ -189,9 +189,8 @@
                 >
                   <div class="flex-grow-1 d-flex justify-content-end h-100">
                     <div
-                      class="h-100"
+                      class="bar-fill-income-user h-100"
                       :style="{
-                        backgroundColor: '#e53935',
                         width: incomeBar.myWidth,
                         borderRadius: '50rem 0 0 50rem',
                       }"
@@ -205,9 +204,8 @@
 
                   <div class="flex-grow-1 d-flex justify-content-start h-100">
                     <div
-                      class="h-100"
+                      class="bar-fill-income-partner h-100"
                       :style="{
-                        backgroundColor: '#1e88e5',
                         width: incomeBar.partnerWidth,
                         borderRadius: '0 50rem 50rem 0',
                       }"
@@ -221,7 +219,7 @@
                   class="d-flex justify-content-between align-items-center mb-2 px-2"
                 >
                   <div class="text-start" style="width: 33%">
-                    <p class="fs-5 fw-bold m-0" style="color: #e53935">
+                    <p class="fs-5 fw-bold m-0 stat-expense-user">
                       {{ summary.myExpense.toLocaleString() }}원
                     </p>
                   </div>
@@ -238,7 +236,7 @@
                   </div>
 
                   <div class="text-end" style="width: 33%">
-                    <p class="fs-5 fw-bold m-0" style="color: #1e88e5">
+                    <p class="fs-5 fw-bold m-0 stat-expense-partner">
                       {{ summary.partnerExpense.toLocaleString() }}원
                     </p>
                   </div>
@@ -250,9 +248,8 @@
                 >
                   <div class="flex-grow-1 d-flex justify-content-end h-100">
                     <div
-                      class="h-100"
+                      class="bar-fill-expense-user h-100"
                       :style="{
-                        backgroundColor: '#e53935',
                         width: expenseBar.myWidth,
                         borderRadius: '50rem 0 0 50rem',
                       }"
@@ -266,9 +263,8 @@
 
                   <div class="flex-grow-1 d-flex justify-content-start h-100">
                     <div
-                      class="h-100"
+                      class="bar-fill-expense-partner h-100"
                       :style="{
-                        backgroundColor: '#1e88e5',
                         width: expenseBar.partnerWidth,
                         borderRadius: '0 50rem 50rem 0',
                       }"
@@ -282,7 +278,7 @@
                   class="d-flex justify-content-between align-items-center mb-2 px-2"
                 >
                   <div class="text-start" style="width: 33%">
-                    <p class="fs-5 fw-bold m-0" style="color: #e53935">
+                    <p class="fs-5 fw-bold m-0 stat-income-user">
                       {{ formatSignedCurrency(summary.myProfit) }}
                     </p>
                   </div>
@@ -302,7 +298,7 @@
                   </div>
 
                   <div class="text-end" style="width: 33%">
-                    <p class="fs-5 fw-bold m-0" style="color: #1e88e5">
+                    <p class="fs-5 fw-bold m-0 stat-income-partner">
                       {{ formatSignedCurrency(summary.partnerProfit) }}
                     </p>
                   </div>
@@ -1982,7 +1978,6 @@ onMounted(async () => {
   // const coupleTransactions = getCoupleTransactions(userId, partnerId);
 });
 </script>
-
 <style scoped>
 .couple-detail-page {
   min-height: 100vh;
@@ -2002,7 +1997,13 @@ onMounted(async () => {
 }
 
 .couple-hero {
-  background-color: rgb(255, 204, 80);
+  background: linear-gradient(135deg, #ffd86b 0%, #ffbf23 100%);
+  color: #2a2112;
+}
+
+:global(html.dark) .couple-hero {
+  background: linear-gradient(135deg, #3a2d10 0%, #5a430c 100%);
+  color: #f7e7b6;
 }
 
 .couple-edit-btn {
@@ -2033,12 +2034,12 @@ onMounted(async () => {
 }
 
 .name-pill {
-  background: rgba(255, 255, 255, 0.55);
-  color: #222;
+  background: rgba(255, 255, 255, 0.6);
+  color: #2a2112;
 }
 
 :global(html.dark) .name-pill {
-  background: rgba(31, 41, 55, 0.9);
+  background: rgba(17, 24, 39, 0.85);
   color: var(--text-color);
 }
 
@@ -2052,15 +2053,11 @@ onMounted(async () => {
 }
 
 :global(html.dark) .sync-icon {
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .couple-summary-text {
-  color: #222;
-}
-
-:global(html.dark) .couple-summary-text {
-  color: #111;
+  color: inherit;
 }
 
 .meta-pill,
@@ -2078,6 +2075,22 @@ onMounted(async () => {
   color: var(--text-muted);
 }
 
+.stat-income-user {
+  color: #e53935;
+}
+
+.stat-income-partner {
+  color: #1e88e5;
+}
+
+.stat-expense-user {
+  color: #e53935;
+}
+
+.stat-expense-partner {
+  color: #1e88e5;
+}
+
 .bar-track,
 .goal-progress-track {
   background: var(--sub-bg);
@@ -2088,6 +2101,22 @@ onMounted(async () => {
   background: var(--card-bg);
 }
 
+.bar-fill-income-user {
+  background-color: #e53935;
+}
+
+.bar-fill-income-partner {
+  background-color: #1e88e5;
+}
+
+.bar-fill-expense-user {
+  background-color: #e53935;
+}
+
+.bar-fill-expense-partner {
+  background-color: #1e88e5;
+}
+
 .goal-card {
   background: var(--sub-bg);
   border-color: var(--border-color) !important;
@@ -2095,9 +2124,9 @@ onMounted(async () => {
 
 .goal-empty-card,
 .goal-overview-card {
-  background: #fff;
-  border: 0 !important;
-  box-shadow: 0 18px 40px rgba(30, 30, 30, 0.08) !important;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--shadow-sm) !important;
 }
 
 .goal-empty-card .text-primary {
@@ -2132,9 +2161,9 @@ onMounted(async () => {
 .goal-reset-btn,
 .goal-action-btn,
 .goal-modal-close {
-  background: #fff;
-  color: #666055;
-  border-color: #ddd;
+  background: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
 }
 
 .goal-create-btn,
@@ -2149,17 +2178,17 @@ onMounted(async () => {
 .goal-title-display {
   font-size: clamp(1.05rem, 2vw, 1.45rem);
   line-height: 1.3;
-  color: #3d3324;
+  color: var(--text-color);
 }
 
 .goal-period-text {
-  color: #7a7469;
+  color: var(--text-muted);
   font-size: 0.88rem;
 }
 
 .goal-progress-track {
   height: 0.875rem;
-  background: #ececef;
+  background: var(--sub-bg);
   border: 0;
 }
 
@@ -2185,15 +2214,21 @@ onMounted(async () => {
   color: #5d6573;
 }
 
+:global(html.dark) .goal-overview-card.is-expense .goal-type-badge {
+  background: #374151;
+  color: #d1d5db;
+}
+
 .goal-stat-box,
-.goal-linked-box {
-  background: #faf8f3;
-  border: 1px solid #eee6d6;
+.goal-linked-box,
+.goal-income-fixed {
+  background: var(--sub-bg);
+  border: 1px solid var(--border-color);
 }
 
 .goal-linked-item {
-  background: #fcfcfd;
-  border: 1px solid #ededf0;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
 }
 
 .goal-linked-scroll {
@@ -2219,7 +2254,7 @@ onMounted(async () => {
 .goal-linked-box .goal-subtext,
 .goal-modal-subtext,
 .goal-empty-card .goal-subtext {
-  color: #7a7469;
+  color: var(--text-muted);
   font-size: 0.82rem;
 }
 
@@ -2227,36 +2262,32 @@ onMounted(async () => {
 .goal-linked-item .fs-5,
 .goal-progress-track + .row .fs-4 {
   font-size: 1.1rem !important;
-  color: #222;
+  color: var(--text-color);
 }
 
 .goal-linked-box h5 {
   font-size: 1rem;
-  color: #3d3324;
+  color: var(--text-color);
 }
 
 .goal-detail-open-btn {
-  background: #fff;
-  color: #4f3e10;
-  border: 1px solid #ddd;
-}
-
-.goal-income-fixed {
-  background: #faf8f3;
-  border: 1px solid #eee6d6;
+  background: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
 }
 
 .goal-nav-btn {
   width: 2rem;
   height: 2rem;
   border-radius: 999px;
-  background: #fff;
-  color: #666055;
-  box-shadow: 0 4px 12px rgba(30, 30, 30, 0.08);
+  background: var(--card-bg);
+  color: var(--text-color);
+  box-shadow: var(--shadow-sm);
 }
 
 .goal-linked-item .fw-bold.mb-1 {
   font-size: 0.95rem;
+  color: var(--text-color);
 }
 
 .goal-row-edit-btn {
@@ -2286,17 +2317,26 @@ onMounted(async () => {
 .goal-modal-title {
   font-size: 1.7rem;
   font-weight: 800 !important;
-  color: #3d3324;
+  color: var(--text-color);
 }
 
 .goal-modal-subtext {
-  color: #7a7469;
+  color: var(--text-muted);
   font-size: 0.95rem;
 }
 
 .goal-modal-backdrop {
   background: rgba(15, 23, 42, 0.52);
   z-index: 1100;
+}
+
+.goal-modal-card,
+.goal-detail-modal-card,
+.goal-income-transaction-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  margin-inline: auto;
 }
 
 .goal-modal-card {
@@ -2316,10 +2356,6 @@ onMounted(async () => {
   max-width: 34rem;
   max-height: 90vh;
   overflow-y: auto;
-  background: #fff;
-  border: 0;
-  box-shadow: 0 18px 40px rgba(30, 30, 30, 0.08);
-  margin-inline: auto;
 }
 
 .goal-income-transaction-card {
@@ -2327,10 +2363,6 @@ onMounted(async () => {
   max-width: 30rem;
   max-height: 90vh;
   overflow-y: auto;
-  background: #fff;
-  border: 0;
-  box-shadow: 0 18px 40px rgba(30, 30, 30, 0.08);
-  margin-inline: auto;
 }
 
 .goal-modal-card.is-create-mode {
@@ -2353,10 +2385,10 @@ onMounted(async () => {
 }
 
 .goal-type-option {
-  color: #555;
-  background: #fff;
+  color: var(--text-muted);
+  background: var(--card-bg);
   font-size: 0.95rem;
-  border: 1px solid #ddd !important;
+  border: 1px solid var(--border-color) !important;
 }
 
 .goal-type-option.active {
@@ -2370,12 +2402,20 @@ onMounted(async () => {
   min-height: 3.35rem;
   border-radius: 1.1rem;
   font-size: 0.95rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-light);
   padding-inline: 1rem;
+  background-color: var(--sub-bg);
+  color: var(--text-color);
+}
+
+.goal-form-control::placeholder {
+  color: var(--text-muted);
 }
 
 .goal-form-control:focus {
-  border-color: #ffbc00;
+  background-color: var(--sub-bg);
+  color: var(--text-color);
+  border-color: var(--kb-yellow);
   box-shadow: 0 0 0 0.2rem rgba(255, 188, 0, 0.18);
 }
 
@@ -2447,9 +2487,9 @@ onMounted(async () => {
 }
 
 .goal-category-chip {
-  background: #fff;
-  border-color: #ddd !important;
-  color: #555;
+  background: var(--card-bg);
+  border-color: var(--border-color) !important;
+  color: var(--text-color);
   transition: all 0.18s ease;
   font-size: 0.9rem;
 }
@@ -2459,6 +2499,11 @@ onMounted(async () => {
   border-color: #ffcc50 !important;
   color: #6f5700;
   box-shadow: 0 8px 16px rgba(255, 204, 80, 0.18);
+}
+
+:global(html.dark) .goal-category-chip.active {
+  background: rgba(255, 204, 80, 0.18);
+  color: #ffd86b;
 }
 
 .goal-detail-btn {
