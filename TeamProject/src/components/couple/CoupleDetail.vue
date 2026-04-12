@@ -6,7 +6,7 @@
     >
       <div class="d-flex align-items-center justify-content-between mb-4">
         <div>
-          <h2 class="fs-4 fw-bold m-0">연동 가계부</h2>
+          <h2 class="fs-4 fw-bold m-0">부부 가계부</h2>
           <p class="section-desc m-0 mt-1">
             배우자와 함께 투명하고 꼼꼼하게 예산을 관리해보세요.
           </p>
@@ -64,7 +64,8 @@
                 style="width: 96px; height: 96px"
               >
                 <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNIIDy95gFmVazSnu0Dp0YWLK2QW2DKtqkYiveCNqRrb6l5-WOxHxRNQngbDy5-7CAXCMEOBXjEj0wjSzB89Td4Pa4-Z_-v3vg8BtGXC3teL2OO8lAEplshWocWNRRT8TgxvtUQriz1rnS8-Vx7ZoEJrpsD-6iHSxAxNtueCCVugstTpXWUPKDTsAYfqfRn7_oHGtrcMt7vRG-bp_YEkCP857HEkA_UgKLFe0YlJEUHA6DuAbQ8DpMOcaid534r6qsyYBt1bdawRrp"
+                  :src="userProfileImageSrc"
+                  alt="내 프로필 이미지"
                   class="w-100 h-100 object-fit-cover"
                 />
               </div>
@@ -107,7 +108,8 @@
                 style="width: 96px; height: 96px"
               >
                 <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCI8ioidGPfljAtYWc6YAoJmhK9kYEgMRxqQNUnSxK084Anw8FNiaepJNK-RluCvPBTTYvFQI7A_YFYZ1NBavNl6Ni6N8yW4dwHW4ptJh7FwmLeFnZEh5Fpgsxf6wOEal1JYQJpTQIujF7Gswn7DpPwNpxg9Osbv8qAy7zpfpxlx7GCXtEmsKT_TCpTapiSA4_e5CBpxxzFh56K9rXnZ0PZ9360Ow_1to15mcdegKrNX0dpyGHROv4pIE_ge5H2zhf6mtvKEY27WahA"
+                  :src="partnerProfileImageSrc"
+                  alt="파트너 프로필 이미지"
                   class="w-100 h-100 object-fit-cover"
                 />
               </div>
